@@ -2,3 +2,5 @@ venv/
 __pycache__/
 attachments/
 secrets.json
+data/
+last_finish_time.txt
