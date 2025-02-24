@@ -1,6 +1,13 @@
 venv/
 __pycache__/
 attachments/
-secrets.json
 data/
+build/
+dist/
+
 last_finish_time.txt
+secrets.json
+secrets_my.json
+read_email.spec
+store.json
+test.json
