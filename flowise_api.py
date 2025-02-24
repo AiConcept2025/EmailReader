@@ -140,3 +140,32 @@ class FlowiseAiAPI:
         data = response1.json()
         print(data)
         return data
+
+    def upload_doc_to_doc_store(self, doc_name: str, store_id: str, loader_id: str):
+        """
+        Upload document to the store
+        """
+        if doc_name is None:
+            return
+        if store_id is None:
+            store_id = self.DOC_STORE_ID
+        if loader_id is None:
+            loader_id = self.DOC_LOADER_DOCX_ID
+        form_data = {
+            "files": (doc_name, open(doc_name, 'rb'))
+        }
+        body_data = {
+            "docId": store_id
+        }
+        headers = {
+            "Authorization": f"Bearer {self.API_KEY}"
+        }
+        response = requests.post(
+            url=f"{self.API_URL}/upsert/{store_id}",
+            files=form_data,
+            data=body_data,
+            headers=headers,
+            timeout=10000
+        )
+        print(response)
+        return response.json()
