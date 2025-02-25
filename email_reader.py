@@ -69,7 +69,7 @@ def set_last_finish_time(date_file: str, start_date: datetime) -> None:
         file.write(start_date_str)
 
 
-@repeat(every(1).hour)
+@repeat(every(1).minute)
 def extract_attachments_from_mailbox():
     """
     Reads emails from mailbox and sends qualified attachments
@@ -85,10 +85,10 @@ def extract_attachments_from_mailbox():
 
     attachments_file_path = Path(os.path.join(cwd, "documents"))
 
-    with MailBox(email.imap_server).login(
-            username=email.username,
-            password=email.password,
-            initial_folder=email.initial_folder) as mailbox:
+    with MailBox(host=email.get('imap_server')).login(
+            username=email.get("username"),
+            password=email.get("password"),
+            initial_folder=email.get("initial_folder")) as mailbox:
         for msg in mailbox.fetch(criteria=AND(date_gte=last_date)):
             adjust_msg_date = utc_to_local(msg.date)
             if adjust_msg_date < last_date_time:
@@ -110,4 +110,4 @@ def extract_attachments_from_mailbox():
                     print(e, att.filename, att.content_type)
                     continue
 
-    set_last_finish_time(email.date_file, datetime.now())
+    set_last_finish_time(email.get("date_file"), datetime.now())

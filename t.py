@@ -31,6 +31,9 @@ def get_list_documents_store():
     return data
 
 
+get_list_documents_store()
+
+
 def get_specific_doc_store():
     """
     Get a specific document store
