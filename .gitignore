@@ -4,10 +4,13 @@ attachments/
 data/
 build/
 dist/
-
+credentials/
 last_finish_time.txt
 secrets.json
-secrets_my.json
+secrets_test.json
+service-account-key.json
+credentials.json
 read_email.spec
 store.json
 test.json
+test_api.py

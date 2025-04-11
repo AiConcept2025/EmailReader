@@ -1,6 +1,13 @@
+"""
+Utilities
+"""
+
 import json
-from typing import Dict
+import os
 from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, List
+from dateutil import tz
 
 
 def read_json_secret_file(file_path: str) -> (Dict | None):
@@ -36,4 +43,40 @@ def utc_to_local(utc_dt: datetime) -> datetime:
     Args:
 
     """
-    return utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=None)
+    time_stamp = utc_dt.replace(tzinfo=timezone.utc)
+    return time_stamp
+
+
+def list_all_dir_files():
+    """
+    List all files in specify folder
+    Args:
+        folder: folder name
+    """
+    cwd = os.getcwd()
+    secrets: Dict = read_json_secret_file("secrets.json")
+    documents_folder = secrets.get("documents").get("documents_folder")
+    attachments_path = Path(os.path.join(cwd, documents_folder))
+    attachments_dir_list = os.listdir(attachments_path)
+    return attachments_dir_list
+
+
+def list_files_in_directory(folder_path: str) -> List:
+    """
+    Lists all files in the specified directory.
+
+    Args:
+      folder_path: The path to the directory.
+
+    Returns:
+      A list of file names in the directory.
+    """
+    try:
+        file_list = os.listdir(folder_path)
+        return file_list
+    except FileNotFoundError:
+        print(f"Error: Directory not found: {folder_path}")
+        return []
+    except NotADirectoryError:
+        print(f"Error: Not a directory: {folder_path}")
+        return []

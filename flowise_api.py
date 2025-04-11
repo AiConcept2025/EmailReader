@@ -2,7 +2,7 @@
 Module implements FlowiseAI API
 """
 
-from typing import Dict
+from typing import Dict, List
 
 import requests
 
@@ -21,151 +21,271 @@ class FlowiseAiAPI:
         self.API_URL = flowiseAI_secrets.get("API_URL")
         self.DOC_STORE_ID = flowiseAI_secrets.get("DOC_STORE_ID")
         self.DOC_LOADER_DOCX_ID = flowiseAI_secrets.get("DOC_LOADER_DOCX_ID")
+        self.CHATFLOW_ID = flowiseAI_secrets.get("CHATFLOW_ID")
 
-    def create_new_doc_store(self):  # ??
+    def create_new_doc_store(self, name: str, description: str = None) -> Dict:
         """
         Create a new document store
+        Args:
+            name: name of new store
+            description
+        Return:
+            {
+                "id": "123e4567-e89b-12d3-a456-426614174000",
+                "name": "text",
+                "description": "text",
+                "loaders": "text",
+                "whereUsed": "text",
+                "vectorStoreConfig": "text",
+                "embeddingConfig": "text",
+                "recordManagerConfig": "text",
+                "createdDate": "2025-03-01T09:42:53.090Z",
+                "updatedDate": "2025-03-01T09:42:53.090Z",
+                "status": "EMPTY"
+            }
         """
-        response1 = requests.post(
-            url=f"{self.API_URL}/store",
+        response = requests.post(
+            url=f"{self.API_URL}/document-store/store",
             headers={"Authorization": f"Bearer {self.API_KEY}",
                      "Content-Type": "application/json"},
-            json={"status": "EMPTY"},
-            timeout=1000,
+            json={"status": "EMPTY",
+                  "name": name,
+                  "description": description, },
+            timeout=10000,
         )
-        data = response1.json()
-        print(data)
+        data = response.json()
         return data
 
-    def get_list_documents_store(self):
+    def get_list_documents_store(self) -> List[Dict]:
         """
         List all document stores
+
         """
-        response1 = requests.get(
-            url=f"{self.API_URL}/store",
+        response = requests.get(
+            url=f"{self.API_URL}/document-store/store",
             headers={"Authorization": f"Bearer {self.API_KEY}",
                      "Content-Type": "application/json"},
-            json={"status": "EMPTY"},
-            timeout=1000,
+            json={
+                "status": "EMPTY"
+            },
+            timeout=10000,  # 10 sec
         )
-        data = response1.json()
-        print(data)
+        data = response.json()
         return data
 
-    def get_specific_doc_store(self, store_id: str):
+    def get_specific_doc_store(self, store_id: str = None) -> Dict:
         """
         Get a specific document store
+        Args:
+            store_id: id of document store
         """
         if store_id is None:
             store_id = self.DOC_STORE_ID
-        response1 = requests.get(
-            url=f"{self.API_URL}/store/{store_id}",
+        response = requests.get(
+            url=f"{self.API_URL}/document-store/store/{store_id}",
             headers={"Authorization": f"Bearer {self.API_KEY}",
                      "Content-Type": "application/json"},
             json={"status": "EMPTY"},
-            timeout=1000,
+            timeout=10000,
         )
-        data = response1.json()
-        print(data)
+        data = response.json()
         return data
 
-    def update_specific_doc_store(self, store_id: str):
+    def update_specific_doc_store(self, store_id: str = None) -> Dict:
         """
-        Get a specific document store
+        Updates the details of a specific document store by its ID
+        Args:
+            store_id: id of document store
         """
         if store_id is None:
             store_id = self.DOC_STORE_ID
-        response1 = requests.put(
-            url=f"{self.API_URL}/store/{store_id}",
+        response = requests.put(
+            url=f"{self.API_URL}/document-store/store/{store_id}",
             headers={"Authorization": f"Bearer {self.API_KEY}",
                      "Content-Type": "application/json"},
             json={"status": "EMPTY"},
-            timeout=1000,
+            timeout=10000,
         )
-        data = response1.json()
-        print(data)
+        data = response.json()
         return data
 
-    def delete_specific_doc_store(self, store_id: str):
+    def delete_specific_doc_store(self, store_id: str) -> Dict:
         """
         Deletes a document store by its ID
+        Args:
+            store_id: id of document store
+        Returns: {'deleted': 1}
         """
-        if store_id is None:
-            store_id = self.DOC_STORE_ID
-        response1 = requests.delete(
-            url=f"{self.API_URL}/store/{store_id}",
+        response = requests.delete(
+            url=f"{self.API_URL}/document-store/store/{store_id}",
             headers={"Authorization": f"Bearer {self.API_KEY}",
                      "Content-Type": "application/json"},
             json={"status": "EMPTY"},
-            timeout=1000,
+            timeout=10000,
         )
-        data = response1.json()
-        print(data)
+        data = response.json()
         return data
 
-    def get_document_page(self, store_id: str, loader_id: str, page: int = 0):
+    def upsert_document_to_document_store(
+            self,
+            doc_path: str,
+            doc_name: str,
+            store_id: str = None,
+            loader_id: str = None) -> Dict:
+        """
+        Upsert document to document store
+        """
+        try:
+            if doc_name is None:
+                return
+            if store_id is None:
+                store_id = self.DOC_STORE_ID
+            if loader_id is None:
+                loader_id = self.DOC_LOADER_DOCX_ID
+            form_data = {
+                "files": (doc_name, open(doc_path, 'rb'))
+            }
+            body_data = {
+                "docId": self.DOC_LOADER_DOCX_ID
+            }
+            headers = {
+                "Authorization": f"Bearer {self.API_KEY}"
+            }
+
+            response = requests.post(
+                url=f"{self.API_URL}/document-store/upsert/{store_id}",
+                files=form_data,
+                data=body_data,
+                headers=headers,
+                timeout=60000
+            )
+            data = response.json()
+            return data
+        except Exception as error:
+            print(f'Upsert document to document store: {error}')
+            return {'name': 'Error', 'error': error}
+
+    def get_document_page(self, store_id: str, doc_id: str, page: int = 0) -> Dict:
         """
             Read page from document store
+            Args:
+                store_id
+                doc_id
+                page
+            Return:
+            {
+                'chunks': [],
+                'count': 14,
+                'file': {
+                    'id': '418234e6-68cc-4fd9-92fe-2a2513f2fad8',
+                    'loaderId': 'docxFile',
+                    'loaderName': 'Docx File',
+                    'loaderConfig': {...},
+                    'splitterId': 'characterTextSplitter',
+                    'splitterName': 'Character Text Splitter',
+                    'splitterConfig': {...},
+                    'totalChunks': 14,
+                    'totalChars': 9854,
+                    'status': 'EMPTY',
+                    'files': [...]},
+                'currentPage': 1,
+                'storeName': 'Document Store 1740194744531',
+                'description': None,
+                'docId': '418234e6-68cc-4fd9-92fe-2a2513f2fad8',
+                'characters': 9854
+                }
         """
         if store_id is None:
             store_id = self.DOC_STORE_ID
-        if loader_id is None:
-            loader_id = self.DOC_LOADER_DOCX_ID
-        response1 = requests.get(
-            url=f"{self.API_URL}/chunks/{store_id}/{loader_id}/{page}",
+        if doc_id is None:
+            doc_id = self.DOC_LOADER_DOCX_ID
+        response = requests.get(
+            url=f"{self.API_URL}/document-store/chunks/{store_id}/{doc_id}/{page}",
             headers={"Authorization": f"Bearer {self.API_KEY}",
                      "Content-Type": "application/json"},
             json={"status": "EMPTY"},
             timeout=10000
         )
-        data = response1.json()
-        pageContent = data.get('chunks')[0].get('pageContent')
-        print(pageContent)
-        return pageContent
+        data = response.json()
+        return data
 
-    def update_docs_in_store(self, store_id):
+    def update_docs_in_store(self, store_id) -> Dict:
         """
         Update document in the store and returns
         doc store info
         """
         if store_id is None:
             store_id = self.DOC_STORE_ID
-        response1 = requests.put(
-            url=f"{self.API_URL}/store/{store_id}",
+        response = requests.put(
+            url=f"{self.API_URL}/document-store/store/{store_id}",
             headers={"Authorization": f"Bearer {self.API_KEY}",
                      "Content-Type": "application/json"},
             json={"status": "EMPTY"},
-            timeout=1000,
+            timeout=10000,
         )
-        data = response1.json()
-        print(data)
+        data = response.json()
         return data
 
-    def upload_doc_to_doc_store(self, doc_name: str, store_id: str, loader_id: str):
+    def create_new_prediction(self, question: str) -> Dict:
         """
-        Upload document to the store
+        Create a new prediction
+        Returns:
+        {
+            "text": "text",
+            "json": {},
+            "question": "text",
+            "chatId": "text",
+            "chatMessageId": "text",
+            "sessionId": "text",
+            "memoryType": "text",
+            "sourceDocuments": [
+                {
+                "pageContent": "This is the content of the page.",
+                "metadata": {
+                    "author": "John Doe",
+                    "date": "2024-08-24"
+                }
+                }
+            ],
+            "usedTools": [
+                {
+                "tool": "Name of the tool",
+                "toolOutput": "text",
+                "toolInput": {
+                    "input": "search query"
+                }
+                }
+            ],
+            "fileAnnotations": [
+                {
+                "filePath": "path/to/file",
+                "fileName": "file.txt"
+                }
+            ]
+        }
         """
-        if doc_name is None:
-            return
-        if store_id is None:
-            store_id = self.DOC_STORE_ID
-        if loader_id is None:
-            loader_id = self.DOC_LOADER_DOCX_ID
-        form_data = {
-            "files": (doc_name, open(doc_name, 'rb'))
-        }
-        body_data = {
-            "docId": store_id
-        }
-        headers = {
-            "Authorization": f"Bearer {self.API_KEY}"
-        }
-        response = requests.post(
-            url=f"{self.API_URL}/upsert/{store_id}",
-            files=form_data,
-            data=body_data,
-            headers=headers,
-            timeout=10000
-        )
-        print(response)
-        return response.json()
+        try:
+            data_body: Dict = {
+                "overrideConfig": {},
+                "history": [{
+                    "content": question,
+                    "role": "apiMessage"}],
+                "question": question,
+
+                "uploads": [{
+                    "type": "file",
+                    "name": "image.png",
+                    "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABjElEQVRIS+2Vv0oDQRDG",
+                    "mime": "image/png"}]
+            }
+            response = requests.post(
+                url=f"{self.API_URL}/prediction/{self.CHATFLOW_ID}",
+                headers={"Authorization": f"Bearer {self.API_KEY}"},
+                data=data_body,
+                timeout=300000
+            )
+            data = response.json()
+            return data
+        except Exception as error:
+            print(f'Create a new prediction: {error}')
+            return {'name': 'Error', 'error': error}
