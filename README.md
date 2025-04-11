@@ -7,3 +7,9 @@ pip freeze > requirements.txt
 
 PyInstaller Manual
 https://pyinstaller.org/en/stable/
+
+Activate venv:
+./venv/Scripts/activate
+
+Install packages:
+pip install -r requirements.txt
