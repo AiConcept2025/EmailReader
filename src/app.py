@@ -5,18 +5,16 @@ Module processes email attachments
 import os
 import time
 from typing import Dict, List
+from schedule import every, repeat
 
-from schedule import every, repeat, run_pending
-
-from email_reader import extract_attachments_from_mailbox
-from flowise_api import FlowiseAiAPI
-from google_drive import GoogleApi
-
-from utils import list_files_in_directory
-from email_sender import send_error_message
+from src.email_reader import extract_attachments_from_mailbox
+from src.email_sender import send_error_message
+from src.flowise_api import FlowiseAiAPI
+from src.google_drive import GoogleApi
+from src.utils import list_files_in_directory
 
 
-@repeat(every(5).minutes)
+@repeat(every(15).minutes)
 def process_emails():
     """
     Check all emails extract attachments, upload attachments to
@@ -98,15 +96,3 @@ def process_emails():
             print(f'Finish: {doc_name}')
         except Exception as error:
             return {"error": error}
-
-
-if __name__ == "__main__":
-    flowiseApi = FlowiseAiAPI()
-    googleApi = GoogleApi()
-
-    process_emails()
-
-    # Run on schedule
-    while True:
-        run_pending()
-        time.sleep(1)

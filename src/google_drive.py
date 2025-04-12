@@ -1,3 +1,8 @@
+"""
+Google Drive API wrapper class
+"""
+
+import os
 from typing import Dict, List
 
 from google.oauth2 import service_account
@@ -16,7 +21,9 @@ class GoogleApi:
         Initialise service with credentials
         """
         scope = ['https://www.googleapis.com/auth/drive']
-        service_account_json_key = 'service-account-key.json'
+        service_account_json_key = os.path.join(
+            os.getcwd(), 'credentials', 'service-account-key.json')
+
         credentials = service_account.Credentials.from_service_account_file(
             filename=service_account_json_key,
             scopes=scope)

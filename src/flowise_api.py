@@ -1,12 +1,11 @@
 """
 Module implements FlowiseAI API
 """
-
+import os
 from typing import Dict, List
-
 import requests
 
-from utils import read_json_secret_file
+from src.utils import read_json_secret_file
 
 
 class FlowiseAiAPI:
@@ -15,7 +14,9 @@ class FlowiseAiAPI:
     """
 
     def __init__(self):
-        secrets: Dict = read_json_secret_file("secrets.json")
+        secrets_file = os.path.join(
+            os.getcwd(), 'credentials', 'secrets.json')
+        secrets: Dict = read_json_secret_file(secrets_file)
         flowiseAI_secrets = secrets.get("flowiseAI")
         self.API_KEY = flowiseAI_secrets.get("API_KEY")
         self.API_URL = flowiseAI_secrets.get("API_URL")

@@ -10,7 +10,7 @@ from typing import Dict
 
 from imap_tools import AND, MailBox
 
-from utils import read_json_secret_file, utc_to_local
+from src.utils import read_json_secret_file, utc_to_local
 
 
 supported_types = [
@@ -74,8 +74,8 @@ def extract_attachments_from_mailbox():
     Reads emails from mailbox and sends qualified attachments
     fo document store
     """
-
-    secrets: Dict = read_json_secret_file("secrets.json")
+    secrets_file = os.path.join(os.getcwd(), 'credentials', "secrets.json")
+    secrets: Dict = read_json_secret_file(secrets_file)
     email: Dict = secrets.get('email')
     if email is None:
         raise ValueError("No email object specified")
@@ -98,8 +98,7 @@ def extract_attachments_from_mailbox():
                         continue
                     if att.content_type not in supported_types:
                         continue
-                    file_name = f"{
-                        msg.from_}+{att.filename}"
+                    file_name = f"{msg.from_}+{att.filename}"
                     file_path = f"{attachments_file_path}/{file_name}"
                     # download file in temp folder
                     with open(file_path, "wb") as f:
