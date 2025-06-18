@@ -13,3 +13,10 @@ Activate venv:
 
 Install packages:
 pip install -r requirements.txt
+
+tesseract:
+https://sourceforge.net/projects/tesseract-ocr.mirror/
+https://github.com/tesseract-ocr/tesseract
+
+
+https://pypi.org/project/pdf2image/

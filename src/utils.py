@@ -4,9 +4,11 @@ Utilities
 
 import json
 import os
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List
+
 # from dateutil import tz
 
 
@@ -80,3 +82,13 @@ def list_files_in_directory(folder_path: str) -> List:
     except NotADirectoryError:
         print(f"Error: Not a directory: {folder_path}")
         return []
+
+
+def get_uuid() -> str:
+    """
+    Generate a unique identifier (UUID).
+
+    Returns:
+        str: A string representation of the UUID.
+    """
+    return str(uuid.uuid4())
