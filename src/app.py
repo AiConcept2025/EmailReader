@@ -14,7 +14,7 @@ from src.google_drive import GoogleApi
 from src.utils import list_files_in_directory
 
 
-@repeat(every(15).minutes)
+@repeat(every(2).hours)
 def process_emails():
     """
     Check all emails extract attachments, upload attachments to
