@@ -5,8 +5,10 @@ Module processes email attachments
 import os
 import time
 from typing import Dict, List
+
 from schedule import every, repeat
 
+from src.logger import logger
 from src.email_reader import extract_attachments_from_mailbox
 from src.email_sender import send_error_message
 from src.flowise_api import FlowiseAiAPI
@@ -14,12 +16,13 @@ from src.google_drive import GoogleApi
 from src.utils import list_files_in_directory
 
 
-@repeat(every(15).minutes)
+@repeat(every(2).hours)
 def process_emails():
     """
     Check all emails extract attachments, upload attachments to
     google drive and create new prediction
     """
+    logger.info('Start email processing')
     flowise_api = FlowiseAiAPI()
     google_api = GoogleApi()
 
