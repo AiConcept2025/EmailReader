@@ -12,6 +12,7 @@ from pdf2image import convert_from_bytes, convert_from_path
 from pdf2image.exceptions import (PDFInfoNotInstalledError, PDFPageCountError,
                                   PDFSyntaxError)
 from rtf_converter import rtf_to_txt
+from src.logger import logger
 
 
 def convert_txt_to_docx(paragraph: str, docx_file_path: str):
@@ -22,6 +23,7 @@ def convert_txt_to_docx(paragraph: str, docx_file_path: str):
         paragraph: text.
         docx_file_path: Path to save the output Word document.
     """
+    logger.info('Process email body %s', docx_file_path)
     document = Document()
     document.add_paragraph(paragraph)
     document.save(docx_file_path)

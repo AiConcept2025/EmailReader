@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict
 
 from imap_tools import AND, MailBox
-
+from src.logger import logger
 from src.utils import read_json_secret_file, utc_to_local
 from src.convert_to_docx import convert_txt_to_docx
 from src.utils import get_uuid
@@ -82,6 +82,7 @@ def extract_attachments_from_mailbox():
     Reads emails from mailbox and sends qualified attachments
     fo document store
     """
+    logger.info('Extract documents from mailbox')
     secrets_file = os.path.join(os.getcwd(), 'credentials', "secrets.json")
     secrets: Dict = read_json_secret_file(secrets_file)
     email: Dict = secrets.get('email')
@@ -90,7 +91,7 @@ def extract_attachments_from_mailbox():
     last_date_time, last_date, _ = get_last_finish_time(
         email.get('date_file'),
         email.get('start_date'))
-    attachments_file_path = Path(os.path.join(cwd, "documents"))
+    attachments_file_path = Path(os.path.join(cwd, 'data', "documents"))
 
     with MailBox(host=email.get('imap_server')).login(
             username=email.get("username"),
@@ -101,11 +102,12 @@ def extract_attachments_from_mailbox():
             if adjust_msg_date < last_date_time:
                 continue
             # Process email body
-            # if msg.text and len(msg.text) > 120:
-            #     file_name = f"{msg.from_}+{get_uuid()}.docx"
-            #     file_path = f"{attachments_file_path}/{file_name}"
-            #     convert_txt_to_docx(paragraph=msg.text,
-            #                         docx_file_path=file_path)
+            if msg.text and len(msg.text) > 500:
+                file_name = f"{msg.from_}+{get_uuid()}.docx"
+                file_path = f"{attachments_file_path}/{file_name}"
+
+                convert_txt_to_docx(paragraph=msg.text,
+                                    docx_file_path=file_path)
             # Process attachments
             for attachment in msg.attachments:
                 try:
@@ -141,7 +143,8 @@ def extract_attachments_from_mailbox():
                     with open(file_path, "wb") as f:
                         f.write(attachment.payload)
                 except Exception as e:
-                    print(e, attachment.filename, attachment.content_type)
+                    logger.error('%s %s %s', e, attachment.filename,
+                                 attachment.content_type)
                     continue
 
     set_last_finish_time(email.get("date_file"), datetime.now())

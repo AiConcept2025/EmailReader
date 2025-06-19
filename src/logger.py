@@ -17,7 +17,7 @@ except FileNotFoundError:
     pass
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename=logging_path,
-                    format='%(asctime)s %(filename)s:%(lineno)s %(message)s',
+                    format='%(asctime)s %(levelname)s %(filename)s: %(lineno)s %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S',
                     encoding='utf-8',
                     level=logging.DEBUG)
