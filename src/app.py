@@ -8,12 +8,12 @@ from typing import Dict, List
 
 from schedule import every, repeat
 
-from src.logger import logger
 from src.email_reader import extract_attachments_from_mailbox
 from src.email_sender import send_error_message
 from src.flowise_api import FlowiseAiAPI
 from src.google_drive import GoogleApi
 from src.utils import list_files_in_directory
+from src.logger import logger
 
 
 @repeat(every(2).hours)
@@ -28,7 +28,7 @@ def process_emails():
 
     # extract attachments from_mailbox
     extract_attachments_from_mailbox()
-
+    logger.info('Start process documents.')
     # Get google drive list of clients email
     clients: List[Dict] = google_api.get_file_list_in_folder()
     clients_emails: List = []
@@ -36,13 +36,15 @@ def process_emails():
         clients_emails.append(client.get("name"))
 
     # Process files in document folder
-    document_folder = os.path.join(os.getcwd(), 'documents')
+    document_folder = os.path.join(os.getcwd(), 'data', 'documents')
     file_list = list_files_in_directory(document_folder)
     for doc_name in file_list:
+        logger.info('Start to process %s', doc_name)
         doc_path: str = os.path.join(document_folder, doc_name)
         client_email: str = doc_name.split('+')[0]
 
         if not client_email in clients_emails:
+            logger.info('Create client folder %s', client_email)
             # create new client subfolder
             res: Dict = google_api.create_subfolder_in_folder(
                 folder_name=client_email)
@@ -74,6 +76,11 @@ def process_emails():
                 send_error_message(
                     f"Upload file to google: {res_upload.get('id')}")
                 return
+
+            _, ext1 = os.path.splitext(doc_name)
+            if ext1 != '.docx' and ext1 != '.doc':
+                os.remove(doc_path)
+                continue
             # Upload to doc store
             print(f'Upload to doc store: {doc_name}')
             res_doc_store = flowise_api.upsert_document_to_document_store(

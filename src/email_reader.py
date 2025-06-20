@@ -10,8 +10,8 @@ from typing import Dict
 
 from imap_tools import AND, MailBox
 
-from src.convert_to_docx import (convert_pdf_to_docx, convert_rtf_to_docs,
-                                 convert_txt1_to_docx)
+from src.convert_to_docx import (
+    convert_pdf_to_docx, convert_txt1_to_docx, convert_txt_to_docx)
 from src.logger import logger
 from src.utils import get_uuid, read_json_secret_file, utc_to_local
 
@@ -27,7 +27,6 @@ supported_types = [
     "image/jpeg",     # .jpg
     "image/png",     # .png
     "image/tiff",    # .tiff .tif
-
 ]
 
 cwd = os.getcwd()
@@ -82,7 +81,7 @@ def extract_attachments_from_mailbox():
     Reads emails from mailbox and sends qualified attachments
     fo document store
     """
-    logger.info('Extract documents from mailbox')
+    logger.info('Start extract documents from mailbox')
     secrets_file = os.path.join(os.getcwd(), 'credentials', "secrets.json")
     secrets: Dict = read_json_secret_file(secrets_file)
     email: Dict = secrets.get('email')
@@ -151,7 +150,6 @@ def extract_attachments_from_mailbox():
                         # download file in temp folder
                         with open(file_path, "wb") as f:
                             f.write(attachment.payload)
-
                         continue
                     elif attachment.content_type == "text/plain":
                         file_path = os.path.join(
@@ -164,7 +162,7 @@ def extract_attachments_from_mailbox():
                             attachments_file_path, filename_docx)
                         convert_txt1_to_docx(file_path, file_path_docx)
                         continue
-
+                    # Graphic formats
                     elif attachment.content_type == "image/gif":
                         pass
                     elif attachment.content_type == "image/jpeg":
@@ -185,3 +183,4 @@ def extract_attachments_from_mailbox():
                     continue
 
     set_last_finish_time(email.get("date_file"), datetime.now())
+    logger.info('Finish email processing')
