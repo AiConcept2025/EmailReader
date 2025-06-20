@@ -23,7 +23,23 @@ def convert_txt_to_docx(paragraph: str, docx_file_path: str):
         paragraph: text.
         docx_file_path: Path to save the output Word document.
     """
-    logger.info('Process email body %s', docx_file_path)
+    logger.info('Convert txt to word %s', os.path.basename(docx_file_path))
+    document = Document()
+    document.add_paragraph(paragraph)
+    document.save(docx_file_path)
+
+
+def convert_txt1_to_docx(txt_file_path: str, docx_file_path: str):
+    """
+    Converts a plain text file to a Word document.
+
+    Args:
+        paragraph: text.
+        docx_file_path: Path to save the output Word document.
+    """
+    logger.info('Convert txt to word %s', os.path.basename(docx_file_path))
+    with open(txt_file_path, 'r', encoding='utf-8') as file:
+        paragraph = file.read()
     document = Document()
     document.add_paragraph(paragraph)
     document.save(docx_file_path)
@@ -42,14 +58,32 @@ def convert_pdf_to_docx(pdf_path, docx_path):
         document.save(docx_path)
 
 
-def convert_rtf_to_txt(rtf_filepath, txt_file):
-    with open(rtf_filepath, 'r', encoding='utf-8') as file:
-        rtf_content = file.read()
-    # Convert RTF content to plain text
-    plain_text = rtf_to_txt(rtf_content)
-    # Save plain text to a new file
-    with open(txt_file, 'w', encoding='utf-8') as file:
-        file.write(plain_text)
+def convert_rtf_to_docs(rtf_filepath, dox_file):
+    """
+    Convert a rtf document to a DOCX file
+    """
+    # with open(rtf_filepath, 'r', encoding='utf-8') as file:
+    #     rtf_content = file.read()
+    # # Convert RTF content to plain text
+    # plain_text = rtf_to_txt(rtf_content)
+    # # Save plain text to a new file
+    # with open(txt_file, 'w', encoding='utf-8') as file:
+    #     file.write(plain_text)
+
+    # with open(rtf_filepath, 'r', encoding='utf-8') as file:
+    #     paragraph = file.read()
+    # document = Document()
+    # document.add_paragraph(paragraph)
+    # document.save(txt_file)
+    # Create a Document object
+    # document = Document()
+    # # Load the RTF file
+    # document.LoadFromFile(rtf_filepath)
+    # # Save the document as DOCX
+    # # or FileFormat.Docx2019, etc.
+    # document.SaveToFile(dox_file, FileFormat.Docx2013)
+    # # Close the document
+    # document.Close()
 
 
 def check_if_image(pdf_file):

@@ -9,11 +9,11 @@ from pathlib import Path
 from typing import Dict
 
 from imap_tools import AND, MailBox
-from src.logger import logger
-from src.utils import read_json_secret_file, utc_to_local
-from src.convert_to_docx import convert_txt_to_docx
-from src.utils import get_uuid
 
+from src.convert_to_docx import (convert_pdf_to_docx, convert_rtf_to_docs,
+                                 convert_txt1_to_docx)
+from src.logger import logger
+from src.utils import get_uuid, read_json_secret_file, utc_to_local
 
 supported_types = [
     "application/msword",       # .doc
@@ -105,29 +105,66 @@ def extract_attachments_from_mailbox():
             if msg.text and len(msg.text) > 500:
                 file_name = f"{msg.from_}+{get_uuid()}.docx"
                 file_path = f"{attachments_file_path}/{file_name}"
-
-                convert_txt_to_docx(paragraph=msg.text,
-                                    docx_file_path=file_path)
+                logger.info('Process email body %s', file_name)
+                # convert_txt_to_docx(paragraph=msg.text,
+                #                     docx_file_path=file_path)
             # Process attachments
             for attachment in msg.attachments:
+                file_name = f"{msg.from_}+{attachment.filename}"
+                _, ext1 = os.path.splitext(file_name)
                 try:
                     if attachment.filename == "":
+                        logger.warning(
+                            'Date: %s. Attachment from %s does not have name.',
+                            adjust_msg_date, msg.from_)
                         continue
                     if attachment.content_type not in supported_types:
+                        logger.warning(
+                            'Date: %s. Attachment %s from %s has not supported type.',
+                            adjust_msg_date,
+                            attachment.filename,
+                            msg.from_)
                         continue
                     if attachment.content_type == "application/pdf":
-                        pass
-                    elif attachment.content_type == "application/msword":
-                        pass
-                    elif attachment.content_type == "application/octet-stream" or attachment.content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-                        file_name = f"{msg.from_}+{attachment.filename}"
+                        file_path = os.path.join(
+                            attachments_file_path, file_name)
+                        with open(file_path, "wb") as f:
+                            f.write(attachment.payload)
+                        filename = os.path.basename(file_path)
+                        filename_docx = os.path.splitext(filename)[0] + '.docx'
+                        file_path_docx = os.path.join(
+                            attachments_file_path, filename_docx)
+                        convert_pdf_to_docx(file_path, file_path_docx)
+                        continue
+                    elif ext1 == ".rtf":
                         file_path = f"{attachments_file_path}/{file_name}"
-                    elif attachment.content_type == "application/octet-stream":
-                        pass
+                        # download file in temp folder
+                        with open(file_path, "wb") as f:
+                            f.write(attachment.payload)
+                        continue
+                    elif (
+                            attachment.content_type == "application/octet-stream" or
+                            attachment.content_type == "application/msword" or
+                            attachment.content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"):
+
+                        file_path = f"{attachments_file_path}/{file_name}"
+                        # download file in temp folder
+                        with open(file_path, "wb") as f:
+                            f.write(attachment.payload)
+
+                        continue
                     elif attachment.content_type == "text/plain":
-                        pass
-                    elif attachment.content_type == "application/rtf":
-                        pass
+                        file_path = os.path.join(
+                            attachments_file_path, file_name)
+                        with open(file_path, "wb") as f:
+                            f.write(attachment.payload)
+                        filename = os.path.basename(file_path)
+                        filename_docx = os.path.splitext(filename)[0] + '.docx'
+                        file_path_docx = os.path.join(
+                            attachments_file_path, filename_docx)
+                        convert_txt1_to_docx(file_path, file_path_docx)
+                        continue
+
                     elif attachment.content_type == "image/gif":
                         pass
                     elif attachment.content_type == "image/jpeg":
@@ -139,9 +176,9 @@ def extract_attachments_from_mailbox():
                     else:
                         continue
 
-                    # download file in temp folder
                     with open(file_path, "wb") as f:
                         f.write(attachment.payload)
+
                 except Exception as e:
                     logger.error('%s %s %s', e, attachment.filename,
                                  attachment.content_type)
