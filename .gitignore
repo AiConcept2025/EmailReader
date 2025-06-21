@@ -14,3 +14,6 @@ read_email.spec
 store.json
 test.json
 test_api.py
+regal-framework-credentials.json
+translate_document/
+poppler-windows/
