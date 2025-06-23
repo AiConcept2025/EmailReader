@@ -17,6 +17,7 @@ pip install -r requirements.txt
 tesseract:
 https://sourceforge.net/projects/tesseract-ocr.mirror/
 https://github.com/tesseract-ocr/tesseract
+https://muthu.co/all-tesseract-ocr-options/
 
 
 

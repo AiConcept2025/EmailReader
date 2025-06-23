@@ -4,6 +4,7 @@ Process images pdf files
 import os
 import tempfile
 from sys import platform
+from PyPDF2 import PdfReader
 import pytesseract
 from pdf2image import convert_from_path
 from pdf2image.exceptions import (PDFInfoNotInstalledError, PDFPageCountError,
@@ -26,6 +27,28 @@ def get_platform() -> str:
         app_platform = 'Windows'
     logger.info('EmailReader runs on %s', app_platform)
     return app_platform
+
+
+def is_pdf_searchable_pypdf2(pdf_path):
+    """
+    Checks if a PDF is searchable using PyPDF2 (by attempting to extract text).
+
+    Args:
+        pdf_path (str): Path to the PDF document.
+
+    Returns:
+        bool: True if text can be extracted, False otherwise.
+    """
+    try:
+        reader = PdfReader(pdf_path)
+        for page in reader.pages:
+            text = page.extract_text()
+            if text and len(text.strip()) > 0:
+                return True  # Found text, so it's searchable
+        return False  # No text found
+    except Exception as e:
+        print(f"Error processing PDF: {e}")
+        return False
 
 
 def ocr_pdf_image(ocr_file: str, out_doc_file_path: str) -> None:

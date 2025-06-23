@@ -3,6 +3,7 @@ Module processes email attachments
 """
 
 import os
+import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -18,10 +19,14 @@ from src.flowise_api import FlowiseAiAPI
 from src.google_drive import GoogleApi
 from src.logger import logger
 from src.utils import list_files_in_directory
-import shutil
+from src.pdf_image_ocr import is_pdf_searchable_pypdf2
+from src.convert_to_docx import convert_pdf_to_docx
 
 
 def delete_file(file_path: str):
+    """
+    Delete file by path
+    """
     if os.path.exists(file_path):
         try:
             os.remove(file_path)
@@ -32,6 +37,23 @@ def delete_file(file_path: str):
         print(f"File '{file_path}' does not exist.")
 
 
+def rename_file(current_file_name: str, new_file_name: str):
+    """
+    Attempt to rename the file
+    """
+    try:
+        os.rename(current_file_name, new_file_name)
+        print(
+            f"File '{current_file_name}' successfully renamed to '{new_file_name}'.")
+    except FileNotFoundError:
+        print(f"Error: File '{current_file_name}' not found.")
+    except PermissionError:
+        print(
+            f"Error: Permission denied. Unable to rename '{current_file_name}'.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+
 @repeat(every(2).hours)
 def process_emails():
     """
@@ -39,6 +61,7 @@ def process_emails():
     google drive and create new prediction
     """
     logger.info('Start email processing')
+    cwd = os.getcwd()
     flowise_api = FlowiseAiAPI()
     google_api = GoogleApi()
     # extract attachments from_mailbox
@@ -55,6 +78,8 @@ def process_emails():
     # document_folder = os.path.join(os.getcwd(), 'data', 'documents')
     file_list = list_files_in_directory(document_folder)
     for doc_name in file_list:
+        old_original_doc_path = os.path.join(
+            document_folder, doc_name)
         logger.info('Start to process document %s', doc_name)
         doc_path: str = os.path.join(document_folder, doc_name)
         client_email: str = doc_name.split('+')[0]
@@ -82,20 +107,63 @@ def process_emails():
             sub_folder_id = client_subfolder_info.get('id')
         try:
             # Save in google drive original file
-            logger.info('Upload file %s to google drive', doc_name)
-            res_upload = google_api.upload_file_to_google_drive(
-                parent_folder=sub_folder_id,
-                file_path=doc_path,
-                file_name=doc_name)
-            if res_upload.get('name') == 'Error':
-                send_error_message(
-                    f"Upload file to google: {res_upload.get('id')}")
-                return
-            # Continue if file not Word format
-            _, ext1 = os.path.splitext(doc_name)  # Return extension with '.'
+            # logger.info('Upload file %s to google drive', doc_name)
+            # res_upload = google_api.upload_file_to_google_drive(
+            #     parent_folder=sub_folder_id,
+            #     file_path=doc_path,
+            #     file_name=doc_name)
+            # if res_upload.get('name') == 'Error':
+            #     send_error_message(
+            #         f"Upload file to google: {res_upload.get('id')}")
+            #     return
+
+            # Get file name and extension
+            file_name, file_ext = os.path.splitext(
+                doc_name)  # Return extension with '.'
+            # Case PDF file
+            if file_ext == '.doc' or file_ext == '.docx':  # word document
+                pass
+            elif file_ext == '.pdf':
+                # Check if file is image
+                if is_pdf_searchable_pypdf2(old_original_doc_path):
+                    original_doc_name = f'{file_name}+original+original{file_ext}'
+                    original_doc_path = os.path.join(
+                        document_folder, original_doc_name)
+                    # Rename file in temp folder add ocr and language status
+                    rename_file(old_original_doc_path, original_doc_path)
+                    # Save original document to google drive
+                    res_upload = google_api.upload_file_to_google_drive(
+                        parent_folder=sub_folder_id,
+                        file_name=original_doc_name,
+                        file_path=original_doc_path)
+                    if res_upload.get('name') == 'Error':
+                        logger.error(
+                            'Error uploading file %s to google drive', original_doc_name)
+                        send_error_message(
+                            f"Upload file to google: {res_upload.get('id')}")
+                        return
+                    # convert to Word document
+                    word_document_path = os.path.join(
+                        document_folder, file_name + '.docs')
+                    convert_pdf_to_docx(
+                        original_doc_path, word_document_path)
+                    delete_file(original_doc_path)
+                    # Check file language
+                    language = detect(my_text)
+                    if language == 'en':
+                        doc_name = file_name + '+original+english.docx'
+                        doc_path = os.path.join(cwd, doc_name)
+
+                    #
+                    #
+                    #
+                # Save original PDF file
+                    new_file_name = f'{file_name}+original+'
+
             if ext1 != '.docx' and ext1 != '.doc':
                 delete_file(doc_path)
                 continue
+
             # Check if file language is English
             file_path = Path(os.path.join(
                 os.getcwd(), 'data', "documents", doc_name))

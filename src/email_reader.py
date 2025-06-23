@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Dict
+from langdetect import detect
 
 from imap_tools import AND, MailBox
 
@@ -14,6 +15,8 @@ from src.convert_to_docx import (
     convert_pdf_to_docx, convert_txt1_to_docx, convert_txt_to_docx)
 from src.logger import logger
 from src.utils import get_uuid, read_json_secret_file, utc_to_local
+from src.pdf_image_ocr import is_pdf_searchable_pypdf2
+
 
 supported_types = [
     "application/msword",       # .doc
@@ -30,6 +33,20 @@ supported_types = [
 ]
 
 cwd = os.getcwd()
+
+
+def delete_file(file_path: str):
+    """
+    Delete file by path
+    """
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+            print(f"File '{file_path}' deleted successfully.")
+        except OSError as e:
+            print(f"Error deleting file '{file_path}': {e}")
+    else:
+        print(f"File '{file_path}' does not exist.")
 
 
 def get_last_finish_time(
@@ -110,34 +127,52 @@ def extract_attachments_from_mailbox():
             # Process attachments
             for attachment in msg.attachments:
                 file_name = f"{msg.from_}+{attachment.filename}"
-                _, ext1 = os.path.splitext(file_name)
+                file_name_no_ext, file_ext = os.path.splitext(file_name)
                 try:
                     if attachment.filename == "":
                         logger.warning(
                             'Date: %s. Attachment from %s does not have name.',
                             adjust_msg_date, msg.from_)
                         continue
-                    if attachment.content_type not in supported_types:
+                    elif attachment.content_type not in supported_types:
                         logger.warning(
                             'Date: %s. Attachment %s from %s has not supported type.',
                             adjust_msg_date,
                             attachment.filename,
                             msg.from_)
                         continue
-                    if attachment.content_type == "application/pdf":
+                    elif attachment.content_type == "application/pdf":  # Can be image or text
                         file_path = os.path.join(
                             attachments_file_path, file_name)
                         with open(file_path, "wb") as f:
                             f.write(attachment.payload)
-                        filename = os.path.basename(file_path)
-                        filename_docx = os.path.splitext(filename)[0] + '.docx'
-                        file_path_docx = os.path.join(
-                            attachments_file_path, filename_docx)
-                        convert_pdf_to_docx(file_path, file_path_docx)
+                        # Check if file is image or text
+                        if is_pdf_searchable_pypdf2(file_path):
+                            # Check if text is English
+                            if detect(attachment.payload) == 'en':
+                                lang = 'english'
+                            else:
+                                lang = 'foreign'
+                            new_file_name = f'{file_name_no_ext}+original+{lang}{file_ext}'
+                        else:
+                            new_file_name = f'{file_name_no_ext}+image+unknown{file_ext}'
+                        new_path = os.path.join(
+                            attachments_file_path, new_file_name)
+                        with open(new_path, 'wb') as f:
+                            f.write(attachment.payload)
+                        # Delete
+                        delete_file(file_path)
+                        logger.info('Save PDF %s file.', new_file_name)
+
+                        # filename = os.path.basename(file_path)
+                        # filename_docx = os.path.splitext(filename)[0] + '.docx'
+                        # file_path_docx = os.path.join(
+                        #     attachments_file_path, filename_docx)
+                        # convert_pdf_to_docx(file_path, file_path_docx)
                         continue
-                    elif ext1 == ".rtf":
-                        file_path = f"{attachments_file_path}/{file_name}"
-                        # download file in temp folder
+                    elif file_ext == ".rtf":
+                        logger.info('Save RTF % file.', file_name)
+                        file_path = f"{attachments_file_path}/{f'{file_name_no_ext}+original+'}"
                         with open(file_path, "wb") as f:
                             f.write(attachment.payload)
                         continue
@@ -145,7 +180,7 @@ def extract_attachments_from_mailbox():
                             attachment.content_type == "application/octet-stream" or
                             attachment.content_type == "application/msword" or
                             attachment.content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"):
-
+                        # Word document
                         file_path = f"{attachments_file_path}/{file_name}"
                         # download file in temp folder
                         with open(file_path, "wb") as f:
@@ -164,13 +199,13 @@ def extract_attachments_from_mailbox():
                         continue
                     # Graphic formats
                     elif attachment.content_type == "image/gif":
-                        pass
+                        continue
                     elif attachment.content_type == "image/jpeg":
-                        pass
+                        continue
                     elif attachment.content_type == "image/png":
-                        pass
+                        continue
                     elif attachment.content_type == "image/tiff":
-                        pass
+                        continue
                     else:
                         continue
 
