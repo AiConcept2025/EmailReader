@@ -186,9 +186,6 @@ def extract_attachments_from_mailbox():
                     else:
                         continue
 
-                    with open(file_path, "wb") as f:
-                        f.write(attachment.payload)
-
                 except Exception as e:
                     logger.error('%s %s %s', e, attachment.filename,
                                  attachment.content_type)

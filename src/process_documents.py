@@ -36,6 +36,7 @@ class DocProcessor:
         # document folder path
         self.docs_path: str = doc_path
 
+    # Process PDF documents
     def convert_pdf_payload_to_word(self, client: str, doc_name: str, payload: str) -> None:
         """
         Process PDF image or searchable doc and generate
@@ -85,7 +86,6 @@ class DocProcessor:
                 delete_file(docx_file_path)
 
     # Process TIF document
-
     def convert_rtf_text_to_world(self, client: str, rtf_file_name: str, payload: str) -> None:
         """
         Converts a RTF text to a Word document.
@@ -149,7 +149,7 @@ class DocProcessor:
     # Process plain text
     def convert_plain_text_to_word(self, client: str, txt_file_name: str, payload: str) -> None:
         """
-        Converts a plain text file to a Word document.
+        Converts a plain text to a Word document.
         Args:
             client: client email
             txt_file_name: file name from attachment
@@ -173,7 +173,11 @@ class DocProcessor:
                 self.docs_path, f'{client}+{file_name_no_ext}+original+translated.doc')
             translate_document_to_english(doc_file_path, translated_file_path)
 
-    def convert_plain_text_to_word(self, client: str, txt_file_name: str, payload: str) -> None:
+    def convert_plain_text_file_to_word(
+            self,
+            client: str,
+            txt_file_name: str
+    ) -> None:
         """
         Converts a plain text file to a Word document.
         Args:
@@ -181,7 +185,7 @@ class DocProcessor:
             txt_file_name: file name from attachment
             payload: payload from attachment
         """
-        logger.info('Convert txt to word %s', txt_file_name)
+        logger.info('Convert txt file to word %s', txt_file_name)
         file_name_no_ext, _ = os.path.splitext(txt_file_name)
         file_path = os.path.join(
             self.docs_path, f'{client}+{file_name_no_ext}+original+original.txt')
@@ -198,3 +202,6 @@ class DocProcessor:
             translated_file_path = os.path.join(
                 self.docs_path, f'{client}+{file_name_no_ext}+original+translated.doc')
             translate_document_to_english(doc_file_path, translated_file_path)
+
+    # Process Word document
+    def process_word_load(self, client: str, ):
