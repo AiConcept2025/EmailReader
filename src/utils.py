@@ -4,12 +4,16 @@ Utilities
 
 import json
 import os
+import subprocess
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List
 
-# from dateutil import tz
+import pypdf
+from docx import Document
+
+from src.logger import logger
 
 
 def read_json_secret_file(file_path: str) -> (Dict | None):
@@ -92,3 +96,66 @@ def get_uuid() -> str:
         str: A string representation of the UUID.
     """
     return str(uuid.uuid4())
+
+
+def delete_file(file_path: str):
+    """
+    Delete file by path
+    """
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+        except OSError as e:
+            logger.error('Error %s deleting file %s:', e, file_path)
+    else:
+        logger.error('File %s does not exist.', file_path)
+
+
+def read_pdf_doc_to_text(pdf_file_path: str) -> str:
+    """
+    Read PDF file to text
+    Args:
+    pdf_file_path: path for PDF file
+    """
+    reader = pypdf.PdfReader(pdf_file_path)
+    num_pages = len(reader.pages)
+    full_text: list[str] = []
+    for page_num in range(num_pages):
+        page = reader.pages[page_num]
+        text_on_page = page.extract_text()
+        full_text.append(text_on_page)
+    extract_text = '\n'.join(full_text)
+    reader.close()
+    return extract_text
+
+
+def read_word_doc_to_text(word_doc_path: str) -> str:
+    """
+    Read Word dov to text
+    Args:
+    word_doc_path: path do word document
+    """
+    document = Document(word_doc_path)
+    full_text: list[str] = []
+    for paragraph in document.paragraphs:
+        full_text.append(paragraph.text)
+    extracted_text = '\n'.join(full_text)
+    return extracted_text
+
+
+def translate_document_to_english(original_path: str, translated_path: str) -> None:
+    """
+    Translates word document in foreign language to English
+    Args:
+    original_path: foreign language word document Word format
+    translated_path: output english Word document Word format
+    """
+    executable_path = Path(os.path.join(
+        os.getcwd(), 'translate_document', "translate_document.exe"))
+    arguments = ['-i', original_path, '-o', translated_path]
+    command = [executable_path] + arguments
+    try:
+        subprocess.run(command, capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(
+            'Error executing command: %s Stdout: %s, Stderr: %s', e, e.stdout, e.stderr)

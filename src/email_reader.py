@@ -16,6 +16,7 @@ from src.convert_to_docx import (
 from src.logger import logger
 from src.utils import get_uuid, read_json_secret_file, utc_to_local
 from src.pdf_image_ocr import is_pdf_searchable_pypdf2
+from src.process_documents import DocProcessor
 
 
 supported_types = [
@@ -108,6 +109,7 @@ def extract_attachments_from_mailbox():
         email.get('date_file'),
         email.get('start_date'))
     attachments_file_path = Path(os.path.join(cwd, 'data', "documents"))
+    docProcessor = DocProcessor(attachments_file_path)
 
     with MailBox(host=email.get('imap_server')).login(
             username=email.get("username"),
@@ -142,39 +144,24 @@ def extract_attachments_from_mailbox():
                             msg.from_)
                         continue
                     elif attachment.content_type == "application/pdf":  # Can be image or text
-                        file_path = os.path.join(
-                            attachments_file_path, file_name)
-                        with open(file_path, "wb") as f:
-                            f.write(attachment.payload)
-                        # Check if file is image or text
-                        if is_pdf_searchable_pypdf2(file_path):
-                            # Check if text is English
-                            if detect(attachment.payload) == 'en':
-                                lang = 'english'
-                            else:
-                                lang = 'foreign'
-                            new_file_name = f'{file_name_no_ext}+original+{lang}{file_ext}'
-                        else:
-                            new_file_name = f'{file_name_no_ext}+image+unknown{file_ext}'
-                        new_path = os.path.join(
-                            attachments_file_path, new_file_name)
-                        with open(new_path, 'wb') as f:
-                            f.write(attachment.payload)
-                        # Delete
-                        delete_file(file_path)
-                        logger.info('Save PDF %s file.', new_file_name)
-
-                        # filename = os.path.basename(file_path)
-                        # filename_docx = os.path.splitext(filename)[0] + '.docx'
-                        # file_path_docx = os.path.join(
-                        #     attachments_file_path, filename_docx)
-                        # convert_pdf_to_docx(file_path, file_path_docx)
+                        docProcessor.convert_pdf_payload_to_word(
+                            client=msg.from_,
+                            doc_name=attachment.filename,
+                            payload=attachment.payload)
+                        continue
+                    elif attachment.content_type == "text/plain":
+                        docProcessor.convert_plain_text_to_word(
+                            client=msg.from_,
+                            txt_file_name=attachment.filename,
+                            payload=attachment.payload
+                        )
                         continue
                     elif file_ext == ".rtf":
-                        logger.info('Save RTF % file.', file_name)
-                        file_path = f"{attachments_file_path}/{f'{file_name_no_ext}+original+'}"
-                        with open(file_path, "wb") as f:
-                            f.write(attachment.payload)
+                        docProcessor.convert_rtf_text_to_world(
+                            client=msg.from_,
+                            rtf_file_name=attachment.filename,
+                            payload=attachment.payload
+                        )
                         continue
                     elif (
                             attachment.content_type == "application/octet-stream" or
@@ -186,17 +173,7 @@ def extract_attachments_from_mailbox():
                         with open(file_path, "wb") as f:
                             f.write(attachment.payload)
                         continue
-                    elif attachment.content_type == "text/plain":
-                        file_path = os.path.join(
-                            attachments_file_path, file_name)
-                        with open(file_path, "wb") as f:
-                            f.write(attachment.payload)
-                        filename = os.path.basename(file_path)
-                        filename_docx = os.path.splitext(filename)[0] + '.docx'
-                        file_path_docx = os.path.join(
-                            attachments_file_path, filename_docx)
-                        convert_txt1_to_docx(file_path, file_path_docx)
-                        continue
+
                     # Graphic formats
                     elif attachment.content_type == "image/gif":
                         continue

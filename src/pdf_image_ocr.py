@@ -29,7 +29,7 @@ def get_platform() -> str:
     return app_platform
 
 
-def is_pdf_searchable_pypdf2(pdf_path):
+def is_pdf_searchable_pypdf2(pdf_path) -> bool:
     """
     Checks if a PDF is searchable using PyPDF2 (by attempting to extract text).
 
@@ -47,20 +47,18 @@ def is_pdf_searchable_pypdf2(pdf_path):
                 return True  # Found text, so it's searchable
         return False  # No text found
     except Exception as e:
-        print(f"Error processing PDF: {e}")
+        logger.error('Error processing PDF: %s', e)
         return False
 
 
-def ocr_pdf_image(ocr_file: str, out_doc_file_path: str) -> None:
+def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
     """
     Perform OCR on a PDF file and save the result as a DOCX file.
     """
     logger.info('Set ')
     pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
     poppler_folder = 'poppler-windows/poppler-24.08.0/Library/bin'
-
     poppler_path = os.path.join(os.getcwd(),  poppler_folder)
-
     ocr_str = ''
     try:
         with tempfile.TemporaryDirectory(delete=False) as temp_file:
@@ -86,7 +84,7 @@ def ocr_pdf_image(ocr_file: str, out_doc_file_path: str) -> None:
     convert_txt_to_docx(ocr_str, out_doc_file_path)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     # Example usage
-    ocr_pdf_image("test_docs/file-sample-img.pdf",
-                  'data/documents/file-pdf-image-to-doc.doc')
+    ocr_pdf_image_to_doc('test_docs/file-sample-img.pdf',
+                         'data/documents/file-pdf-image-to-doc.doc')
