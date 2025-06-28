@@ -189,19 +189,69 @@ class DocProcessor:
         file_name_no_ext, _ = os.path.splitext(txt_file_name)
         file_path = os.path.join(
             self.docs_path, f'{client}+{file_name_no_ext}+original+original.txt')
+        with open(file_path, 'r', encoding='utf-8') as fl:
+            plain_text = fl.read()
         doc_file_path = os.path.join(
             self.docs_path, f'{client}+{file_name_no_ext}+original+original.doc')
-        with open(file_path, 'w', encoding='utf-8') as fl:
-            fl.write(payload)
         document = Document()
-        document.add_paragraph(payload)
+        document.add_paragraph(plain_text)
         document.save(doc_file_path)
 
         # Check if foreign language
-        if detect(payload) != 'en':
+        if detect(plain_text) != 'en':
             translated_file_path = os.path.join(
                 self.docs_path, f'{client}+{file_name_no_ext}+original+translated.doc')
             translate_document_to_english(doc_file_path, translated_file_path)
 
     # Process Word document
-    def process_word_load(self, client: str, ):
+    def process_word_load(self, client: str, word_file_name: str, payload: str) -> None:
+        """
+        Process Word document text to Word file
+        Args:
+            client: client email
+            txt_file_name: file name from attachment
+            payload: payload from attachment
+        """
+        logger.info('Process Word doc text to file %s', word_file_name)
+        if detect(payload) == 'en':
+            word_file_name = f'{client}+{word_file_name}+original+english.docx'
+            word_file_path = os.path.join(self.docs_path, word_file_name)
+            with open(word_file_path, 'w', encoding='utf-8') as fl:
+                fl.write(payload)
+        else:
+            word_file_name = f'{client}+{word_file_name}+original+foreign.docx'
+            word_file_path = os.path.join(self.docs_path, word_file_name)
+            with open(word_file_path, 'w', encoding='utf-8') as fl:
+                fl.write(payload)
+            translated_file_name = f'{client}+{word_file_name}+original+translated.docx'
+            translated_file_path = os.path.join(
+                self.docs_path, translated_file_name)
+            translate_document_to_english(word_file_path, translated_file_path)
+
+    def process_word_file(self, client: str, word_file_name: str) -> None:
+        """
+        Process Word document text to Word file
+        Args:
+            client: client email
+            txt_file_name: file name from attachment
+        """
+        logger.info('Process Word doc text to file %s', word_file_name)
+        document = Document(word_file_name)
+        full_text: list[str] = []
+        for paragraph in document.paragraphs:
+            full_text.append(paragraph.text)
+        text = '/n'.join(full_text)
+        if detect(text) == 'en':
+            word_file_name = f'{client}+{word_file_name}+original+english.docx'
+            word_file_path = os.path.join(self.docs_path, word_file_name)
+            with open(word_file_path, 'w', encoding='utf-8') as fl:
+                fl.write(payload)
+        else:
+            word_file_name = f'{client}+{word_file_name}+original+foreign.docx'
+            word_file_path = os.path.join(self.docs_path, word_file_name)
+            with open(word_file_path, 'w', encoding='utf-8') as fl:
+                fl.write(payload)
+            translated_file_name = f'{client}+{word_file_name}+original+translated.docx'
+            translated_file_path = os.path.join(
+                self.docs_path, translated_file_name)
+            translate_document_to_english(word_file_path, translated_file_path)

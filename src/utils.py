@@ -9,6 +9,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List
+import shutil
 
 import pypdf
 from docx import Document
@@ -159,3 +160,20 @@ def translate_document_to_english(original_path: str, translated_path: str) -> N
     except subprocess.CalledProcessError as e:
         logger.error(
             'Error executing command: %s Stdout: %s, Stderr: %s', e, e.stdout, e.stderr)
+
+
+def copy_file(source_file: str, destination_file: str) -> bool:
+    """
+    Copies file
+    source_file: source file
+    destination_file: destination file
+    """
+    try:
+        shutil.copy(source_file, destination_file)
+        return True
+    except FileNotFoundError:
+        logger.error('Error: Source file %s not found.', source_file)
+        return False
+    except Exception as e:
+        logger.error('An error occurred: %s', e)
+        return False
