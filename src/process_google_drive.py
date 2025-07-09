@@ -3,16 +3,18 @@ Module for processing google drive
 """
 
 import os
-from schedule import every, repeat
+import time
 from typing import Dict, List, NamedTuple
 
-from src.google_drive import GoogleApi, FileFolder
-from src.logger import logger
-from src.process_documents import DocProcessor
+from schedule import every, repeat
+
 from src.email_sender import send_error_message
 from src.flowise_api import FlowiseAiAPI
-import time
+from src.google_drive import FileFolder, GoogleApi
+from src.logger import logger
+from src.process_documents import DocProcessor
 from src.utils import copy_file
+
 type FilesFoldersDict = dict[str, str]
 
 # @repeat(every(2).hours)
@@ -50,7 +52,7 @@ def process_google_drive():
     # Check for new files in inbox
     for client in clients:
         client_folder_id = client.get('id')
-        client_email = client.get('name')  # Client folder ID's
+        client_email = client['name']  # Client folder ID's
         subs = google_api.get_folders_list(parent_folder_id=client_folder_id)
         temp_id = [sub['id'] for sub in subs if sub['name'] == 'temp'][0]
         incoming_id = [sub['id']
@@ -66,7 +68,7 @@ def process_google_drive():
                     file_id = fl['id']
                     file_path = os.path.join(document_folder, file_name)
                     file_name_no_ext, file_ext = os.path.splitext(file_name)
-                    google_api.FileDownload(
+                    google_api.file_download(
                         file_id=file_id, file_path=file_path)
 
                     original_file_name = f'{client_email}+{file_name_no_ext}+original{file_ext}'

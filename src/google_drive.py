@@ -6,7 +6,6 @@ import os
 import io
 import shutil
 from typing import Dict, List, NamedTuple
-
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -88,7 +87,7 @@ class GoogleApi:
     #################################################
     #################################################
 
-    def get_folders_list(self, parent_folder_id: str = None) -> List[Dict]:
+    def get_folders_list(self, parent_folder_id: str | None = None) -> List[Dict[str, str]]:
         """
         Returns list of all the folders
         [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'folder_name'}]
@@ -119,7 +118,7 @@ class GoogleApi:
             print(f"An error occurred: {error}")
             return []
 
-    def if_folder_exist_by_name(self, folder_name: str, parent_folder_id: str = None) -> bool:
+    def if_folder_exist_by_name(self, folder_name: str, parent_folder_id: str | None = None) -> bool:
         """
         Check by name if sub folder exist
         """
@@ -131,7 +130,7 @@ class GoogleApi:
                 return True
         return False
 
-    def if_folder_exist_by_id(self, folder_name_id: str, parent_folder_id: str = None) -> bool:
+    def if_folder_exist_by_id(self, folder_name_id: str, parent_folder_id: str | None = None) -> bool:
         """
         Check by name if sub folder exist
         """
@@ -143,7 +142,7 @@ class GoogleApi:
                 return True
         return False
 
-    def get_file_list(self, parent_folder_id: str = None) -> List[Dict]:
+    def get_file_list(self, parent_folder_id: str | None = None) -> List[Dict[str, str]]:
         """
         Returns list of all the folders
         [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'folder_name'}]
@@ -174,7 +173,7 @@ class GoogleApi:
             print(f"An error occurred: {error}")
             return []
 
-    def get_file_list_in_folder1(self, parent_folder_id: str = None) -> List[Dict]:
+    def get_file_list_in_folder1(self, parent_folder_id: str | None = None) -> List[Dict[str, str]]:
         """
         Get file list in folder
         """
@@ -207,7 +206,7 @@ class GoogleApi:
     def create_subfolder_in_folder(
             self,
             folder_name: str,
-            parent_folder_id: str = None) -> FileFolder:
+            parent_folder_id: str | None = None) -> FileFolder:
         """
         Creates subfolder in parent folder
         args:
@@ -269,8 +268,10 @@ class GoogleApi:
 
 ##########################################################################################
 
-    def FileDownload(self, file_id, file_path):
-        request = self.service.files().get_media(fileId=file_id)
+    def file_download(self, file_id: str, file_path: str) -> bool:
+        """        Download file from Google Drive
+        """
+        request: Unknown = self.service.files().get_media(fileId=file_id)
         fh = io.BytesIO()
 
         # Initialise a downloader object to download the file
@@ -280,7 +281,7 @@ class GoogleApi:
         try:
             # Download the data in chunks
             while not done:
-                status, done = downloader.next_chunk()
+                _, done = downloader.next_chunk()
 
             fh.seek(0)
 
