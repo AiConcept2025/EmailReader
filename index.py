@@ -2,9 +2,9 @@
 Start point for the application.
 """
 import os
-import time
+# import time
 from schedule import run_pending
-from src.app import process_emails
+from src.app import process_google_drive
 
 
 if __name__ == "__main__":
@@ -22,9 +22,9 @@ if __name__ == "__main__":
         with open(dir_finish_tag, 'w', encoding='utf-8') as file:
             file.write('2020-01-01 01:01:01 +0000')
 
-    process_emails()
+    process_google_drive()
 
     # Run on schedule
-    while True:
-        run_pending()
-        time.sleep(1)
+    # while True:
+    #     run_pending()
+    #     time.sleep(1)
