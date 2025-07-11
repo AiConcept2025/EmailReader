@@ -82,12 +82,12 @@ def process_google_drive():
                             file_name=file_name,
                             document_folder=document_folder
                         )
-
+                        # create copy of original not English file
                         if '+english' not in doc_name:
                             copy_file(source_file=file_path,
                                       destination_file=original_file_path)
                         # upload files to google drive
-                        # incoming
+                        # incoming folder
                         google_api.upload_file_to_google_drive(
                             parent_folder_id=incoming_id,
                             file_name=doc_name,

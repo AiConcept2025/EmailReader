@@ -229,9 +229,14 @@ class DocProcessor:
                 self.docs_path, translated_file_name)
             translate_document_to_english(word_file_path, translated_file_path)
 
-    def process_word_file(self, client: str, file_name: str, document_folder: str) -> str:
+    def process_word_file(
+            self,
+            client: str,
+            file_name: str,
+            document_folder: str
+    ) -> tuple[str, str]:
         """
-        Process Word document text to Word file
+        Process Word document text to Word file and translate it if needed.
         Args:
             client: client email
             word_file_name: file name with +original+original

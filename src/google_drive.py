@@ -11,10 +11,14 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
+
 from src.logger import logger
 
 
 class FileFolder(NamedTuple):
+    """
+    FileFolder class to hold file and folder information
+    """
     name: str
     id: str
 
@@ -35,10 +39,14 @@ class GoogleApi:
         credentials = service_account.Credentials.from_service_account_file(
             filename=service_account_json_key,
             scopes=scope)
-        self.service = build('drive', 'v3', credentials=credentials)
+        self.service: object = build('drive', 'v3', credentials=credentials)
         self.parent_folder_id = '1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8'  # IrisSolutions
 
-    def upload_file_to_google_drive(self, parent_folder_id: str, file_path: str, file_name: str):
+    def upload_file_to_google_drive(
+            self,
+            parent_folder_id: str | None,
+            file_path: str, file_name: str
+    ) -> (object | dict[str, object]):
         """
         Uploading a File to Google Drive
         """
