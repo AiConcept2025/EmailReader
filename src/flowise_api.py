@@ -130,15 +130,15 @@ class FlowiseAiAPI:
     def upsert_document_to_document_store(
             self,
             doc_path: str,
-            doc_name: str,
-            store_id: str = None,
-            loader_id: str = None) -> Dict:
+            doc_name: str | None = None,
+            store_id: str | None = None,
+            loader_id: str | None = None) -> Dict[object, object]:
         """
         Upsert document to document store
         """
         try:
             if doc_name is None:
-                return
+                return {'name': 'Error', 'error': 'No document name provided'}
             if store_id is None:
                 store_id = self.DOC_STORE_ID
             if loader_id is None:

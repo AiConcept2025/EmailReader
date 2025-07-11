@@ -13,7 +13,7 @@ from src.flowise_api import FlowiseAiAPI
 from src.google_drive import FileFolder, GoogleApi
 from src.logger import logger
 from src.process_documents import DocProcessor
-from src.utils import copy_file
+from src.utils import copy_file, delete_file
 
 type FilesFoldersDict = dict[str, str]
 
@@ -67,27 +67,19 @@ def process_google_drive():
                     file_name = fl['name']
                     file_id = fl['id']
                     file_path = os.path.join(document_folder, file_name)
-                    file_name_no_ext, file_ext = os.path.splitext(file_name)
+                    _, file_ext = os.path.splitext(file_name)
+                    # Download new file from inbox of client on google drive to local folder
                     google_api.file_download(
                         file_id=file_id, file_path=file_path)
-
-                    original_file_name = f'{client_email}+{file_name_no_ext}+original{file_ext}'
-                    original_file_path = os.path.join(
-                        document_folder, original_file_name)
-                    ##################################################
-
+                    # Check if file is word document file
                     if file_ext == '.doc' or file_ext == '.docx':
-                        doc_path_name, doc_name = docProcessor.process_word_file(
+                        doc_path_name, doc_name, original_file_name, original_file_path = docProcessor.process_word_file(
                             client=client_email,
                             file_name=file_name,
                             document_folder=document_folder
                         )
-                        # create copy of original not English file
-                        if '+english' not in doc_name:
-                            copy_file(source_file=file_path,
-                                      destination_file=original_file_path)
-                        # upload files to google drive
-                        # incoming folder
+                        # upload files to google drive incoming folder
+                        # original file and translated file if exists
                         google_api.upload_file_to_google_drive(
                             parent_folder_id=incoming_id,
                             file_name=doc_name,
@@ -99,18 +91,19 @@ def process_google_drive():
                                 file_path=original_file_path, )
 
                         # Temp
-                        temp_file = google_api.upload_file_to_google_drive(
+                        temp_file: object | Dict[str, object] = google_api.upload_file_to_google_drive(
                             parent_folder_id=temp_id,
                             file_name=doc_name,
                             file_path=doc_path_name, )
                         temp_file_id = temp_file.get('id')
                         # Upload to doc store
                         print(f'Upload to doc store: {doc_name}')
-                        res_doc_store = flowise_api.upsert_document_to_document_store(
+                        res_doc_store: Dict[object, object] = flowise_api.upsert_document_to_document_store(
                             doc_name=doc_name, doc_path=doc_path_name)
                         if res_doc_store.get('name') == 'Error':
+                            error = res_doc_store.get('error', 'Error')
                             send_error_message(
-                                f"Upload file doc store error: {res_doc_store.get('error')}")
+                                f"Upload file doc store error: {error}")
                             return
                         # run prediction
                         print(f'Upload to prediction: {doc_name}')
@@ -122,44 +115,24 @@ def process_google_drive():
                             return  # TODO send email
 
                         attempt = 0
-                        while google_api.check_file_exists(file_id=temp_file_id, parent_folder_id=temp_id) and attempt < 11:
+                        while attempt < 11:
+                            if not google_api.check_file_exists(file_id=temp_file_id, parent_folder_id=temp_id):
+                                google_api.delete_file(file_id=file_id)
+                                google_api.delete_file(file_id=temp_file_id)
+                                break
                             attempt += 1
                             time.sleep(20)
-                        # Remove file id success
-                        # delete_file(doc_path)
+                        else:
+                            logger.error(
+                                'File %s not deleted from temp folder after 10 attempts.', doc_name)
+                            send_error_message(
+                                f"File {doc_name} not deleted from temp folder after 10 attempts.")
+                            return
+                        # Remove files from temp document folder
+                        delete_file(doc_path_name)
+                        if doc_path_name != original_file_path:
+                            delete_file(original_file_path)
                         print(f'Finish: {file_name}')
-
-    # # Add test files
-    # test_path = os.path.join(cwd, 'test_docs')
-    # contents = os.listdir(test_path)
-    # files = [item for item in contents if os.path.isfile(
-    #     os.path.join(test_path, item))]
-    # for client in clients:
-    #     client_folder_id = client.get('id')
-    #     folders = google_api.get_folders_list(
-    #         parent_folder_id=client_folder_id)
-    #     for folder in folders:
-    #         if folder.get('name') == 'inbox':
-    #             for fl in files:
-    #                 google_api.upload_file_to_google_drive(
-    #                     parent_folder_id=folder.get('id'),
-    #                     file_path=os.path.join(test_path, fl),
-    #                     file_name=fl
-    #                 )
-    #             uploaded = google_api.get_file_list(
-    #                 parent_folder_id=folder.get('id'))
-    #             print(uploaded)
-
-    # check incoming sub folder for each client and process new documents
-    # for client in clients:
-    # files = google_api.get_root_file_list()
-    # print(files)
-    # files_inbox_0 = google_api.get_file_list(
-    #     parent_folder_id='154OGQZC5ELUNmlGcksTS7g-BwxsWjPZQ')
-    # files_inbox_1 = google_api.get_file_list(
-    #     parent_folder_id='1_-pam4cOImySo6aeo5oD1IZur6CmT0gy')
-    # print(files_inbox_0)
-    # print(files_inbox_1)
 
 
 def create_test():

@@ -234,7 +234,7 @@ class DocProcessor:
             client: str,
             file_name: str,
             document_folder: str
-    ) -> tuple[str, str]:
+    ) -> tuple[str, str, str, str]:
         """
         Process Word document text to Word file and translate it if needed.
         Args:
@@ -245,16 +245,27 @@ class DocProcessor:
         file_path = os.path.join(document_folder, file_name)
         file_name_no_ext, file_ext = os.path.splitext(file_name)
         document = Document(file_path)
+        # Check if document language is English
         full_text: list[str] = []
         for paragraph in document.paragraphs:
             full_text.append(paragraph.text)
         text = '/n'.join(full_text)
+        # If English, rename file with +english
         if detect(text) == 'en':
             new_file_name = f'{client}+{file_name_no_ext}+english{file_ext}'
             new_file_path = os.path.join(document_folder, new_file_name)
             rename_file(file_path, new_file_path)
+            original_file_name = new_file_name
+            original_file_path = new_file_path
         else:
+            # If not English, translate it and rename file with +translated
+            # Rename original file with +original
+            original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
+            original_file_path = os.path.join(
+                document_folder, original_file_name)
+            rename_file(file_path, original_file_path)
+            # Translate document to English
             new_file_name = f'{client}+{file_name_no_ext}+translated{file_ext}'
             new_file_path = os.path.join(document_folder, new_file_name)
-            translate_document_to_english(file_path, new_file_path)
-        return (new_file_path, new_file_name)
+            translate_document_to_english(original_file_path, new_file_path)
+        return (new_file_path, new_file_name, original_file_name, original_file_path)
