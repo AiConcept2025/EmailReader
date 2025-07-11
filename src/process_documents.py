@@ -55,38 +55,8 @@ class DocProcessor:
         with open(file_path, "wb") as f:
             f.write(payload)
 
-    def convert_pdf_file_to_word(self, pdf_file_path: str) -> None:
-        """
-        Convert PDF file (image or text) to word document
-        Args:
-        pdf_file_path: path for PDF file
-        """
-        logger.info(
-            'Convert %s PDF file(image or text) to word document.', pdf_file_path)
-        file_name_no_ext, _ = os.path.splitext(pdf_file_path)
-        file_name_chunks = file_name_no_ext.split('+')
-        file_path_name = f'{file_name_chunks[0]}+{file_name_chunks[1]}'
-        # Check if file is image
-        if is_pdf_searchable_pypdf2(pdf_file_path):
-            text = read_pdf_doc_to_text(pdf_file_path)
-            docx_file_path = f'{file_path_name}+original+english.docx'
-            convert_pdf_to_docx(pdf_file_path, docx_file_path)
-            if detect(text) != 'en':
-                translated_file_path = f'{file_path_name}+original+translated.docx'
-                translate_document_to_english(
-                    docx_file_path, translated_file_path)
-                delete_file(docx_file_path)
-        else:
-            ocr_file_path = f'{file_path_name}+ocr+english.docx'
-            ocr_pdf_image_to_doc(pdf_file_path, ocr_file_path)
-            text = read_word_doc_to_text(ocr_file_path)
-            if detect(text) != 'en':
-                translated_file_path = f'{file_path_name}+ocr+translated.docx'
-                translate_document_to_english(
-                    ocr_file_path, translated_file_path)
-                delete_file(docx_file_path)
-
     # Process TIF document
+
     def convert_rtf_text_to_world(self, client: str, rtf_file_name: str, payload: str) -> None:
         """
         Converts a RTF text to a Word document.
@@ -239,7 +209,8 @@ class DocProcessor:
         Process Word document text to Word file and translate it if needed.
         Args:
             client: client email
-            word_file_name: file name with +original+original
+            file_name: new file in google drive inbox sub folder
+            document_folder: folder to temp save processed documents
         """
         logger.info('Process Word doc text to file %s', file_name)
         file_path = os.path.join(document_folder, file_name)
@@ -268,4 +239,50 @@ class DocProcessor:
             new_file_name = f'{client}+{file_name_no_ext}+translated{file_ext}'
             new_file_path = os.path.join(document_folder, new_file_name)
             translate_document_to_english(original_file_path, new_file_path)
+        return (new_file_path, new_file_name, original_file_name, original_file_path)
+
+    def convert_pdf_file_to_word(
+            self,
+            client: str,
+            file_name: str,
+            document_folder: str
+    ) -> tuple[str, str, str, str]:
+        """
+        Convert PDF file (image or text) to word document
+        Args:
+            client: client email
+            file_name: new file in google drive inbox sub folder
+            document_folder: folder to temp save processed documents
+        """
+        logger.info(
+            'Convert %s PDF file(image or text) to word document.', file_name)
+        file_name_no_ext, file_ext = os.path.splitext(file_name)
+
+        file_path = os.path.join(document_folder, file_name)
+        file_name_no_ext, file_ext = os.path.splitext(file_name)
+
+        original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
+        original_file_path = os.path.join(
+            document_folder, original_file_name)
+
+        # Rename file to original
+        rename_file(file_path, original_file_path)
+        docx_file_path = f'{file_name_no_ext}.docx'
+
+        # Check if file is image
+        if is_pdf_searchable_pypdf2(original_file_path):
+            text = read_pdf_doc_to_text(original_file_path)
+            convert_pdf_to_docx(original_file_path, docx_file_path)
+        else:
+            ocr_pdf_image_to_doc(original_file_path, docx_file_path)
+            text = read_word_doc_to_text(docx_file_path)
+        if detect(text) != 'en':
+            new_file_name = f'{client}+{file_name_no_ext}+translated{file_ext}'
+            new_file_path = os.path.join(document_folder, new_file_name)
+            translate_document_to_english(
+                docx_file_path, new_file_path)
+        else:
+            new_file_name = f'{client}+{file_name_no_ext}+converted.docx'
+            new_file_path = os.path.join(document_folder, new_file_name)
+        delete_file(docx_file_path)
         return (new_file_path, new_file_name, original_file_name, original_file_path)

@@ -14,7 +14,7 @@ TEXT_SUBTYPE = 'plain'
 SUBJECT = "Send from EmailReader"
 
 
-def send_error_message(content: None = 'Send email Error'):
+def send_error_message(content: str = 'Send email Error'):
     """
     Send email with error message
     """

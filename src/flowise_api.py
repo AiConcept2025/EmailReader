@@ -16,9 +16,11 @@ class FlowiseAiAPI:
     def __init__(self):
         secrets_file = os.path.join(
             os.getcwd(), 'credentials', 'secrets.json')
-        secrets: Dict = read_json_secret_file(secrets_file)
-        flowiseAI_secrets = secrets.get("flowiseAI")
-        self.API_KEY = flowiseAI_secrets.get("API_KEY")
+        secrets: Dict[str, str] | None = read_json_secret_file(secrets_file)
+        if secrets is None:
+            raise ValueError("No secrets file found or it is empty")
+        flowiseAI_secrets: Dict[str, str] = secrets.get("flowiseAI")
+        self.API_KEY = flowiseAI_secrets.get("API_KEY", "")
         self.API_URL = flowiseAI_secrets.get("API_URL")
         self.DOC_STORE_ID = flowiseAI_secrets.get("DOC_STORE_ID")
         self.DOC_LOADER_DOCX_ID = flowiseAI_secrets.get("DOC_LOADER_DOCX_ID")

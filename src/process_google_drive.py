@@ -4,22 +4,21 @@ Module for processing google drive
 
 import os
 import time
-from typing import Dict, List, NamedTuple
+from typing import Dict, List
 
-from schedule import every, repeat
+from schedule import every, repeat  # type: ignore
 
 from src.email_sender import send_error_message
 from src.flowise_api import FlowiseAiAPI
 from src.google_drive import FileFolder, GoogleApi
 from src.logger import logger
 from src.process_documents import DocProcessor
-from src.utils import copy_file, delete_file
+from src.utils import delete_file
 
 type FilesFoldersDict = dict[str, str]
 
-# @repeat(every(2).hours)
 
-
+@repeat(every(15).minutes)
 def process_google_drive():
     """
     Process all new documents from google drive
@@ -31,7 +30,7 @@ def process_google_drive():
     google_api = GoogleApi()
     flowise_api = FlowiseAiAPI()
     document_folder = os.path.join(cwd, 'data', "documents")
-    docProcessor = DocProcessor(document_folder)
+    doc_processor = DocProcessor(document_folder)
     # Get client list
     clients = google_api.get_folders_list()
     # Check if each client folder have sub folders
@@ -73,66 +72,74 @@ def process_google_drive():
                         file_id=file_id, file_path=file_path)
                     # Check if file is word document file
                     if file_ext == '.doc' or file_ext == '.docx':
-                        doc_path_name, doc_name, original_file_name, original_file_path = docProcessor.process_word_file(
+                        new_file_path, new_file_name, original_file_name, original_file_path = doc_processor.process_word_file(
                             client=client_email,
                             file_name=file_name,
                             document_folder=document_folder
                         )
-                        # upload files to google drive incoming folder
-                        # original file and translated file if exists
+                    elif file_ext == '.pdf':
+                        new_file_path, new_file_name, original_file_name, original_file_path = doc_processor.convert_pdf_file_to_word(
+                            client=client_email,
+                            file_name=file_name,
+                            document_folder=document_folder
+                        )
+                    else:
+                        continue
+                    # upload files to google drive incoming folder
+                    # original file and translated file if exists
+                    google_api.upload_file_to_google_drive(
+                        parent_folder_id=incoming_id,
+                        file_name=new_file_name,
+                        file_path=new_file_path, )
+                    if '+english' not in new_file_name:
                         google_api.upload_file_to_google_drive(
                             parent_folder_id=incoming_id,
-                            file_name=doc_name,
-                            file_path=doc_path_name, )
-                        if '+english' not in doc_name:
-                            google_api.upload_file_to_google_drive(
-                                parent_folder_id=incoming_id,
-                                file_name=original_file_name,
-                                file_path=original_file_path, )
+                            file_name=original_file_name,
+                            file_path=original_file_path, )
 
-                        # Temp
-                        temp_file: object | Dict[str, object] = google_api.upload_file_to_google_drive(
-                            parent_folder_id=temp_id,
-                            file_name=doc_name,
-                            file_path=doc_path_name, )
-                        temp_file_id = temp_file.get('id')
-                        # Upload to doc store
-                        print(f'Upload to doc store: {doc_name}')
-                        res_doc_store: Dict[object, object] = flowise_api.upsert_document_to_document_store(
-                            doc_name=doc_name, doc_path=doc_path_name)
-                        if res_doc_store.get('name') == 'Error':
-                            error = res_doc_store.get('error', 'Error')
-                            send_error_message(
-                                f"Upload file doc store error: {error}")
-                            return
-                        # run prediction
-                        print(f'Upload to prediction: {doc_name}')
-                        res_prediction = flowise_api.create_new_prediction(
-                            doc_name)
-                        if res_prediction.get('name') == 'Error':
-                            send_error_message(
-                                f"Prediction error: {res_prediction.get('id')}")
-                            return  # TODO send email
+                    # Temp
+                    temp_file: object | Dict[str, object] = google_api.upload_file_to_google_drive(
+                        parent_folder_id=temp_id,
+                        file_name=new_file_name,
+                        file_path=new_file_path, )
+                    temp_file_id = temp_file.get('id')
+                    # Upload to doc store
+                    print(f'Upload to doc store: {new_file_name}')
+                    res_doc_store = flowise_api.upsert_document_to_document_store(
+                        new_file_name=new_file_name, doc_path=new_file_path)
+                    if res_doc_store.get('name') == 'Error':
+                        error = res_doc_store.get('error', 'Error')
+                        send_error_message(
+                            f"Upload file doc store error: {error}")
+                        return
+                    # run prediction
+                    print(f'Upload to prediction: {new_file_name}')
+                    res_prediction = flowise_api.create_new_prediction(
+                        new_file_name)
+                    if res_prediction.get('name') == 'Error':
+                        send_error_message(
+                            f"Prediction error: {res_prediction.get('id')}")
+                        return  # TODO send email
 
-                        attempt = 0
-                        while attempt < 11:
-                            if not google_api.check_file_exists(file_id=temp_file_id, parent_folder_id=temp_id):
-                                google_api.delete_file(file_id=file_id)
-                                google_api.delete_file(file_id=temp_file_id)
-                                break
-                            attempt += 1
-                            time.sleep(20)
-                        else:
-                            logger.error(
-                                'File %s not deleted from temp folder after 10 attempts.', doc_name)
-                            send_error_message(
-                                f"File {doc_name} not deleted from temp folder after 10 attempts.")
-                            return
-                        # Remove files from temp document folder
-                        delete_file(doc_path_name)
-                        if doc_path_name != original_file_path:
-                            delete_file(original_file_path)
-                        print(f'Finish: {file_name}')
+                    attempt = 0
+                    while attempt < 11:
+                        if not google_api.check_file_exists(file_id=temp_file_id, parent_folder_id=temp_id):
+                            google_api.delete_file(file_id=file_id)
+                            google_api.delete_file(file_id=temp_file_id)
+                            break
+                        attempt += 1
+                        time.sleep(20)
+                    else:
+                        logger.error(
+                            'File %s not deleted from temp folder after 10 attempts.', new_file_name)
+                        send_error_message(
+                            f"File {new_file_name} not deleted from temp folder after 10 attempts.")
+                        return
+                    # Remove files from temp document folder
+                    delete_file(new_file_path)
+                    if new_file_path != original_file_path:
+                        delete_file(original_file_path)
+                    print(f'Finish: {file_name}')
 
 
 def create_test():

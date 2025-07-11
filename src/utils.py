@@ -17,7 +17,7 @@ from docx import Document
 from src.logger import logger
 
 
-def read_json_secret_file(file_path: str) -> (Dict | None):
+def read_json_secret_file(file_path: str) -> (Dict[str, str] | None):
     """
     Reads a JSON Secrets file and returns its content as a Python dictionary.
 
@@ -30,7 +30,7 @@ def read_json_secret_file(file_path: str) -> (Dict | None):
     """
     try:
         with open(file_path, encoding="utf-8", mode="r") as file:
-            data: Dict = json.load(file)
+            data: Dict[str, str] = json.load(file)
             return data
     except FileNotFoundError:
         print(f"Error: File not found at '{file_path}'")
