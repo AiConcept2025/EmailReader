@@ -4,6 +4,7 @@ Process txt, pdf, rtf, images, foreign language documents documents
 to word document
 """
 import os
+import re
 from docx import Document
 from striprtf.striprtf import rtf_to_text
 from langdetect import detect
@@ -267,22 +268,24 @@ class DocProcessor:
 
         # Rename file to original
         rename_file(file_path, original_file_path)
-        docx_file_path = f'{file_name_no_ext}.docx'
+        docx_file_path = os.path.join(
+            document_folder, f'{file_name_no_ext}.docx')
 
         # Check if file is image
         if is_pdf_searchable_pypdf2(original_file_path):
-            text = read_pdf_doc_to_text(original_file_path)
+            # text = read_pdf_doc_to_text(original_file_path)
             convert_pdf_to_docx(original_file_path, docx_file_path)
         else:
             ocr_pdf_image_to_doc(original_file_path, docx_file_path)
-            text = read_word_doc_to_text(docx_file_path)
-        if detect(text) != 'en':
-            new_file_name = f'{client}+{file_name_no_ext}+translated{file_ext}'
-            new_file_path = os.path.join(document_folder, new_file_name)
-            translate_document_to_english(
-                docx_file_path, new_file_path)
-        else:
-            new_file_name = f'{client}+{file_name_no_ext}+converted.docx'
-            new_file_path = os.path.join(document_folder, new_file_name)
+        #    text = read_word_doc_to_text(docx_file_path)
+        # if detect(text) != 'en':
+        new_file_name = f'{client}+{file_name_no_ext}+translated.docx'
+        new_file_path = os.path.join(document_folder, new_file_name)
+        translate_document_to_english(
+            docx_file_path, new_file_path)
+        # else:
+        #     new_file_name = f'{client}+{file_name_no_ext}+converted.docx'
+        #     new_file_path = os.path.join(document_folder, new_file_name)
+        #     rename_file(docx_file_path, new_file_path)
         delete_file(docx_file_path)
         return (new_file_path, new_file_name, original_file_name, original_file_path)
