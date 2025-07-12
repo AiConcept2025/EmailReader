@@ -4,7 +4,7 @@ Process images pdf files
 import os
 import tempfile
 from sys import platform
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 import pytesseract
 from pdf2image import convert_from_path
 from pdf2image.exceptions import (PDFInfoNotInstalledError, PDFPageCountError,
@@ -31,7 +31,7 @@ def get_platform() -> str:
 
 def is_pdf_searchable_pypdf2(pdf_path) -> bool:
     """
-    Checks if a PDF is searchable using PyPDF2 (by attempting to extract text).
+    Checks if a PDF is searchable using pypdf (by attempting to extract text).
 
     Args:
         pdf_path (str): Path to the PDF document.

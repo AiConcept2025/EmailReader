@@ -10,8 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List
 import shutil
-
-import pypdf
+from pypdf import PdfReader
 from docx import Document
 
 from src.logger import logger
@@ -105,7 +104,7 @@ def read_pdf_doc_to_text(pdf_file_path: str) -> str:
     Args:
     pdf_file_path: path for PDF file
     """
-    reader = pypdf.PdfReader(pdf_file_path)
+    reader = PdfReader(pdf_file_path)
     num_pages = len(reader.pages)
     full_text: list[str] = []
     for page_num in range(num_pages):

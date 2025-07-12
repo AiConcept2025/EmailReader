@@ -3,7 +3,8 @@ Module implements FlowiseAI API
 """
 import os
 from typing import Dict, List
-import requests
+# import requests
+import pip._vendor.requests as requests
 
 from src.utils import read_json_secret_file
 
@@ -19,7 +20,9 @@ class FlowiseAiAPI:
         secrets: Dict[str, str] | None = read_json_secret_file(secrets_file)
         if secrets is None:
             raise ValueError("No secrets file found or it is empty")
-        flowise_ai_secrets: Dict[str, str] = secrets.get("flowiseAI")
+        flowise_ai_secrets = secrets.get("flowiseAI")
+        if not isinstance(flowise_ai_secrets, dict):
+            raise ValueError("flowiseAI secrets must be a dictionary")
         self.API_KEY = flowise_ai_secrets.get("API_KEY", "")
         self.API_URL = flowise_ai_secrets.get("API_URL")
         self.DOC_STORE_ID = flowise_ai_secrets.get("DOC_STORE_ID")
