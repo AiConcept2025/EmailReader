@@ -6,7 +6,7 @@ import os
 import time
 from typing import Dict, List
 
-from schedule import every, repeat  # type: ignore
+# from schedule import every, repeat  # type: ignore
 
 from src.email_sender import send_error_message
 from src.flowise_api import FlowiseAiAPI
@@ -18,7 +18,7 @@ from src.utils import delete_file
 type FilesFoldersDict = dict[str, str]
 
 
-@repeat(every(15).minutes)
+# @repeat(every(15).minutes)
 def process_google_drive():
     """
     Process all new documents from google drive

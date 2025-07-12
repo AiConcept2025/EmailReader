@@ -19,14 +19,18 @@ class FlowiseAiAPI:
         secrets: Dict[str, str] | None = read_json_secret_file(secrets_file)
         if secrets is None:
             raise ValueError("No secrets file found or it is empty")
-        flowiseAI_secrets: Dict[str, str] = secrets.get("flowiseAI")
-        self.API_KEY = flowiseAI_secrets.get("API_KEY", "")
-        self.API_URL = flowiseAI_secrets.get("API_URL")
-        self.DOC_STORE_ID = flowiseAI_secrets.get("DOC_STORE_ID")
-        self.DOC_LOADER_DOCX_ID = flowiseAI_secrets.get("DOC_LOADER_DOCX_ID")
-        self.CHATFLOW_ID = flowiseAI_secrets.get("CHATFLOW_ID")
+        flowise_ai_secrets: Dict[str, str] = secrets.get("flowiseAI")
+        self.API_KEY = flowise_ai_secrets.get("API_KEY", "")
+        self.API_URL = flowise_ai_secrets.get("API_URL")
+        self.DOC_STORE_ID = flowise_ai_secrets.get("DOC_STORE_ID")
+        self.DOC_LOADER_DOCX_ID = flowise_ai_secrets.get("DOC_LOADER_DOCX_ID")
+        self.CHATFLOW_ID = flowise_ai_secrets.get("CHATFLOW_ID")
 
-    def create_new_doc_store(self, name: str, description: str = None) -> Dict:
+    def create_new_doc_store(
+            self,
+            name: str,
+            description: str | None = None
+    ) -> Dict[object, object]:
         """
         Create a new document store
         Args:
@@ -59,7 +63,7 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def get_list_documents_store(self) -> List[Dict]:
+    def get_list_documents_store(self) -> List[Dict[object, object]]:
         """
         List all document stores
 
@@ -76,7 +80,10 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def get_specific_doc_store(self, store_id: str = None) -> Dict:
+    def get_specific_doc_store(
+            self,
+            store_id: str | None = None
+    ) -> Dict[object, object]:
         """
         Get a specific document store
         Args:
@@ -94,7 +101,10 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def update_specific_doc_store(self, store_id: str = None) -> Dict:
+    def update_specific_doc_store(
+            self,
+            store_id: str | None = None
+    ) -> Dict[object, object]:
         """
         Updates the details of a specific document store by its ID
         Args:
@@ -112,7 +122,7 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def delete_specific_doc_store(self, store_id: str) -> Dict:
+    def delete_specific_doc_store(self, store_id: str) -> Dict[object, object]:
         """
         Deletes a document store by its ID
         Args:
@@ -168,7 +178,11 @@ class FlowiseAiAPI:
             print(f'Upsert document to document store: {error}')
             return {'name': 'Error', 'error': error}
 
-    def get_document_page(self, store_id: str, doc_id: str, page: int = 0) -> Dict:
+    def get_document_page(
+            self,
+            store_id: str | None,
+            doc_id: str | None, page: int = 0
+    ) -> Dict[object, object]:
         """
             Read page from document store
             Args:
@@ -212,7 +226,7 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def update_docs_in_store(self, store_id) -> Dict:
+    def update_docs_in_store(self, store_id: str | None) -> Dict[object, object]:
         """
         Update document in the store and returns
         doc store info
@@ -229,7 +243,7 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def create_new_prediction(self, question: str) -> Dict:
+    def create_new_prediction(self, question: str) -> Dict[object, object]:
         """
         Create a new prediction
         Returns:
@@ -268,7 +282,7 @@ class FlowiseAiAPI:
         }
         """
         try:
-            data_body: Dict = {
+            data_body: Dict[str, object] = {
                 "overrideConfig": {},
                 "history": [{
                     "content": question,
@@ -289,6 +303,6 @@ class FlowiseAiAPI:
             )
             data = response.json()
             return data
-        except Exception as error:
+        except requests.RequestException as error:
             print(f'Create a new prediction: {error}')
-            return {'name': 'Error', 'error': error}
+            return {'name': 'Error', 'error': str(error)}

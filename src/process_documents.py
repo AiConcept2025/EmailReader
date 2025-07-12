@@ -31,9 +31,9 @@ class DocProcessor:
         and list for original documents
         """
         # Word documents
-        self.documents: str = []
+        self.documents: list[str] = []
         # Original document
-        self.original_documents: str = []
+        self.original_documents: list[str] = []
         # document folder path
         self.docs_path: str = doc_path
 

@@ -3,7 +3,7 @@ Start point for the application.
 """
 import os
 # import time
-from schedule import run_pending
+# from schedule import run_pending
 from src.app import process_google_drive
 
 
