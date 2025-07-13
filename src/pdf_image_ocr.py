@@ -57,15 +57,12 @@ def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
     """
     logger.info('Set ')
     pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
-    poppler_folder = 'poppler-windows/poppler-24.08.0/Library/bin'
-    poppler_path = os.path.join(os.getcwd(),  poppler_folder)
     ocr_str = ''
     try:
         with tempfile.TemporaryDirectory(delete=False) as temp_file:
             images_from_path = convert_from_path(
                 pdf_path=ocr_file,
                 output_folder=temp_file,
-                poppler_path=poppler_path,
                 dpi=300,
                 fmt='png',)
             for image in images_from_path:
@@ -74,6 +71,11 @@ def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
                     image_path, config='-c preserve_interword_spaces=1')
                 ocr_str += text
     except PDFInfoNotInstalledError as e:
+        """
+        sudo apt-get update
+        sudo apt-get install -y poppler-utils
+        which pdfinfo # /usr/bin/pdfinfo.
+        """
         logger.error('PDFInfoNotInstalledError %s', e)
     except PDFPageCountError as e:
         logger.error('PDFPageCountError %s', e)
