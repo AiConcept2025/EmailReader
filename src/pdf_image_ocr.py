@@ -29,7 +29,7 @@ def get_platform() -> str:
     return app_platform
 
 
-def is_pdf_searchable_pypdf2(pdf_path) -> bool:
+def is_pdf_searchable_pypdf2(pdf_path: str) -> bool:
     """
     Checks if a PDF is searchable using pypdf (by attempting to extract text).
 
@@ -56,8 +56,8 @@ def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
     Perform OCR on a PDF file and save the result as a DOCX file.
     """
     logger.info('Set ')
-    pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
-    ocr_str = ''
+#    pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
+    ocr_str: str = ''
     try:
         with tempfile.TemporaryDirectory(delete=False) as temp_file:
             images_from_path = convert_from_path(
@@ -68,14 +68,12 @@ def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
             for image in images_from_path:
                 image_path = os.path.join(temp_file, image.filename)
                 text = pytesseract.image_to_string(
-                    image_path, config='-c preserve_interword_spaces=1')
+                    image_path, config='-c preserve_interword_spaces=1', lang="rus")
                 ocr_str += text
     except PDFInfoNotInstalledError as e:
-        """
-        sudo apt-get update
-        sudo apt-get install -y poppler-utils
-        which pdfinfo # /usr/bin/pdfinfo.
-        """
+        # sudo apt-get update
+        # sudo apt-get install -y poppler-utils
+        # which pdfinfo # /usr/bin/pdfinfo.
         logger.error('PDFInfoNotInstalledError %s', e)
     except PDFPageCountError as e:
         logger.error('PDFPageCountError %s', e)
