@@ -138,7 +138,7 @@ def translate_document_to_english(original_path: str, translated_path: str) -> N
     translated_path: output english Word document Word format
     """
     executable_path = Path(os.path.join(
-        os.getcwd(), 'translate_document', "translate_document.exe"))
+        os.getcwd(), "translate_document"))
     arguments = ['-i', original_path, '-o', translated_path]
     command = [executable_path] + arguments
     try:

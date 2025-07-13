@@ -12,6 +12,7 @@ from pdf2image.exceptions import (PDFInfoNotInstalledError, PDFPageCountError,
 
 from src.convert_to_docx import convert_txt_to_docx
 from src.logger import logger
+from langdetect import detect_langs, DetectorFactory
 
 
 def get_platform() -> str:
@@ -56,7 +57,7 @@ def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
     Perform OCR on a PDF file and save the result as a DOCX file.
     """
     logger.info('Set ')
-#    pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
+    DetectorFactory.seed = 0  # For consistent results
     ocr_str: str = ''
     try:
         with tempfile.TemporaryDirectory(delete=False) as temp_file:
@@ -68,8 +69,17 @@ def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
             for image in images_from_path:
                 image_path = os.path.join(temp_file, image.filename)
                 text = pytesseract.image_to_string(
-                    image_path, config='-c preserve_interword_spaces=1', lang="rus")
+                    image_path, config='-c preserve_interword_spaces=1')  # , lang="rus")
                 ocr_str += text
+                lang = detect_langs(ocr_str)[0]
+                if lang.lang == 'id' or lang.lang == 'ru':
+                    ocr_str = ''
+                    for image in images_from_path:
+                        image_path = os.path.join(temp_file, image.filename)
+                        text = pytesseract.image_to_string(
+                            image_path, config='-c preserve_interword_spaces=1', lang="rus")
+                        ocr_str += text
+
     except PDFInfoNotInstalledError as e:
         # sudo apt-get update
         # sudo apt-get install -y poppler-utils
