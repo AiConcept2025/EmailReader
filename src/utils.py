@@ -12,7 +12,7 @@ from typing import Dict, List
 import shutil
 from pypdf import PdfReader
 from docx import Document
-
+from striprtf.striprtf import rtf_to_text
 from src.logger import logger
 
 
@@ -28,46 +28,50 @@ def read_json_secret_file(file_path: str) -> (Dict[str, str] | None):
         or None if an error occurs.
     """
     try:
-        with open(file_path, encoding="utf-8", mode="r") as file:
+        with open(file_path, encoding='utf-8', mode='r') as file:
             data: Dict[str, str] = json.load(file)
             return data
     except FileNotFoundError:
-        print(f"Error: File not found at '{file_path}'")
+        logger.error('Error: File not found at %s', file_path)
         return None
     except json.JSONDecodeError:
-        print(f"Error: Invalid JSON format in '{file_path}'")
+        logger.error('Error: Invalid JSON format in %s', file_path)
         return None
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+    except OSError as e:
+        logger.error('An OS error occurred: %s', e)
         return None
 
 
 def utc_to_local(utc_dt: datetime) -> datetime:
     """
     Convert date/time to local time zone
-
     Args:
-
     """
     time_stamp = utc_dt.replace(tzinfo=timezone.utc)
     return time_stamp
 
 
-def list_all_dir_files():
+def list_all_dir_files() -> List[str]:
     """
     List all files in specify folder
     Args:
         folder: folder name
     """
     cwd = os.getcwd()
-    secrets: Dict = read_json_secret_file("secrets.json")
-    documents_folder = secrets.get("documents").get("documents_folder")
+    secrets = read_json_secret_file('secrets.json')
+    if secrets is None or secrets.get('documents') is None:
+        logger.error('Documents folder not specified in secrets.json')
+        return []
+    if not isinstance(secrets.get('documents'), dict):
+        logger.error('Documents folder not specified in secrets.json')
+        return []
+    documents_folder = secrets.get('documents').get('documents_folder')
     attachments_path = Path(os.path.join(cwd, documents_folder))
     attachments_dir_list = os.listdir(attachments_path)
     return attachments_dir_list
 
 
-def list_files_in_directory(folder_path: str) -> List:
+def list_files_in_directory(folder_path: str) -> List[str]:
     """
     Lists all files in the specified directory.
 
@@ -130,7 +134,10 @@ def read_word_doc_to_text(word_doc_path: str) -> str:
     return extracted_text
 
 
-def translate_document_to_english(original_path: str, translated_path: str) -> None:
+def translate_document_to_english(
+        original_path: str,
+        translated_path: str
+) -> None:
     """
     Translates word document in foreign language to English
     Args:
@@ -165,7 +172,7 @@ def copy_file(source_file: str, destination_file: str) -> bool:
         return False
 
 
-def delete_file(file_path: str):
+def delete_file(file_path: str) -> None:
     """
     Delete file by path
     """
@@ -193,3 +200,15 @@ def rename_file(current_file_name: str, new_file_name: str):
             f"Error: Permission denied. Unable to rename '{current_file_name}'.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+
+
+def convert_rtx_to_text(rtf_text: str) -> str:
+    """
+    Converts RTF text to plain text.
+    Args:
+        rtf_text: RTF formatted text.
+    Returns:
+        Plain text extracted from the RTF.
+    """
+    plain_text = rtf_to_text(rtf_text)
+    return plain_text

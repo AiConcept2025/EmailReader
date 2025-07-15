@@ -4,9 +4,7 @@ Process txt, pdf, rtf, images, foreign language documents documents
 to word document
 """
 import os
-import re
 from docx import Document
-from striprtf.striprtf import rtf_to_text
 from langdetect import detect
 from src.pdf_image_ocr import is_pdf_searchable_pypdf2, ocr_pdf_image_to_doc
 from src.convert_to_docx import convert_pdf_to_docx
@@ -14,8 +12,7 @@ from src.logger import logger
 from src.utils import (
     delete_file,
     translate_document_to_english,
-    read_word_doc_to_text,
-    read_pdf_doc_to_text,
+    convert_rtx_to_text
 )
 from src.utils import rename_file
 
@@ -39,7 +36,11 @@ class DocProcessor:
         self.docs_path: str = doc_path
 
     # Process PDF documents
-    def convert_pdf_payload_to_word(self, client: str, doc_name: str, payload: str) -> None:
+    def convert_pdf_payload_to_word(
+            self,
+            client: str,
+            doc_name: str,
+            payload: str) -> None:
         """
         Process PDF image or searchable doc and generate
         Word document
@@ -53,12 +54,17 @@ class DocProcessor:
         file_name = f'{client}+{file_name_no_ext}+original+original{file_ext}'
         file_path = os.path.join(self.docs_path, file_name)
         # Save original file in doc directory
-        with open(file_path, "wb") as f:
-            f.write(payload)
+        document = Document()
+        document.add_paragraph(payload)
+        document.save(file_path)
 
     # Process TIF document
 
-    def convert_rtf_text_to_world(self, client: str, rtf_file_name: str, payload: str) -> None:
+    def convert_rtf_text_to_world(
+            self,
+            client: str,
+            rtf_file_name: str,
+            payload: str) -> None:
         """
         Converts a RTF text to a Word document.
         Args:
@@ -69,25 +75,32 @@ class DocProcessor:
         logger.info('Client %s convert TIF %s to Word document',
                     client, rtf_file_name)
         file_name_no_ext, _ = os.path.splitext(rtf_file_name)
-        plain_text = rtf_to_text(payload)
+        plain_text = convert_rtx_to_text(payload)
 
         rtf_file_path = os.path.join(
-            self.docs_path, f'{client}+{file_name_no_ext}+original+original.tft')
+            self.docs_path,
+            f'{client}+{file_name_no_ext}+original+original.tft')
         with open(rtf_file_path, 'w', encoding='utf-8') as fl:
             fl.write(payload)
 
         doc_file_path = os.path.join(
-            self.docs_path, f'{client}+{file_name_no_ext}+original+original.doc')
+            self.docs_path,
+            f'{client}+{file_name_no_ext}+original+original.doc')
         with open(doc_file_path, 'w', encoding='utf-8') as fl:
             fl.write(plain_text)
 
         # Check if foreign language
         if detect(plain_text) != 'en':
             translated_file_path = os.path.join(
-                self.docs_path, f'{client}+{file_name_no_ext}+original+translated.doc')
+                self.docs_path,
+                f'{client}+{file_name_no_ext}+original+translated.doc')
             translate_document_to_english(doc_file_path, translated_file_path)
 
-    def convert_rtf_file_to_world(self, client: str, rtf_file_name: str) -> None:
+    def convert_rtf_file_to_world(
+            self,
+            client: str,
+            rtf_file_name: str
+    ) -> None:
         """
             Converts a RTF file to a Word document.
             Args:
@@ -100,26 +113,33 @@ class DocProcessor:
             rtf_text = fl.read()
 
         file_name_no_ext, _ = os.path.splitext(rtf_file_name)
-        plain_text = rtf_to_text(rtf_text)
+        plain_text = convert_rtx_to_text(rtf_text)
 
         rtf_file_path = os.path.join(
-            self.docs_path, f'{client}+{file_name_no_ext}+original+original.tft')
+            self.docs_path,
+            f'{client}+{file_name_no_ext}+original+original.tft')
         with open(rtf_file_path, 'w', encoding='utf-8') as fl:
             fl.write(rtf_text)
 
         doc_file_path = os.path.join(
-            self.docs_path, f'{client}+{file_name_no_ext}+original+original.doc')
+            self.docs_path,
+            f'{client}+{file_name_no_ext}+original+original.doc')
         with open(doc_file_path, 'w', encoding='utf-8') as fl:
             fl.write(plain_text)
 
         # Check if foreign language
         if detect(plain_text) != 'en':
             translated_file_path = os.path.join(
-                self.docs_path, f'{client}+{file_name_no_ext}+original+translated.doc')
+                self.docs_path,
+                f'{client}+{file_name_no_ext}+original+translated.doc')
             translate_document_to_english(doc_file_path, translated_file_path)
 
     # Process plain text
-    def convert_plain_text_to_word(self, client: str, txt_file_name: str, payload: str) -> None:
+    def convert_plain_text_to_word(
+            self,
+            client: str,
+            txt_file_name: str,
+            payload: str) -> None:
         """
         Converts a plain text to a Word document.
         Args:
@@ -130,9 +150,11 @@ class DocProcessor:
         logger.info('Convert txt to word %s', txt_file_name)
         file_name_no_ext, _ = os.path.splitext(txt_file_name)
         file_path = os.path.join(
-            self.docs_path, f'{client}+{file_name_no_ext}+original+original.txt')
+            self.docs_path,
+            f'{client}+{file_name_no_ext}+original+original.txt')
         doc_file_path = os.path.join(
-            self.docs_path, f'{client}+{file_name_no_ext}+original+original.doc')
+            self.docs_path,
+            f'{client}+{file_name_no_ext}+original+original.doc')
         with open(file_path, 'w', encoding='utf-8') as fl:
             fl.write(payload)
         document = Document()
@@ -142,7 +164,8 @@ class DocProcessor:
         # Check if foreign language
         if detect(payload) != 'en':
             translated_file_path = os.path.join(
-                self.docs_path, f'{client}+{file_name_no_ext}+original+translated.doc')
+                self.docs_path,
+                f'{client}+{file_name_no_ext}+original+translated.doc')
             translate_document_to_english(doc_file_path, translated_file_path)
 
     def convert_plain_text_file_to_word(
@@ -160,11 +183,13 @@ class DocProcessor:
         logger.info('Convert txt file to word %s', txt_file_name)
         file_name_no_ext, _ = os.path.splitext(txt_file_name)
         file_path = os.path.join(
-            self.docs_path, f'{client}+{file_name_no_ext}+original+original.txt')
+            self.docs_path,
+            f'{client}+{file_name_no_ext}+original+original.txt')
         with open(file_path, 'r', encoding='utf-8') as fl:
             plain_text = fl.read()
         doc_file_path = os.path.join(
-            self.docs_path, f'{client}+{file_name_no_ext}+original+original.doc')
+            self.docs_path,
+            f'{client}+{file_name_no_ext}+original+original.doc')
         document = Document()
         document.add_paragraph(plain_text)
         document.save(doc_file_path)
@@ -172,11 +197,17 @@ class DocProcessor:
         # Check if foreign language
         if detect(plain_text) != 'en':
             translated_file_path = os.path.join(
-                self.docs_path, f'{client}+{file_name_no_ext}+original+translated.doc')
+                self.docs_path,
+                f'{client}+{file_name_no_ext}+original+translated.doc')
             translate_document_to_english(doc_file_path, translated_file_path)
 
     # Process Word document
-    def process_word_load(self, client: str, word_file_name: str, payload: str) -> None:
+    def process_word_load(
+            self,
+            client: str,
+            word_file_name: str,
+            payload: str
+    ) -> None:
         """
         Process Word document text to Word file
         Args:
@@ -195,7 +226,9 @@ class DocProcessor:
             word_file_path = os.path.join(self.docs_path, word_file_name)
             with open(word_file_path, 'w', encoding='utf-8') as fl:
                 fl.write(payload)
-            translated_file_name = f'{client}+{word_file_name}+original+translated.docx'
+            translated_file_name = (
+                f'{client}+{word_file_name}+original+translated.docx'
+            )
             translated_file_path = os.path.join(
                 self.docs_path, translated_file_name)
             translate_document_to_english(word_file_path, translated_file_path)
@@ -232,7 +265,8 @@ class DocProcessor:
         else:
             # If not English, translate it and rename file with +translated
             # Rename original file with +original
-            original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
+            original_file_name = (
+                f'{client}+{file_name_no_ext}+original{file_ext}')
             original_file_path = os.path.join(
                 document_folder, original_file_name)
             rename_file(file_path, original_file_path)
@@ -240,7 +274,11 @@ class DocProcessor:
             new_file_name = f'{client}+{file_name_no_ext}+translated{file_ext}'
             new_file_path = os.path.join(document_folder, new_file_name)
             translate_document_to_english(original_file_path, new_file_path)
-        return (new_file_path, new_file_name, original_file_name, original_file_path)
+        return (
+            new_file_path,
+            new_file_name,
+            original_file_name,
+            original_file_path)
 
     def convert_pdf_file_to_word(
             self,
@@ -288,4 +326,8 @@ class DocProcessor:
         #     new_file_path = os.path.join(document_folder, new_file_name)
         #     rename_file(docx_file_path, new_file_path)
         delete_file(docx_file_path)
-        return (new_file_path, new_file_name, original_file_name, original_file_path)
+        return (
+            new_file_path,
+            new_file_name,
+            original_file_name,
+            original_file_path)

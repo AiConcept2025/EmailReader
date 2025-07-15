@@ -56,7 +56,9 @@ def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
     """
     Perform OCR on a PDF file and save the result as a DOCX file.
     """
-    logger.info('Set ')
+    logger.info(
+        'Convert pdf image to doc %s',
+        os.path.basename(out_doc_file_path))
     DetectorFactory.seed = 0  # For consistent results
     ocr_str: str = ''
     try:
@@ -69,16 +71,10 @@ def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
             for image in images_from_path:
                 image_path = os.path.join(temp_file, image.filename)
                 text = pytesseract.image_to_string(
-                    image_path, config='-c preserve_interword_spaces=1')  # , lang="rus")
+                    image_path,
+                    config='-c preserve_interword_spaces=1',
+                    lang="eng+rus+aze+uzb+deu")
                 ocr_str += text
-                lang = detect_langs(ocr_str)[0]
-                if lang.lang == 'id' or lang.lang == 'ru':
-                    ocr_str = ''
-                    for image in images_from_path:
-                        image_path = os.path.join(temp_file, image.filename)
-                        text = pytesseract.image_to_string(
-                            image_path, config='-c preserve_interword_spaces=1', lang="rus")
-                        ocr_str += text
 
     except PDFInfoNotInstalledError as e:
         # sudo apt-get update
@@ -96,5 +92,5 @@ def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
 
 if __name__ == '__main__':
     # Example usage
-    ocr_pdf_image_to_doc('test_docs/file-sample-img.pdf',
+    ocr_pdf_image_to_doc('test_docs/PDF-scanned-rus-words.pdf',
                          'data/documents/file-pdf-image-to-doc.doc')
