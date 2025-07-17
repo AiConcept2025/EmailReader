@@ -48,5 +48,5 @@ uritemplate==4.2.0
 urllib3==2.5.0
 striprtf==0.0.29
 pypdf==5.7.0
-poppler-utils==0.0.1
+poppler-utils==0.1.0
 pyinstaller==6.14.2
