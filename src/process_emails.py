@@ -23,7 +23,7 @@ from src.pdf_image_ocr import is_pdf_searchable_pypdf2
 from src.convert_to_docx import convert_pdf_to_docx
 
 
-@repeat(every(2).hours)
+@repeat(every(2).minutes)
 def process_emails():
     """
     Check all emails extract attachments, upload attachments to

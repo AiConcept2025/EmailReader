@@ -3,8 +3,8 @@ Module implements FlowiseAI API
 """
 import os
 from typing import Dict, List
-# import requests
-import pip._vendor.requests as requests
+import requests
+# import pip._vendor.requests as requests
 
 from src.utils import read_json_secret_file
 
