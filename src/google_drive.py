@@ -5,7 +5,7 @@ Google Drive API wrapper class
 import os
 import io
 import shutil
-from typing import Dict, List, NamedTuple
+from typing import Any, Dict, List, NamedTuple
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -64,7 +64,15 @@ class GoogleApi:
                 body=file_metadata, media_body=media, fields='id,name').execute()
             return file
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"upload_file_to_google_drive: An error occurred: {error}")
+            logger.error(
+                'upload_file_to_google_drive: An error occurred: %s', error)
+            return {"name": "Error", "id": None}
+        except Exception as e:
+            print(f"upload_file_to_google_drive: An error occurred: {e}")
+            logger.error(
+                'upload_file_to_google_drive: An error occurred: %s', e)
+            error = str(e)
             return {"name": "Error", "id": error}
 
     def get_root_file_list(self) -> List[Dict]:
@@ -78,7 +86,13 @@ class GoogleApi:
             data = result.get('files')
             return data
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"get_root_file_list: An error occurred: {error}")
+            logger.error('get_root_file_list: An error occurred: %s', error)
+            return []
+        except Exception as e:
+            print(f"get_root_file_list: An error occurred: {e}")
+            logger.error('get_root_file_list: An error occurred: %s', e)
+            return []
 
     def file_exists(self, file_id: str):
         """
@@ -88,6 +102,9 @@ class GoogleApi:
             self.service.files().get(fileId=file_id, fields='id').execute()
             return True
         except Exception:
+            print(f"file_exists: File with ID {file_id} does not exist.")
+            logger.error(
+                'file_exists: File with ID %s does not exist.', file_id)
             return False
 
     #################################################
@@ -123,7 +140,12 @@ class GoogleApi:
                     break
             return folders
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"get_folders_list: An error occurred: {error}")
+            logger.error('get_folders_list: An error occurred: %s', error)
+            return []
+        except Exception as e:
+            print(f"get_folders_list: An error occurred: {e}")
+            logger.error('get_folders_list: An error occurred: %s', e)
             return []
 
     def if_folder_exist_by_name(self, folder_name: str, parent_folder_id: str | None = None) -> bool:
@@ -178,7 +200,12 @@ class GoogleApi:
                     break
             return folders
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"get_file_list: An error occurred: {error}")
+            logger.error('get_file_list: An error occurred: %s', error)
+            return []
+        except Exception as e:
+            print(f"get_file_list: An error occurred: {e}")
+            logger.error('get_file_list: An error occurred: %s', e)
             return []
 
     def get_file_list_in_folder1(self, parent_folder_id: str | None = None) -> List[Dict[str, str]]:
@@ -202,7 +229,13 @@ class GoogleApi:
             data = result.get('files')
             return data
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"get_file_list_in_folder1: An error occurred: {error}")
+            logger.error(
+                'get_file_list_in_folder1: An error occurred: %s', error)
+            return []
+        except Exception as e:
+            print(f"get_file_list_in_folder1: An error occurred: {e}")
+            logger.error('get_file_list_in_folder1: An error occurred: %s', e)
             return []
 
     def check_file_exists(self, file_id: str, parent_folder_id: str = None) -> bool:
@@ -234,20 +267,92 @@ class GoogleApi:
                 fields='id').execute()
             return FileFolder(id=folder.get('id'), name=folder_name)
         except HttpError as error:
-            logger.error('An error occurred: %s', error)
+            print(f"create_subfolder_in_folder: An error occurred: {error}")
+            logger.error(
+                'create_subfolder_in_folder: An error occurred: %s', error)
+            return FileFolder(id=None, name=None)
+        except Exception as e:
+            print(f"create_subfolder_in_folder: An error occurred: {e}")
+            logger.error(
+                'create_subfolder_in_folder: An error occurred: %s', e)
             return FileFolder(id=None, name=None)
 
     def delete_file(self, file_id: str):
         """
-        Delete file by string id
+        Move file to 'deleted' folder instead of trashing
+        If 'deleted' folder doesn't exist, create it
         Args:
-        file_id: file id
+            file_id: file id to move
+        Returns:
+            Response dict on success, None on failure
         """
         try:
-            result = self.service.files().delete(fileId=file_id).execute()
-            return result
+            # Get the file's current parent folder and name
+            file_info = self.service.files().get(
+                fileId=file_id,
+                fields='parents,name',
+                supportsAllDrives=True
+            ).execute()
+            
+            file_name = file_info.get('name', 'Unknown')
+            parents = file_info.get('parents', [])
+            
+            if not parents:
+                logger.error("File %s has no parent folder", file_name)
+                return None
+                
+            current_parent = parents[0]
+            
+            # Check if 'deleted' folder exists in the current parent
+            deleted_folder_id = None
+            folders = self.get_folders_list(parent_folder_id=current_parent)
+            
+            for folder in folders:
+                if folder['name'] == 'deleted':
+                    deleted_folder_id = folder['id']
+                    logger.info("Found existing 'deleted' folder: %s", deleted_folder_id)
+                    break
+            
+            # Create 'deleted' folder if it doesn't exist
+            if not deleted_folder_id:
+                logger.info("Creating 'deleted' folder in parent: %s", current_parent)
+                deleted_folder = self.create_subfolder_in_folder(
+                    folder_name='deleted',
+                    parent_folder_id=current_parent
+                )
+                
+                if not deleted_folder.id:
+                    logger.error("Failed to create 'deleted' folder")
+                    return None
+                    
+                deleted_folder_id = deleted_folder.id
+                logger.info("Created 'deleted' folder: %s", deleted_folder_id)
+            
+            # Move the file to 'deleted' folder
+            logger.info("Moving file '%s' to 'deleted' folder", file_name)
+            response = self.service.files().update(
+                fileId=file_id,
+                addParents=deleted_folder_id,
+                removeParents=current_parent,
+                fields='id,name,parents',
+                supportsAllDrives=True
+            ).execute()
+            
+            logger.info("Successfully moved file '%s' (ID: %s) to 'deleted' folder", 
+                       file_name, file_id)
+            print(f"Moved file '{file_name}' to 'deleted' folder")
+            return response
+            
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"delete_file: An error occurred: {error}")
+            logger.error('delete_file: An error occurred while moving file %s: %s', 
+                        file_id, error)
+            return None
+        except Exception as e:
+            print(f"delete_file: An error occurred: {e}")
+            logger.error('delete_file: An error occurred while moving file %s: %s', 
+                        file_id, e)
+            return None
 
     def if_file_exists_by_name(self, file_name, folder_id=None):
         """
@@ -271,38 +376,46 @@ class GoogleApi:
             items = results.get('files', [])
             return len(items) > 0
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"if_file_exists_by_name: An error occurred: {error}")
+            logger.error(
+                'if_file_exists_by_name: An error occurred: %s', error)
+            return False
+        except Exception as e:
+            print(f"if_file_exists_by_name: An error occurred: {e}")
+            logger.error('if_file_exists_by_name: An error occurred: %s', e)
             return False
 
 ##########################################################################################
 
     def file_download(self, file_id: str, file_path: str) -> bool:
-        """        Download file from Google Drive
         """
-        request: Unknown = self.service.files().get_media(fileId=file_id)
+        Download file from Google Drive
+        """
+        request: Any = self.service.files().get_media(fileId=file_id)
         fh = io.BytesIO()
-
         # Initialise a downloader object to download the file
         downloader = MediaIoBaseDownload(fh, request, chunksize=204800)
         done = False
-
         try:
             # Download the data in chunks
             while not done:
                 _, done = downloader.next_chunk()
-
             fh.seek(0)
-
             # Write the received data to the file
             with open(file_path, 'wb') as f:
                 shutil.copyfileobj(fh, f)
-
             print("File Downloaded")
             # Return True if file Downloaded successfully
             return True
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"file_download: An error occurred: {error}")
+            logger.error('file_download: An error occurred: %s', error)
             return False
+        except Exception as e:
+            print(f"file_download: An error occurred: {e}")
+            logger.error('file_download: An error occurred: %s', e)
+            return False
+
 ##########################################################################################
 
 
