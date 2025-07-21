@@ -11,7 +11,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
-
+from src.utils import read_json_secret_file
 from src.logger import logger
 
 
@@ -32,6 +32,12 @@ class GoogleApi:
         """
         Initialise service with credentials
         """
+        secrets_path = os.path.join(
+            os.getcwd(), 'credentials', 'secrets.json')
+        secrets = read_json_secret_file(secrets_path)
+        self.parent_folder_id = secrets.get(
+            'google_drive').get('parent_folder_id')
+
         scope = ['https://www.googleapis.com/auth/drive']
         service_account_json_key = os.path.join(
             os.getcwd(), 'credentials', 'service-account-key.json')
@@ -40,7 +46,6 @@ class GoogleApi:
             filename=service_account_json_key,
             scopes=scope)
         self.service: object = build('drive', 'v3', credentials=credentials)
-        self.parent_folder_id = '1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8'  # IrisSolutions
 
     def upload_file_to_google_drive(
             self,
@@ -293,41 +298,43 @@ class GoogleApi:
                 fields='parents,name',
                 supportsAllDrives=True
             ).execute()
-            
+
             file_name = file_info.get('name', 'Unknown')
             parents = file_info.get('parents', [])
-            
+
             if not parents:
                 logger.error("File %s has no parent folder", file_name)
                 return None
-                
+
             current_parent = parents[0]
-            
+
             # Check if 'deleted' folder exists in the current parent
             deleted_folder_id = None
             folders = self.get_folders_list(parent_folder_id=current_parent)
-            
+
             for folder in folders:
                 if folder['name'] == 'deleted':
                     deleted_folder_id = folder['id']
-                    logger.info("Found existing 'deleted' folder: %s", deleted_folder_id)
+                    logger.info(
+                        "Found existing 'deleted' folder: %s", deleted_folder_id)
                     break
-            
+
             # Create 'deleted' folder if it doesn't exist
             if not deleted_folder_id:
-                logger.info("Creating 'deleted' folder in parent: %s", current_parent)
+                logger.info(
+                    "Creating 'deleted' folder in parent: %s", current_parent)
                 deleted_folder = self.create_subfolder_in_folder(
                     folder_name='deleted',
                     parent_folder_id=current_parent
                 )
-                
+
                 if not deleted_folder.id:
                     logger.error("Failed to create 'deleted' folder")
                     return None
-                    
+
                 deleted_folder_id = deleted_folder.id
                 logger.info("Created 'deleted' folder: %s", deleted_folder_id)
-            
+
             # Move the file to 'deleted' folder
             logger.info("Moving file '%s' to 'deleted' folder", file_name)
             response = self.service.files().update(
@@ -337,21 +344,21 @@ class GoogleApi:
                 fields='id,name,parents',
                 supportsAllDrives=True
             ).execute()
-            
-            logger.info("Successfully moved file '%s' (ID: %s) to 'deleted' folder", 
-                       file_name, file_id)
+
+            logger.info("Successfully moved file '%s' (ID: %s) to 'deleted' folder",
+                        file_name, file_id)
             print(f"Moved file '{file_name}' to 'deleted' folder")
             return response
-            
+
         except HttpError as error:
             print(f"delete_file: An error occurred: {error}")
-            logger.error('delete_file: An error occurred while moving file %s: %s', 
-                        file_id, error)
+            logger.error('delete_file: An error occurred while moving file %s: %s',
+                         file_id, error)
             return None
         except Exception as e:
             print(f"delete_file: An error occurred: {e}")
-            logger.error('delete_file: An error occurred while moving file %s: %s', 
-                        file_id, e)
+            logger.error('delete_file: An error occurred while moving file %s: %s',
+                         file_id, e)
             return None
 
     def if_file_exists_by_name(self, file_name, folder_id=None):

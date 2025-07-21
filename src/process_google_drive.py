@@ -46,7 +46,7 @@ def process_google_drive():
                     parent_folder_id=client_folder_id,
                     folder_name=sub_folder
                 )
-    time.sleep(10)
+    time.sleep(20)
     # Check for new files in inbox
     for client in clients:
         client_folder_id = client.get('id')
@@ -127,7 +127,8 @@ def process_google_drive():
                     # Wait 2 min
                     time.sleep(120)
                     # Delete file from inbox
-                    print(f"\n--- Attempting to delete file: {file_name} (ID: {file_id}) ---")
+                    print(
+                        f"\n--- Attempting to delete file: {file_name} (ID: {file_id}) ---")
                     google_api.diagnose_delete_issue(file_id)
                     result = google_api.delete_file(file_id=file_id)
                     if result is None:
