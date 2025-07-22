@@ -392,7 +392,7 @@ class GoogleApi:
             logger.error('if_file_exists_by_name: An error occurred: %s', e)
             return False
 
-##########################################################################################
+###############################################################################
 
     def file_download(self, file_id: str, file_path: str) -> bool:
         """
@@ -423,7 +423,7 @@ class GoogleApi:
             logger.error('file_download: An error occurred: %s', e)
             return False
 
-##########################################################################################
+##############################################################################
 
 
 """

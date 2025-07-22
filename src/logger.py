@@ -14,7 +14,9 @@ logging_path = os.path.join(os.getcwd(), 'data', 'logging.log')
 try:
     os.remove(logging_path)
 except FileNotFoundError:
-    pass
+    print("Logging file not found, creating a new one.")
+except Exception as e:
+    print(f"An error occurred while removing the logging file: {e}")
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     filename=logging_path,
