@@ -398,12 +398,12 @@ class GoogleApi:
         """
         Download file from Google Drive
         """
-        request: Any = self.service.files().get_media(fileId=file_id)
-        fh = io.BytesIO()
-        # Initialise a downloader object to download the file
-        downloader = MediaIoBaseDownload(fh, request, chunksize=204800)
-        done = False
         try:
+            request: Any = self.service.files().get_media(fileId=file_id)
+            fh = io.BytesIO()
+            # Initialise a downloader object to download the file
+            downloader = MediaIoBaseDownload(fh, request, chunksize=204800)
+            done: bool = False
             # Download the data in chunks
             while not done:
                 _, done = downloader.next_chunk()
