@@ -4,6 +4,7 @@ Module implements FlowiseAI API
 import os
 from typing import Dict, List
 import requests
+# import pip._vendor.requests as requests
 
 from src.utils import read_json_secret_file
 
@@ -16,15 +17,23 @@ class FlowiseAiAPI:
     def __init__(self):
         secrets_file = os.path.join(
             os.getcwd(), 'credentials', 'secrets.json')
-        secrets: Dict = read_json_secret_file(secrets_file)
-        flowiseAI_secrets = secrets.get("flowiseAI")
-        self.API_KEY = flowiseAI_secrets.get("API_KEY")
-        self.API_URL = flowiseAI_secrets.get("API_URL")
-        self.DOC_STORE_ID = flowiseAI_secrets.get("DOC_STORE_ID")
-        self.DOC_LOADER_DOCX_ID = flowiseAI_secrets.get("DOC_LOADER_DOCX_ID")
-        self.CHATFLOW_ID = flowiseAI_secrets.get("CHATFLOW_ID")
+        secrets: Dict[str, str] | None = read_json_secret_file(secrets_file)
+        if secrets is None:
+            raise ValueError("No secrets file found or it is empty")
+        flowise_ai_secrets = secrets.get("flowiseAI")
+        if not isinstance(flowise_ai_secrets, dict):
+            raise ValueError("flowiseAI secrets must be a dictionary")
+        self.API_KEY = flowise_ai_secrets.get("API_KEY", "")
+        self.API_URL = flowise_ai_secrets.get("API_URL")
+        self.DOC_STORE_ID = flowise_ai_secrets.get("DOC_STORE_ID")
+        self.DOC_LOADER_DOCX_ID = flowise_ai_secrets.get("DOC_LOADER_DOCX_ID")
+        self.CHATFLOW_ID = flowise_ai_secrets.get("CHATFLOW_ID")
 
-    def create_new_doc_store(self, name: str, description: str = None) -> Dict:
+    def create_new_doc_store(
+            self,
+            name: str,
+            description: str | None = None
+    ) -> Dict[object, object]:
         """
         Create a new document store
         Args:
@@ -57,7 +66,7 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def get_list_documents_store(self) -> List[Dict]:
+    def get_list_documents_store(self) -> List[Dict[object, object]]:
         """
         List all document stores
 
@@ -74,7 +83,10 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def get_specific_doc_store(self, store_id: str = None) -> Dict:
+    def get_specific_doc_store(
+            self,
+            store_id: str | None = None
+    ) -> Dict[object, object]:
         """
         Get a specific document store
         Args:
@@ -92,7 +104,10 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def update_specific_doc_store(self, store_id: str = None) -> Dict:
+    def update_specific_doc_store(
+            self,
+            store_id: str | None = None
+    ) -> Dict[object, object]:
         """
         Updates the details of a specific document store by its ID
         Args:
@@ -110,7 +125,7 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def delete_specific_doc_store(self, store_id: str) -> Dict:
+    def delete_specific_doc_store(self, store_id: str) -> Dict[object, object]:
         """
         Deletes a document store by its ID
         Args:
@@ -130,15 +145,15 @@ class FlowiseAiAPI:
     def upsert_document_to_document_store(
             self,
             doc_path: str,
-            doc_name: str,
-            store_id: str = None,
-            loader_id: str = None) -> Dict:
+            doc_name: str | None = None,
+            store_id: str | None = None,
+            loader_id: str | None = None) -> Dict[object, object]:
         """
         Upsert document to document store
         """
         try:
             if doc_name is None:
-                return
+                return {'name': 'Error', 'error': 'No document name provided'}
             if store_id is None:
                 store_id = self.DOC_STORE_ID
             if loader_id is None:
@@ -166,7 +181,11 @@ class FlowiseAiAPI:
             print(f'Upsert document to document store: {error}')
             return {'name': 'Error', 'error': error}
 
-    def get_document_page(self, store_id: str, doc_id: str, page: int = 0) -> Dict:
+    def get_document_page(
+            self,
+            store_id: str | None,
+            doc_id: str | None, page: int = 0
+    ) -> Dict[object, object]:
         """
             Read page from document store
             Args:
@@ -210,7 +229,7 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def update_docs_in_store(self, store_id) -> Dict:
+    def update_docs_in_store(self, store_id: str | None) -> Dict[object, object]:
         """
         Update document in the store and returns
         doc store info
@@ -227,7 +246,7 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def create_new_prediction(self, question: str) -> Dict:
+    def create_new_prediction(self, question: str) -> Dict[object, object]:
         """
         Create a new prediction
         Returns:
@@ -266,7 +285,7 @@ class FlowiseAiAPI:
         }
         """
         try:
-            data_body: Dict = {
+            data_body: Dict[str, object] = {
                 "overrideConfig": {},
                 "history": [{
                     "content": question,
@@ -287,6 +306,6 @@ class FlowiseAiAPI:
             )
             data = response.json()
             return data
-        except Exception as error:
+        except requests.RequestException as error:
             print(f'Create a new prediction: {error}')
-            return {'name': 'Error', 'error': error}
+            return {'name': 'Error', 'error': str(error)}

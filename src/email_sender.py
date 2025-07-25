@@ -1,25 +1,31 @@
+"""
+Send error email
+"""
 from email.mime.text import MIMEText
 from smtplib import SMTP_SSL as SMTP
 
-SMTPserver = 'smtp.att.yahoo.com'
-sender = "danishevsky@yahoo.com"
+SMTP_SERVER = 'smtp.att.yahoo.com'
+SENDER = "danishevsky@yahoo.com"
 destination = ['danishevsky@gmail.com']
 USERNAME = "danishevsky@yahoo.com"
 PASSWORD = "jesldoieqwsjeqai"
 # typical values for text_subtype are plain, html, xml
-text_subtype = 'plain'
-subject = "Send from EmailReader"
+TEXT_SUBTYPE = 'plain'
+SUBJECT = "Send from EmailReader"
 
 
-def send_error_message(content: None = 'Send email Error'):
+def send_error_message(content: str = 'Send email Error'):
+    """
+    Send email with error message
+    """
     try:
-        msg = MIMEText(content, text_subtype)
-        msg['Subject'] = subject
-        msg['From'] = sender
-        conn = SMTP(SMTPserver)
+        msg = MIMEText(content, TEXT_SUBTYPE)
+        msg['Subject'] = SUBJECT
+        msg['From'] = SENDER
+        conn = SMTP(SMTP_SERVER)
         conn.set_debuglevel(False)
         conn.login(USERNAME, PASSWORD)
-        conn.sendmail(sender, destination, msg.as_string())
+        conn.sendmail(SENDER, destination, msg.as_string())
 
     except Exception as error:
         print(error)
