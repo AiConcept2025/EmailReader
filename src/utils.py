@@ -16,7 +16,7 @@ from striprtf.striprtf import rtf_to_text
 from src.logger import logger
 
 
-def read_json_secret_file(file_path: str) -> (Dict[str, str] | None):
+def read_json_secret_file(file_path: str) -> (Dict[str, Dict[str, str]] | None):
     """
     Reads a JSON Secrets file and returns its content as a Python dictionary.
 

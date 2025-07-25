@@ -1,7 +1,6 @@
 """
 Google Drive API wrapper class
 """
-import json
 import os
 import io
 import shutil
@@ -11,8 +10,8 @@ from googleapiclient.discovery import build  # type: ignore
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
-# from src.utils import read_json_secret_file
-# from src.logger import logger
+from src.utils import read_json_secret_file
+from src.logger import logger
 
 
 class FileFolder(NamedTuple):
@@ -35,9 +34,18 @@ class GoogleApi:
         secrets_path = os.path.join(
             os.getcwd(), 'credentials', 'secrets.json')
         secrets = read_json_secret_file(secrets_path)
-        self.parent_folder_id = secrets.get(
-            'google_drive').get('parent_folder_id')
-
+        if not isinstance(secrets, Dict):
+            logger.error('Secrets file not found or invalid')
+            raise FileNotFoundError('Secrets file not found or invalid')
+        google_drive_settings = secrets.get('google_drive')
+        if not isinstance(google_drive_settings, Dict):
+            logger.error('Google Drive settings not found in secrets.json')
+            raise KeyError('Google Drive settings not found in secrets.json')
+        self.parent_folder_id = google_drive_settings.get(
+            'parent_folder_id', '')
+        if self.parent_folder_id == '':
+            logger.error('Parent folder ID not specified in secrets.json')
+            raise KeyError('Parent folder ID not specified in secrets.json')
         scope = ['https://www.googleapis.com/auth/drive']
         service_account_json_key = os.path.join(
             os.getcwd(), 'credentials', 'service-account-key.json')
@@ -49,24 +57,27 @@ class GoogleApi:
 
     def upload_file_to_google_drive(
             self,
-            parent_folder_id: str | None,
-            file_path: str, file_name: str
+            file_path: str,
+            file_name: str,
+            parent_folder_id: str = '',
     ) -> (object | dict[str, object]):
         """
         Uploading a File to Google Drive
         """
         try:
-            if parent_folder_id is None:
+            if parent_folder_id == '':
                 parent_folder_id = self.parent_folder_id
-            file_metadata = {
+            file_metadata: Dict[str, str | List[str]] = {
                 'name': file_name,
                 # ID of the folder where you want to upload
                 'parents': [parent_folder_id],
                 'mimeType': '*/*'
             }
             media = MediaFileUpload(filename=file_path, mimetype='*/*')
-            file = self.service.files().create(
-                body=file_metadata, media_body=media, fields='id,name').execute()
+            file = self.service.files().create(  # type: ignore
+                body=file_metadata,
+                media_body=media,
+                fields='id,name').execute()
             return file
         except HttpError as error:
             print(f"upload_file_to_google_drive: An error occurred: {error}")
@@ -85,7 +96,8 @@ class GoogleApi:
         Returns file list
         """
         try:
-            result = self.service.files().list(fields="files(id, name)").execute()
+            result = self.service.files().list(
+                fields="files(id, name)").execute()
             # return the result dictionary containing
             # the information about the files
             data = result.get('files')
@@ -461,26 +473,3 @@ List of MimeTypes
 "application/vnd.android.package-archive"
 "application/vnd.google-apps.kix"
 """
-
-
-def read_json_secret_file(file_path: str) -> (Dict[str, str] | None):
-    """
-    Reads a JSON Secrets file and returns its content as a Python dictionary.
-
-    Args:
-        file_path (str): The path to the JSON file.
-
-    Returns:
-        dict: A dictionary representing the JSON data,
-        or None if an error occurs.
-    """
-
-    with open(file_path, encoding='utf-8', mode='r') as file:
-        data: Dict[str, str] = json.load(file)
-        return data
-
-
-if __name__ == "__main__":
-    google_drive = GoogleApi()
-    print(google_drive.get_root_file_list())
-    print(google_drive.get_folders_list())
