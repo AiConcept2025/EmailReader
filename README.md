@@ -67,3 +67,4 @@ sudo apt-get purge poppler-utils
 sudo apt-get install -y poppler-utils
 Specify Poppler path in your code (if using a library like pdf2image): Some libraries allow you to explicitly specify the path to Poppler utilities. Consult the documentation of the specific library you are using for details.
 By following these steps, you should be able to install Poppler and resolve the PDFInfoNotInstalledError on your Ubuntu system.
+COMMIT TEST
