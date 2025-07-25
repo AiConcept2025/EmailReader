@@ -129,8 +129,8 @@ def process_google_drive():
                     time.sleep(120)
                     # Delete file from inbox
                     print(
-                        f"\n--- Attempting to delete file: {file_name} (ID: {file_id}) ---")
-                    google_api.diagnose_delete_issue(file_id)
+                        ("Attempting to delete file: "
+                         f"{file_name} (ID: {file_id})"))
                     result = google_api.delete_file(file_id=file_id)
                     if result is None:
                         print("Delete failed - trying alternative approach...")

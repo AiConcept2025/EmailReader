@@ -1,18 +1,18 @@
 """
 Google Drive API wrapper class
 """
-
+import json
 import os
 import io
 import shutil
 from typing import Any, Dict, List, NamedTuple
 from google.oauth2 import service_account
-from googleapiclient.discovery import build
+from googleapiclient.discovery import build  # type: ignore
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
-from src.utils import read_json_secret_file
-from src.logger import logger
+# from src.utils import read_json_secret_file
+# from src.logger import logger
 
 
 class FileFolder(NamedTuple):
@@ -117,7 +117,10 @@ class GoogleApi:
     #################################################
     #################################################
 
-    def get_folders_list(self, parent_folder_id: str | None = None) -> List[Dict[str, str]]:
+    def get_folders_list(
+            self,
+            parent_folder_id: str | None = None
+    ) -> List[Dict[str, str]]:
         """
         Returns list of all the folders
         [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'folder_name'}]
@@ -293,18 +296,18 @@ class GoogleApi:
         """
         try:
             # Get the file's current parent folder and name
-            file_info = self.service.files().get(
+            file_info = self.service.files().get(  # type: ignore
                 fileId=file_id,
                 fields='parents,name',
                 supportsAllDrives=True
             ).execute()
 
-            file_name = file_info.get('name', 'Unknown')
+            file_name = file_info.get('name', '')
             parents = file_info.get('parents', [])
 
             if not parents:
                 logger.error("File %s has no parent folder", file_name)
-                return None
+                return False
 
             current_parent = parents[0]
 
@@ -337,7 +340,7 @@ class GoogleApi:
 
             # Move the file to 'deleted' folder
             logger.info("Moving file '%s' to 'deleted' folder", file_name)
-            response = self.service.files().update(
+            response = self.service.files().update(  # type: ignore
                 fileId=file_id,
                 addParents=deleted_folder_id,
                 removeParents=current_parent,
@@ -345,8 +348,10 @@ class GoogleApi:
                 supportsAllDrives=True
             ).execute()
 
-            logger.info("Successfully moved file '%s' (ID: %s) to 'deleted' folder",
-                        file_name, file_id)
+            logger.info(
+                "Successfully moved file '%s' (ID: %s) to 'deleted' folder",
+                file_name,
+                file_id)
             print(f"Moved file '{file_name}' to 'deleted' folder")
             return response
 
@@ -456,3 +461,26 @@ List of MimeTypes
 "application/vnd.android.package-archive"
 "application/vnd.google-apps.kix"
 """
+
+
+def read_json_secret_file(file_path: str) -> (Dict[str, str] | None):
+    """
+    Reads a JSON Secrets file and returns its content as a Python dictionary.
+
+    Args:
+        file_path (str): The path to the JSON file.
+
+    Returns:
+        dict: A dictionary representing the JSON data,
+        or None if an error occurs.
+    """
+
+    with open(file_path, encoding='utf-8', mode='r') as file:
+        data: Dict[str, str] = json.load(file)
+        return data
+
+
+if __name__ == "__main__":
+    google_drive = GoogleApi()
+    print(google_drive.get_root_file_list())
+    print(google_drive.get_folders_list())
