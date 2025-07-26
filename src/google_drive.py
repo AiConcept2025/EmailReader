@@ -59,54 +59,34 @@ class GoogleApi:
             version='v3',
             credentials=credentials)
 
-    def get_root_file_list(self) -> List[str]:
-        """
-        Returns list of files and folders in the root directory
-        """
-        try:
-            response = self.service.files().list(  # type: ignore
-                fields="files(id, name)").execute()
-            # return the result dictionary containing
-            # the information about the files
-            if not isinstance(response, Dict):
-                logger.error(
-                    'get_root_file_list: Response is not a dictionary')
-                return []
-            data: List[str] = response.get('files', [])
-            return data
-        except HttpError as error:
-            print(f"get_root_file_list: An error occurred: {error}")
-            logger.error('get_root_file_list: An error occurred: %s', error)
-            return []
-        except Exception as e:
-            print(f"get_root_file_list: An error occurred: {e}")
-            logger.error('get_root_file_list: An error occurred: %s', e)
-            return []
-
-    def get_file_list_in_folder(
-            self,
-            parent_folder_id: str | None = None,
-            is_mem_type_file: bool = True
+    def get_item_list_in_folder(
+        self,
+        parent_folder_id: str | None = None,
+        get_files: bool = True
     ) -> List[Dict[str, str]]:
         """
-        Get file list in folder
-        Args:
-            parent_folder_id: parent folder id
-            is_mem_type_file: if True, return only files, if False,
-            return folders
-        Returns:
-            List of files in folder as dicts
-            [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'file_name'}]
-        """
+            Get item list in folder
+            Args:
+                parent_folder_id: parent folder id
+                get_files: if True, return only files, if False,
+                return folders
+            Returns:
+                List of items in folder as dicts
+                [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'item_name'}]
+            """
         if parent_folder_id is None:
             parent_folder_id = self.parent_folder_id
         mime_type: str = 'application/vnd.google-apps.folder'
+        if get_files:
+            mime_condition = f"mimeType != '{mime_type}'"
+        else:
+            mime_condition = f"mimeType = '{mime_type}'"
         files_in_folder: List[Dict[str, Any]] = []
         page_token: str | None = None
         query = (
-            f"'{parent_folder_id}' in parents "
+            f"'{parent_folder_id}' in parents and {mime_condition} "
             f"and trashed=false ")
-        fields = 'nextPageToken, files(id, name, mimeType,parents )'
+        fields = 'nextPageToken, files(id, name, mimeType)'
         try:
             while True:
                 response = self.service.files().list(  # type: ignore
@@ -118,13 +98,7 @@ class GoogleApi:
                 page_token = response.get('nextPageToken', None)
                 if page_token is None:
                     break
-            if is_mem_type_file:
-                result = [item for item in files_in_folder
-                          if item.get('mimeType', '') != mime_type]
-            else:
-                result = [item for item in files_in_folder
-                          if item.get('mimeType', '') == mime_type]
-            return result
+            return files_in_folder
         except HttpError as error:
             print(f"get_file_list_in_folder: An error occurred: {error}")
             logger.error(
@@ -134,6 +108,39 @@ class GoogleApi:
             print(f"get_file_list_in_folder: An error occurred: {e}")
             logger.error('get_file_list_in_folder: An error occurred: %s', e)
             return []
+
+    def get_file_list_in_folder(
+        self,
+        parent_folder_id: str | None = None,
+    ) -> List[Dict[str, str]]:
+        """
+        Get file list in folder
+        Args:
+            parent_folder_id: parent folder id
+        Returns:
+            List of files in folder as dicts
+            [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'file_name'}]
+        """
+        return self.get_item_list_in_folder(
+            parent_folder_id=parent_folder_id,
+            get_files=True)
+
+    def get_file_subfolders_in_folder(
+        self,
+        parent_folder_id: str | None = None,
+    ) -> List[Dict[str, str]]:
+        """
+        Get file subfolders list in folder
+        Args:
+            parent_folder_id: parent folder id
+        Returns:
+            List of subfolders in folder as dicts
+            [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'file_name'}]
+        """
+        return self.get_item_list_in_folder(
+            parent_folder_id=parent_folder_id,
+            get_files=False)
+
     ########################################################
 
     def file_exists(self, file_id: str):

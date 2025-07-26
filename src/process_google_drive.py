@@ -31,7 +31,9 @@ def process_google_drive():
     flowise_api = FlowiseAiAPI()
 
     files = google_api.get_file_list_in_folder()
+    folders = google_api.get_folders_list()
     print(files)
+    print(folders)
 
     document_folder = os.path.join(cwd, 'data', "documents")
     doc_processor = DocProcessor(document_folder)
