@@ -81,7 +81,7 @@ class GoogleApi:
             mime_condition = f"mimeType != '{mime_type}'"
         else:
             mime_condition = f"mimeType = '{mime_type}'"
-        files_in_folder: List[Dict[str, Any]] = []
+        files_in_folder: List[Dict[str, str]] = []
         page_token: str | None = None
         query = (
             f"'{parent_folder_id}' in parents and {mime_condition} "
@@ -94,7 +94,9 @@ class GoogleApi:
                     fields=fields,
                     pageToken=page_token
                 ).execute()
-                files_in_folder.extend(response.get('files', []))
+                files: List[Dict[str, str]] = response.get(  # type: ignore
+                    'files', [])
+                files_in_folder.extend(files)
                 page_token = response.get('nextPageToken', None)
                 if page_token is None:
                     break
@@ -198,50 +200,12 @@ class GoogleApi:
             error = str(e)
             return {"name": "Error", "id": error}
 
-    def get_folders_list(
-            self,
-            parent_folder_id: str | None = None
-    ) -> List[Dict[str, str]]:
-        """
-        Returns list of all the folders
-        [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'folder_name'}]
-        parent_folder_id: parent folder id
-        """
-        if parent_folder_id is None:
-            parent_folder_id = self.parent_folder_id
-        page_token = None
-        mime_type = 'application/vnd.google-apps.folder'
-        query = f"'{parent_folder_id}' in parents and mimeType = '{mime_type}'"
-        try:
-            while True:
-                # Call the Drive v3 API
-                results = (
-                    self.service.files()
-                    .list(
-                        q=query,
-                        spaces="drive",
-                        fields="nextPageToken, files(id, name)",
-                        pageToken=page_token)
-                    .execute()
-                )
-                folders = results.get("files", [])
-                if page_token is None:
-                    break
-            return folders
-        except HttpError as error:
-            print(f"get_folders_list: An error occurred: {error}")
-            logger.error('get_folders_list: An error occurred: %s', error)
-            return []
-        except Exception as e:
-            print(f"get_folders_list: An error occurred: {e}")
-            logger.error('get_folders_list: An error occurred: %s', e)
-            return []
-
     def if_folder_exist_by_name(self, folder_name: str, parent_folder_id: str | None = None) -> bool:
         """
         Check by name if sub folder exist
         """
-        folders = self.get_folders_list(parent_folder_id=parent_folder_id)
+        folders = self.get_subfolders_list_in_folder(
+            parent_folder_id=parent_folder_id)
         if len(folders) < 1:
             return False
         for folder in folders:
@@ -253,7 +217,8 @@ class GoogleApi:
         """
         Check by name if sub folder exist
         """
-        folders = self.get_folders_list(parent_folder_id=parent_folder_id)
+        folders = self.get_subfolders_list_in_folder(
+            parent_folder_id=parent_folder_id)
         if len(folders) < 1:
             return False
         for folder in folders:
@@ -364,7 +329,8 @@ class GoogleApi:
 
             # Check if 'deleted' folder exists in the current parent
             deleted_folder_id = None
-            folders = self.get_folders_list(parent_folder_id=current_parent)
+            folders = self.get_subfolders_list_in_folder(
+                parent_folder_id=current_parent)
 
             for folder in folders:
                 if folder['name'] == 'deleted':
