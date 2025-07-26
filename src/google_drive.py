@@ -194,6 +194,58 @@ class GoogleApi:
                 'upload_file_to_google_drive: An error occurred: %s', e)
             error = str(e)
             return {"name": "Error", "id": error}
+
+    def download_file_from_google_drive(
+            self,
+            file_id: str,
+            file_path: str
+    ) -> bool:
+        """
+        Download file from Google Drive to local path
+        Args:
+            file_id: ID of the file to download
+            file_path: Local path where the file will be saved
+        Returns:
+            True if file downloaded successfully, False otherwise
+        Raises:
+            HttpError: if an error occurs while making the API request
+            Exception: if any other error occurs
+        """
+        try:
+            request = self.service.files().get_media(fileId=file_id)
+            fh = io.BytesIO()
+            # Initialise a downloader object to download the file
+            downloader = MediaIoBaseDownload(fh, request, chunksize=204800)
+            done: bool = False
+            # Download the data in chunks
+            while not done:
+                _, done = downloader.next_chunk()
+            fh.seek(0)
+            # Write the received data to the file
+            with open(file_path, 'wb') as f:
+                shutil.copyfileobj(fh, f)
+            print("File Downloaded")
+            # Return True if file Downloaded successfully
+            return True
+        except HttpError as error:
+            print(f"file_download: An error occurred: {error}")
+            logger.error('file_download: An error occurred: %s', error)
+            return False
+        except FileNotFoundError:
+            print(f"file_download: File path not found: {file_path}")
+            logger.error('file_download: File path not found: %s', file_path)
+            return False
+        except PermissionError:
+            print(
+                f"file_download: Permission denied for file path: {file_path}")
+            logger.error(
+                'file_download: Permission denied for file path: %s',
+                file_path)
+            return False
+        except Exception as e:
+            print(f"file_download: An error occurred: {e}")
+            logger.error('file_download: An error occurred: %s', e)
+            return False
     ########################################################
 
     def file_exists(self, file_id: str):
@@ -391,33 +443,4 @@ class GoogleApi:
         except Exception as e:
             print(f"if_file_exists_by_name: An error occurred: {e}")
             logger.error('if_file_exists_by_name: An error occurred: %s', e)
-            return False
-
-    def file_download(self, file_id: str, file_path: str) -> bool:
-        """
-        Download file from Google Drive
-        """
-        try:
-            request: Any = self.service.files().get_media(fileId=file_id)
-            fh = io.BytesIO()
-            # Initialise a downloader object to download the file
-            downloader = MediaIoBaseDownload(fh, request, chunksize=204800)
-            done: bool = False
-            # Download the data in chunks
-            while not done:
-                _, done = downloader.next_chunk()
-            fh.seek(0)
-            # Write the received data to the file
-            with open(file_path, 'wb') as f:
-                shutil.copyfileobj(fh, f)
-            print("File Downloaded")
-            # Return True if file Downloaded successfully
-            return True
-        except HttpError as error:
-            print(f"file_download: An error occurred: {error}")
-            logger.error('file_download: An error occurred: %s', error)
-            return False
-        except Exception as e:
-            print(f"file_download: An error occurred: {e}")
-            logger.error('file_download: An error occurred: %s', e)
             return False

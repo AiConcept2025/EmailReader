@@ -73,8 +73,9 @@ def process_google_drive():
                     _, file_ext = os.path.splitext(file_name)
                     # Download new file from inbox of client on google
                     # drive to local folder
-                    if not google_api.file_download(
-                            file_id=file_id, file_path=file_path):
+                    if not google_api.download_file_from_google_drive(
+                            file_id=file_id,
+                            file_path=file_path):
                         continue
                     # Check if file is word document file
                     if file_ext == '.doc' or file_ext == '.docx':
