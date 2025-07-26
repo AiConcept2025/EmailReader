@@ -125,7 +125,7 @@ class GoogleApi:
             parent_folder_id=parent_folder_id,
             get_files=True)
 
-    def get_file_subfolders_in_folder(
+    def get_subfolders_list_in_folder(
         self,
         parent_folder_id: str | None = None,
     ) -> List[Dict[str, str]]:

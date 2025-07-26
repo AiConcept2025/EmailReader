@@ -31,14 +31,14 @@ def process_google_drive():
     flowise_api = FlowiseAiAPI()
 
     files = google_api.get_file_list_in_folder()
-    folders = google_api.get_folders_list()
+    folders = google_api.get_subfolders_list_in_folder()
     print(files)
     print(folders)
 
     document_folder = os.path.join(cwd, 'data', "documents")
     doc_processor = DocProcessor(document_folder)
     # Get client list
-    clients = google_api.get_folders_list()
+    clients = google_api.get_subfolders_list_in_folder()
     # Check if each client folder have sub folders
     # inbox - for new documents
     # incoming - for docs sent to flowise and original files
@@ -57,13 +57,14 @@ def process_google_drive():
     for client in clients:
         client_folder_id = client.get('id')
         client_email = client['name']  # Client folder ID's
-        subs = google_api.get_folders_list(parent_folder_id=client_folder_id)
+        subs = google_api.get_subfolders_list_in_folder(
+            parent_folder_id=client_folder_id)
         incoming_id = [sub['id']
                        for sub in subs if sub['name'] == 'incoming'][0]
         for sub in subs:
             if sub['name'] == 'inbox':
                 inbox_id = sub['id']
-                files = google_api.get_file_list_in_folder1(
+                files = google_api.get_file_list_in_folder(
                     parent_folder_id=inbox_id)
                 for fl in files:
                     file_name = fl['name']
