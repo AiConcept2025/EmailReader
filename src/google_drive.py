@@ -53,7 +53,97 @@ class GoogleApi:
         credentials = service_account.Credentials.from_service_account_file(
             filename=service_account_json_key,
             scopes=scope)
-        self.service: object = build('drive', 'v3', credentials=credentials)
+        self.service: object = build(
+            serviceName='drive',
+            version='v3',
+            credentials=credentials)
+
+    def get_root_file_list(self) -> List[str]:
+        """
+        Returns list of files and folders in the root directory
+        """
+        try:
+            response = self.service.files().list(  # type: ignore
+                fields="files(id, name)").execute()
+            # return the result dictionary containing
+            # the information about the files
+            if not isinstance(response, Dict):
+                logger.error(
+                    'get_root_file_list: Response is not a dictionary')
+                return []
+            data: List[str] = response.get('files', [])
+            return data
+        except HttpError as error:
+            print(f"get_root_file_list: An error occurred: {error}")
+            logger.error('get_root_file_list: An error occurred: %s', error)
+            return []
+        except Exception as e:
+            print(f"get_root_file_list: An error occurred: {e}")
+            logger.error('get_root_file_list: An error occurred: %s', e)
+            return []
+
+    def get_file_list_in_folder(
+            self,
+            parent_folder_id: str | None = None
+    ) -> List[Dict[str, str]]:
+        """
+        Get file list in folder
+        Args:
+            parent_folder_id: parent folder id
+        Returns:
+            List of files in folder as dicts
+            [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'file_name'}]
+        """
+        if parent_folder_id is None:
+            parent_folder_id = self.parent_folder_id
+        mime_type: str = 'application/vnd.google-apps.file'
+        files_in_folder = []
+        page_token = None
+        query = (
+            f"'{parent_folder_id}' in parents "
+            f"and trashed=false ")
+        fields = 'nextPageToken, files(id, name, mimeType,parents )'
+        try:
+            while True:
+                response = self.service.files().list(  # type: ignore
+                    q=query,
+                    fields=fields,
+                    pageToken=page_token
+                ).execute()
+                files_in_folder.extend(response.get('files', []))
+                page_token = response.get('nextPageToken', None)
+                if page_token is None:
+                    break
+            return files_in_folder
+        except HttpError as error:
+            print(f"get_file_list_in_folder: An error occurred: {error}")
+            logger.error(
+                'get_file_list_in_folder: An error occurred: %s', error)
+            return []
+        except Exception as e:
+            print(f"get_file_list_in_folder: An error occurred: {e}")
+            logger.error('get_file_list_in_folder: An error occurred: %s', e)
+            return []
+    ########################################################
+
+    def file_exists(self, file_id: str):
+        """
+        Check if file with id exist
+        Args:
+            file_id: file id to check
+        Returns:
+            True if file exists, False otherwise
+        """
+        try:
+            self.service.files().get(  # type: ignore
+                fileId=file_id,
+                fields='id').execute()
+            return True
+        except Exception:
+            print(f"file_exists: File with ID {file_id} does not exist.")
+            logger.error(
+                'file_exists: File with ID %s does not exist.', file_id)
+            return False
 
     def upload_file_to_google_drive(
             self,
@@ -74,7 +164,7 @@ class GoogleApi:
                 'mimeType': '*/*'
             }
             media = MediaFileUpload(filename=file_path, mimetype='*/*')
-            file = self.service.files().create(  # type: ignore
+            file: Dict[str, str] = self.service.files().create(  # type: ignore
                 body=file_metadata,
                 media_body=media,
                 fields='id,name').execute()
@@ -90,44 +180,6 @@ class GoogleApi:
                 'upload_file_to_google_drive: An error occurred: %s', e)
             error = str(e)
             return {"name": "Error", "id": error}
-
-    def get_root_file_list(self) -> List[Dict]:
-        """
-        Returns file list
-        """
-        try:
-            result = self.service.files().list(
-                fields="files(id, name)").execute()
-            # return the result dictionary containing
-            # the information about the files
-            data = result.get('files')
-            return data
-        except HttpError as error:
-            print(f"get_root_file_list: An error occurred: {error}")
-            logger.error('get_root_file_list: An error occurred: %s', error)
-            return []
-        except Exception as e:
-            print(f"get_root_file_list: An error occurred: {e}")
-            logger.error('get_root_file_list: An error occurred: %s', e)
-            return []
-
-    def file_exists(self, file_id: str):
-        """
-        Check if file exist
-        """
-        try:
-            self.service.files().get(fileId=file_id, fields='id').execute()
-            return True
-        except Exception:
-            print(f"file_exists: File with ID {file_id} does not exist.")
-            logger.error(
-                'file_exists: File with ID %s does not exist.', file_id)
-            return False
-
-    #################################################
-    #################################################
-    #################################################
-    #################################################
 
     def get_folders_list(
             self,
@@ -228,38 +280,8 @@ class GoogleApi:
             logger.error('get_file_list: An error occurred: %s', e)
             return []
 
-    def get_file_list_in_folder1(self, parent_folder_id: str | None = None) -> List[Dict[str, str]]:
-        """
-        Get file list in folder
-        """
-        mime_type = 'application/vnd.google-apps.file'
-        try:
-            if parent_folder_id is None:
-                parent_folder_id = self.parent_folder_id
-            pageToken = ""
-            result = self.service.files().list(q="'" + parent_folder_id + "' in parents", pageSize=1000,
-                                               pageToken=pageToken, fields="nextPageToken, files(id, name)").execute()
-            # query = f"'{parent_folder_id}' in parents and mimeType='{mime_type}'"
-            # result = self.service.files().list(
-            #     q=query,
-            #     fields="files(id, name)"
-            # ).execute()
-            # return the result dictionary containing
-            # the information about the files
-            data = result.get('files')
-            return data
-        except HttpError as error:
-            print(f"get_file_list_in_folder1: An error occurred: {error}")
-            logger.error(
-                'get_file_list_in_folder1: An error occurred: %s', error)
-            return []
-        except Exception as e:
-            print(f"get_file_list_in_folder1: An error occurred: {e}")
-            logger.error('get_file_list_in_folder1: An error occurred: %s', e)
-            return []
-
     def check_file_exists(self, file_id: str, parent_folder_id: str = None) -> bool:
-        files = self.get_file_list_in_folder1(
+        files = self.get_file_list_in_folder(
             parent_folder_id=parent_folder_id)
         temp_id = [fl['id'] for fl in files if fl['id'] == file_id][0]
         return temp_id == file_id
@@ -409,8 +431,6 @@ class GoogleApi:
             logger.error('if_file_exists_by_name: An error occurred: %s', e)
             return False
 
-###############################################################################
-
     def file_download(self, file_id: str, file_path: str) -> bool:
         """
         Download file from Google Drive
@@ -439,8 +459,6 @@ class GoogleApi:
             print(f"file_download: An error occurred: {e}")
             logger.error('file_download: An error occurred: %s', e)
             return False
-
-##############################################################################
 
 
 """

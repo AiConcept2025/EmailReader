@@ -29,6 +29,10 @@ def process_google_drive():
     cwd = os.getcwd()
     google_api = GoogleApi()
     flowise_api = FlowiseAiAPI()
+
+    files = google_api.get_file_list_in_folder()
+    print(files)
+
     document_folder = os.path.join(cwd, 'data', "documents")
     doc_processor = DocProcessor(document_folder)
     # Get client list
