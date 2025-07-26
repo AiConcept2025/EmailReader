@@ -4,7 +4,7 @@ Google Drive API wrapper class
 import os
 import io
 import shutil
-from typing import Any, Dict, List, NamedTuple
+from typing import Dict, List
 from google.oauth2 import service_account
 from googleapiclient.discovery import build  # type: ignore
 from googleapiclient.errors import HttpError
@@ -12,14 +12,6 @@ from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
 from src.utils import read_json_secret_file
 from src.logger import logger
-
-
-class FileFolder(NamedTuple):
-    """
-    FileFolder class to hold file and folder information
-    """
-    name: str
-    id: str
 
 
 class GoogleApi:
@@ -88,7 +80,7 @@ class GoogleApi:
         page_token: str | None = None
         query = (
             f"'{parent_folder_id}' in parents and {mime_condition} "
-            f"and trashed=false ")
+            "and trashed=false ")
         fields = 'nextPageToken, files(id, name, mimeType)'
         try:
             while True:
@@ -246,201 +238,269 @@ class GoogleApi:
             print(f"file_download: An error occurred: {e}")
             logger.error('file_download: An error occurred: %s', e)
             return False
-    ########################################################
 
-    def file_exists(self, file_id: str):
-        """
-        Check if file with id exist
-        Args:
-            file_id: file id to check
-        Returns:
-            True if file exists, False otherwise
-        """
-        try:
-            self.service.files().get(  # type: ignore
-                fileId=file_id,
-                fields='id').execute()
-            return True
-        except Exception:
-            print(f"file_exists: File with ID {file_id} does not exist.")
-            logger.error(
-                'file_exists: File with ID %s does not exist.', file_id)
-            return False
-
-    def if_folder_exist_by_name(self, folder_name: str, parent_folder_id: str | None = None) -> bool:
-        """
-        Check by name if sub folder exist
-        """
-        folders = self.get_subfolders_list_in_folder(
-            parent_folder_id=parent_folder_id)
-        if len(folders) < 1:
-            return False
-        for folder in folders:
-            if folder.get('name', None) == folder_name:
-                return True
-        return False
-
-    def if_folder_exist_by_id(self, folder_name_id: str, parent_folder_id: str | None = None) -> bool:
-        """
-        Check by name if sub folder exist
-        """
-        folders = self.get_subfolders_list_in_folder(
-            parent_folder_id=parent_folder_id)
-        if len(folders) < 1:
-            return False
-        for folder in folders:
-            if folder.get('name', None) == folder_name_id:
-                return True
-        return False
-
-    def check_file_exists(self, file_id: str, parent_folder_id: str = None) -> bool:
-        files = self.get_file_list_in_folder(
-            parent_folder_id=parent_folder_id)
-        temp_id = [fl['id'] for fl in files if fl['id'] == file_id][0]
-        return temp_id == file_id
-
-    def create_subfolder_in_folder(
-            self,
-            folder_name: str,
-            parent_folder_id: str | None = None) -> FileFolder:
-        """
-        Creates subfolder in parent folder
-        args:
-            folder_name: name
-            parent_folder_id: id string
-        """
-        try:
-            if parent_folder_id is None:
-                parent_folder_id = self.parent_folder_id
-            folder_metadata = {
-                'name': folder_name,
-                'parents': [parent_folder_id],
-                'mimeType': 'application/vnd.google-apps.folder'
-            }
-            folder = self.service.files().create(
-                body=folder_metadata,
-                fields='id').execute()
-            return FileFolder(id=folder.get('id'), name=folder_name)
-        except HttpError as error:
-            print(f"create_subfolder_in_folder: An error occurred: {error}")
-            logger.error(
-                'create_subfolder_in_folder: An error occurred: %s', error)
-            return FileFolder(id=None, name=None)
-        except Exception as e:
-            print(f"create_subfolder_in_folder: An error occurred: {e}")
-            logger.error(
-                'create_subfolder_in_folder: An error occurred: %s', e)
-            return FileFolder(id=None, name=None)
-
-    def delete_file(self, file_id: str):
+    def move_file_to_deleted_folder(
+        self,
+        file_id: str,
+        deleted_folder_name: str = 'deleted1'
+    ) -> bool:
         """
         Move file to 'deleted' folder instead of trashing
         If 'deleted' folder doesn't exist, create it
         Args:
-            file_id: file id to move
+            file_id: ID of the file to move
+            deleted_folder: Name of the folder to move the file to
         Returns:
-            Response dict on success, None on failure
+            Response object if successful, None if failed
+        Raises:
+            HttpError: if an error occurs while making the API request
+            FileNotFoundError: if the file is not found
+            PermissionError: if permission is denied for the file
+            Exception: if any other error occurs
         """
         try:
-            # Get the file's current parent folder and name
-            file_info = self.service.files().get(  # type: ignore
-                fileId=file_id,
-                fields='parents,name',
-                supportsAllDrives=True
-            ).execute()
-
-            file_name = file_info.get('name', '')
-            parents = file_info.get('parents', [])
-
-            if not parents:
-                logger.error("File %s has no parent folder", file_name)
+            current_parent: str = self.get_file_parent_folder_id(
+                file_id=file_id)
+            if current_parent == '':
+                logger.error(
+                    "File %s not found or has no parent folder", file_id)
                 return False
-
-            current_parent = parents[0]
-
             # Check if 'deleted' folder exists in the current parent
-            deleted_folder_id = None
             folders = self.get_subfolders_list_in_folder(
                 parent_folder_id=current_parent)
-
-            for folder in folders:
-                if folder['name'] == 'deleted':
-                    deleted_folder_id = folder['id']
-                    logger.info(
-                        "Found existing 'deleted' folder: %s", deleted_folder_id)
-                    break
-
+            deleted_folder: Dict[str, str] | None = next(
+                filter(
+                    lambda f: f['name'] == deleted_folder_name, folders), None)
             # Create 'deleted' folder if it doesn't exist
-            if not deleted_folder_id:
+            if deleted_folder:
+                deleted_folder_id = deleted_folder['id']
+            else:
+                # Create 'deleted' folder in the current parent folder
                 logger.info(
                     "Creating 'deleted' folder in parent: %s", current_parent)
                 deleted_folder = self.create_subfolder_in_folder(
                     folder_name='deleted',
                     parent_folder_id=current_parent
                 )
-
-                if not deleted_folder.id:
+                deleted_folder_id = deleted_folder.get('id')
+                if deleted_folder_id == '':
                     logger.error("Failed to create 'deleted' folder")
-                    return None
-
-                deleted_folder_id = deleted_folder.id
+                    return False
                 logger.info("Created 'deleted' folder: %s", deleted_folder_id)
-
             # Move the file to 'deleted' folder
+            file_name: str = self.get_file_name_by_id(file_id=file_id)
             logger.info("Moving file '%s' to 'deleted' folder", file_name)
-            response = self.service.files().update(  # type: ignore
+            self.service.files().update(  # type: ignore
                 fileId=file_id,
                 addParents=deleted_folder_id,
                 removeParents=current_parent,
                 fields='id,name,parents',
                 supportsAllDrives=True
             ).execute()
-
             logger.info(
                 "Successfully moved file '%s' (ID: %s) to 'deleted' folder",
                 file_name,
                 file_id)
             print(f"Moved file '{file_name}' to 'deleted' folder")
-            return response
+            return True
 
         except HttpError as error:
             print(f"delete_file: An error occurred: {error}")
             logger.error('delete_file: An error occurred while moving file %s: %s',
                          file_id, error)
-            return None
+            return False
+        except FileNotFoundError:
+            print(f"delete_file: File not found: {file_id}")
+            logger.error('delete_file: File not found: %s', file_id)
+            return False
+        except PermissionError:
+            print(f"delete_file: Permission denied for file ID: {file_id}")
+            logger.error(
+                'delete_file: Permission denied for file ID: %s', file_id)
+            return False
         except Exception as e:
             print(f"delete_file: An error occurred: {e}")
             logger.error('delete_file: An error occurred while moving file %s: %s',
                          file_id, e)
-            return None
+            return False
 
-    def if_file_exists_by_name(self, file_name, folder_id=None):
+    def create_subfolder_in_folder(
+            self,
+            folder_name: str,
+            parent_folder_id: str = ''
+    ) -> Dict[str, str]:
         """
-        Checks if a file exists in a specific folder in Google Drive.
-        Args:
-            file_name: The name of the file to check.
-            folder_id: The ID of the folder to search in.
-
+        Creates subfolder in parent folder
+        args:
+            folder_name: name
+            parent_folder_id: id string
         Returns:
-            True if the file exists, False otherwise.
+            dict with id and name of created folder
+        Raises:
+            HttpError: if an error occurs while making the API request
+            FileNotFoundError: if the parent folder is not found
+            PermissionError: if permission is denied for the parent folder
+            Exception: if any other error occurs
         """
-        if folder_id == None:
-            folder_id = self.parent_folder_id
-        query = f"name='{file_name}' and '{folder_id}' in parents and trashed=false"
         try:
-
-            results = self.service.files().list(
-                q=query,
-                fields="files(id)"
-            ).execute()
-            items = results.get('files', [])
-            return len(items) > 0
+            if parent_folder_id == '':
+                parent_folder_id = self.parent_folder_id
+            folder_metadata: dict[str, str | List[str]] = {
+                'name': folder_name,
+                'parents': [parent_folder_id],
+                'mimeType': 'application/vnd.google-apps.folder'
+            }
+            folder = self.service.files().create(  # type: ignore
+                body=folder_metadata,
+                fields='id').execute()
+            return {'id': folder.get('id'), 'name': folder_name}
         except HttpError as error:
-            print(f"if_file_exists_by_name: An error occurred: {error}")
+            print(f"create_subfolder_in_folder: An error occurred: {error}")
             logger.error(
-                'if_file_exists_by_name: An error occurred: %s', error)
-            return False
+                'create_subfolder_in_folder: An error occurred: %s', error)
+            return {'id': '', 'name': ''}
+        except FileNotFoundError:
+            print(
+                ("create_subfolder_in_folder: "
+                 f"File not found: {parent_folder_id}"))
+            logger.error(
+                'create_subfolder_in_folder: File not found: %s',
+                parent_folder_id)
+            return {'id': '', 'name': ''}
+        except PermissionError:
+            print(
+                ("create_subfolder_in_folder: Permission "
+                 f"denied for folder: {parent_folder_id}"))
+            logger.error(
+                'create_subfolder_in_folder: Permission denied for folder: %s',
+                parent_folder_id)
+            return {'id': '', 'name': ''}
         except Exception as e:
-            print(f"if_file_exists_by_name: An error occurred: {e}")
-            logger.error('if_file_exists_by_name: An error occurred: %s', e)
-            return False
+            print(f"create_subfolder_in_folder: An error occurred: {e}")
+            logger.error(
+                'create_subfolder_in_folder: An error occurred: %s', e)
+            return {'id': '', 'name': ''}
+
+    def get_file_parent_folder_id(self, file_id: str) -> str:
+        """
+        Get the parent folder ID of a file
+        Args:
+            file_id: ID of the file to check
+        Returns:
+            The ID of the parent folder if found, otherwise an empty string
+        Raises:
+            HttpError: if an error occurs while making the API request
+            FileNotFoundError: if the file is not found
+            PermissionError: if permission is denied for the file
+            Exception: if any other error occurs"""
+        try:
+            file_info: Dict[str, str | List[str]] = self.service.files(
+            ).get(  # type: ignore
+                    fileId=file_id,
+                    fields='parents,name',
+                    supportsAllDrives=True
+            ).execute()
+            if not isinstance(file_info, dict):
+                logger.error("Invalid file info received: %s", file_id)
+                return ''
+            file_name: str = file_info.get('name', '')  # type: ignore
+            parents: List[str] = file_info.get('parents', [])  # type: ignore
+            if not parents:
+                logger.error("File %s has no parent folder", file_name)
+                return ''
+            current_parent: str = parents[0]
+            return current_parent
+        except HttpError as error:
+            print(f"get_file_parent_folder_id: An error occurred: {error}")
+            logger.error(
+                'get_file_parent_folder_id: An error occurred while getting "'
+                '"parent folder ID for file %s: %s',
+                file_id, error)
+            return ''
+        except FileNotFoundError:
+            print(f"get_file_parent_folder_id: File not found: {file_id}")
+            logger.error(
+                'get_file_parent_folder_id: File not found: %s', file_id)
+            return ''
+        except PermissionError:
+            print(
+                "get_file_parent_folder_id: "
+                f"Permission denied for file ID: {file_id}")
+            logger.error(
+                'get_file_parent_folder_id: Permission denied for file ID: %s',
+                file_id)
+            return ''
+        except Exception as e:
+            print(f"get_file_parent_folder_id: An error occurred: {e}")
+            logger.error(
+                ('get_file_parent_folder_id: An error occurred while "'
+                 '"getting parent folder ID for file %s: %s'),
+                file_id, e)
+            return ''
+
+    def get_file_name_by_id(self, file_id: str) -> str:
+        """
+        Get the name of a file by its ID
+        Args:
+            file_id: ID of the file to check
+        Returns:
+            The name of the file if found, otherwise an empty string
+        Raises:
+            HttpError: if an error occurs while making the API request
+            FileNotFoundError: if the file is not found
+            PermissionError: if permission is denied for the file
+            Exception: if any other error occurs
+        """
+        try:
+            file_info = self.service.files().get(  # type: ignore
+                fileId=file_id,
+                fields='name,trashed',
+                supportsAllDrives=True
+            ).execute()
+            if not isinstance(file_info, dict) or file_info.get('trashed', True):
+                logger.error("Invalid file info received: %s", file_id)
+                return ''
+            return file_info.get('name', '')
+        except HttpError as error:
+            print(f"get_file_name_by_id: An error occurred: {error}")
+            logger.error(
+                'get_file_name_by_id: An error occurred while getting "'
+                '"file name for ID %s: %s', file_id, error)
+            return ''
+        except FileNotFoundError:
+            print(f"get_file_name_by_id: File not found: {file_id}")
+            logger.error(
+                'get_file_name_by_id: File not found: %s', file_id)
+            return ''
+        except PermissionError:
+            print(
+                "get_file_name_by_id: "
+                f"Permission denied for file ID: {file_id}")
+            logger.error(
+                'get_file_name_by_id: Permission denied for file ID: %s',
+                file_id)
+            return ''
+        except Exception as e:
+            print(f"get_file_name_by_id: An error occurred: {e}")
+            logger.error(
+                ('get_file_name_by_id: An error occurred while "'
+                 '"getting file name for ID %s: %s'),
+                file_id, e)
+            return ''
+
+    def if_folder_exist_by_name(
+        self,
+        folder_name: str,
+        parent_folder_id: str = ''
+    ) -> bool:
+        """
+        Check if folder exists by name in parent folder
+        Args:
+            folder_name: name of the folder to check
+            parent_folder_id: ID of the parent folder
+        Returns:
+            True if folder exists, False otherwise
+        """
+        folders = self.get_subfolders_list_in_folder(
+            parent_folder_id=parent_folder_id)
+        return any(folder['name'] == folder_name for folder in folders)

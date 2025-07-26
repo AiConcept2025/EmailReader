@@ -30,11 +30,6 @@ def process_google_drive():
     google_api = GoogleApi()
     flowise_api = FlowiseAiAPI()
 
-    files = google_api.get_file_list_in_folder()
-    folders = google_api.get_subfolders_list_in_folder()
-    print(files)
-    print(folders)
-
     document_folder = os.path.join(cwd, 'data', "documents")
     doc_processor = DocProcessor(document_folder)
     # Get client list
@@ -139,7 +134,8 @@ def process_google_drive():
                     print(
                         ("Attempting to delete file: "
                          f"{file_name} (ID: {file_id})"))
-                    result = google_api.delete_file(file_id=file_id)
+                    result = google_api.move_file_to_deleted_folder(
+                        file_id=file_id)
                     if result is None:
                         print("Delete failed - trying alternative approach...")
                         # You could try moving to a "deleted" folder instead
