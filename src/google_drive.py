@@ -50,9 +50,10 @@ class GoogleApi:
         service_account_json_key = os.path.join(
             os.getcwd(), 'credentials', 'service-account-key.json')
 
-        credentials = service_account.Credentials.from_service_account_file(
-            filename=service_account_json_key,
-            scopes=scope)
+        credentials = (service_account.Credentials
+                       .from_service_account_file(  # type: ignore
+                           filename=service_account_json_key,
+                           scopes=scope))
         self.service: object = build(
             serviceName='drive',
             version='v3',
@@ -84,21 +85,24 @@ class GoogleApi:
 
     def get_file_list_in_folder(
             self,
-            parent_folder_id: str | None = None
+            parent_folder_id: str | None = None,
+            is_mem_type_file: bool = True
     ) -> List[Dict[str, str]]:
         """
         Get file list in folder
         Args:
             parent_folder_id: parent folder id
+            is_mem_type_file: if True, return only files, if False,
+            return folders
         Returns:
             List of files in folder as dicts
             [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'file_name'}]
         """
         if parent_folder_id is None:
             parent_folder_id = self.parent_folder_id
-        mime_type: str = 'application/vnd.google-apps.file'
-        files_in_folder = []
-        page_token = None
+        mime_type: str = 'application/vnd.google-apps.folder'
+        files_in_folder: List[Dict[str, Any]] = []
+        page_token: str | None = None
         query = (
             f"'{parent_folder_id}' in parents "
             f"and trashed=false ")
@@ -114,7 +118,13 @@ class GoogleApi:
                 page_token = response.get('nextPageToken', None)
                 if page_token is None:
                     break
-            return files_in_folder
+            if is_mem_type_file:
+                result = [item for item in files_in_folder
+                          if item.get('mimeType', '') != mime_type]
+            else:
+                result = [item for item in files_in_folder
+                          if item.get('mimeType', '') == mime_type]
+            return result
         except HttpError as error:
             print(f"get_file_list_in_folder: An error occurred: {error}")
             logger.error(
@@ -459,35 +469,3 @@ class GoogleApi:
             print(f"file_download: An error occurred: {e}")
             logger.error('file_download: An error occurred: %s', e)
             return False
-
-
-"""
-List of MimeTypes
-
-"application/vnd.google-apps.audio"
-"application/vnd.google-apps.document"
-"application/vnd.google-apps.drawing"
-"application/vnd.google-apps.file"
-"application/vnd.google-apps.folder"
-"application/vnd.google-apps.form"
-"application/vnd.google-apps.fusiontable"
-"application/vnd.google-apps.photo"
-"application/vnd.google-apps.presentation"
-"application/vnd.google-apps.sites"
-"application/vnd.google-apps.spreadsheet"
-"application/vnd.google-apps.unknown"
-"application/vnd.google-apps.video"
-"application/pdf"
-"application/msword"
-"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-"application/vnd.ms-powerpoint.presentation.macroEnabled.12"
-"application/vnd.ms-excel"
-"image/jpeg"
-"audio/mpeg"
-"video/mpeg"
-"application/zip"
-"text/plain"
-"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-"application/vnd.android.package-archive"
-"application/vnd.google-apps.kix"
-"""
