@@ -41,7 +41,7 @@ class GoogleApi:
         if not isinstance(google_drive_settings, Dict):
             logger.error('Google Drive settings not found in secrets.json')
             raise KeyError('Google Drive settings not found in secrets.json')
-        self.parent_folder_id = google_drive_settings.get(
+        self.parent_folder_id: str = google_drive_settings.get(
             'parent_folder_id', '')
         if self.parent_folder_id == '':
             logger.error('Parent folder ID not specified in secrets.json')
@@ -61,7 +61,7 @@ class GoogleApi:
 
     def get_item_list_in_folder(
         self,
-        parent_folder_id: str | None = None,
+        parent_folder_id: str = '',
         get_files: bool = True
     ) -> List[Dict[str, str]]:
         """
@@ -73,8 +73,11 @@ class GoogleApi:
             Returns:
                 List of items in folder as dicts
                 [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'item_name'}]
+            Raises:
+                HttpError: if an error occurs while making the API request
+                Exception: if any other error occurs
             """
-        if parent_folder_id is None:
+        if parent_folder_id == '':
             parent_folder_id = self.parent_folder_id
         mime_type: str = 'application/vnd.google-apps.folder'
         if get_files:
@@ -113,7 +116,7 @@ class GoogleApi:
 
     def get_file_list_in_folder(
         self,
-        parent_folder_id: str | None = None,
+        parent_folder_id: str = '',
     ) -> List[Dict[str, str]]:
         """
         Get file list in folder
@@ -129,7 +132,7 @@ class GoogleApi:
 
     def get_subfolders_list_in_folder(
         self,
-        parent_folder_id: str | None = None,
+        parent_folder_id: str = '',
     ) -> List[Dict[str, str]]:
         """
         Get file subfolders list in folder
@@ -143,6 +146,54 @@ class GoogleApi:
             parent_folder_id=parent_folder_id,
             get_files=False)
 
+    def upload_file_to_google_drive(
+        self,
+        file_path: str,
+        file_name: str,
+        parent_folder_id: str = '',
+    ) -> (object | dict[str, object]):
+        """
+        Upload file to Google Drive
+        Args:
+            file_path: path to the file to upload
+            file_name: name of the file to upload
+            parent_folder_id: id of the folder where you want to upload
+        Returns:
+            File object on success, dict with error message on failure
+        Raises:
+            FileNotFoundError: if file not found
+            Exception: if any other error occurs
+        """
+        try:
+            if parent_folder_id == '':
+                parent_folder_id = self.parent_folder_id
+            file_metadata: Dict[str, str | List[str]] = {
+                'name': file_name,
+                'parents': [parent_folder_id],
+                'mimeType': '*/*'
+            }
+            media = MediaFileUpload(filename=file_path, mimetype='*/*')
+            file: Dict[str, str] = self.service.files().create(  # type: ignore
+                body=file_metadata,
+                media_body=media,
+                fields='id,name').execute()
+            return file  # type: ignore
+        except HttpError as error:
+            print(f"upload_file_to_google_drive: An error occurred: {error}")
+            logger.error(
+                'upload_file_to_google_drive: An error occurred: %s', error)
+            return {"name": "Error", "id": None}
+        except FileNotFoundError:
+            print(f"upload_file_to_google_drive: File not found: {file_path}")
+            logger.error(
+                'upload_file_to_google_drive: File not found: %s', file_path)
+            return {"name": "Error", "id": "File not found"}
+        except Exception as e:
+            print(f"upload_file_to_google_drive: An error occurred: {e}")
+            logger.error(
+                'upload_file_to_google_drive: An error occurred: %s', e)
+            error = str(e)
+            return {"name": "Error", "id": error}
     ########################################################
 
     def file_exists(self, file_id: str):
@@ -163,42 +214,6 @@ class GoogleApi:
             logger.error(
                 'file_exists: File with ID %s does not exist.', file_id)
             return False
-
-    def upload_file_to_google_drive(
-            self,
-            file_path: str,
-            file_name: str,
-            parent_folder_id: str = '',
-    ) -> (object | dict[str, object]):
-        """
-        Uploading a File to Google Drive
-        """
-        try:
-            if parent_folder_id == '':
-                parent_folder_id = self.parent_folder_id
-            file_metadata: Dict[str, str | List[str]] = {
-                'name': file_name,
-                # ID of the folder where you want to upload
-                'parents': [parent_folder_id],
-                'mimeType': '*/*'
-            }
-            media = MediaFileUpload(filename=file_path, mimetype='*/*')
-            file: Dict[str, str] = self.service.files().create(  # type: ignore
-                body=file_metadata,
-                media_body=media,
-                fields='id,name').execute()
-            return file
-        except HttpError as error:
-            print(f"upload_file_to_google_drive: An error occurred: {error}")
-            logger.error(
-                'upload_file_to_google_drive: An error occurred: %s', error)
-            return {"name": "Error", "id": None}
-        except Exception as e:
-            print(f"upload_file_to_google_drive: An error occurred: {e}")
-            logger.error(
-                'upload_file_to_google_drive: An error occurred: %s', e)
-            error = str(e)
-            return {"name": "Error", "id": error}
 
     def if_folder_exist_by_name(self, folder_name: str, parent_folder_id: str | None = None) -> bool:
         """
@@ -225,42 +240,6 @@ class GoogleApi:
             if folder.get('name', None) == folder_name_id:
                 return True
         return False
-
-    def get_file_list(self, parent_folder_id: str | None = None) -> List[Dict[str, str]]:
-        """
-        Returns list of all the folders
-        [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'folder_name'}]
-        parent_folder_id: parent folder id
-        """
-        if parent_folder_id is None:
-            parent_folder_id = self.parent_folder_id
-        page_token = None
-        mime_type = 'application/vnd.google-apps.file'
-        query = f"'{parent_folder_id}' in parents and mimeType = '{mime_type}'"
-        try:
-            while True:
-                # Call the Drive v3 API
-                results = (
-                    self.service.files()
-                    .list(
-                        q=query,
-                        spaces="drive",
-                        fields="nextPageToken, files(id, name)",
-                        pageToken=page_token)
-                    .execute()
-                )
-                folders = results.get("files", [])
-                if page_token is None:
-                    break
-            return folders
-        except HttpError as error:
-            print(f"get_file_list: An error occurred: {error}")
-            logger.error('get_file_list: An error occurred: %s', error)
-            return []
-        except Exception as e:
-            print(f"get_file_list: An error occurred: {e}")
-            logger.error('get_file_list: An error occurred: %s', e)
-            return []
 
     def check_file_exists(self, file_id: str, parent_folder_id: str = None) -> bool:
         files = self.get_file_list_in_folder(
