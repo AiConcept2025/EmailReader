@@ -112,10 +112,12 @@ def process_google_drive() -> None:
 
             # Upload to doc store
             logger.info('Upload to doc store: %s', new_file_name)
-            upsert_result: Dict[object, object] = flowise_api.upsert_document_to_document_store(
-                doc_name=new_file_name,
-                doc_path=new_file_path
-            )
+            upsert_result: Dict[object, object] = (
+                flowise_api.
+                upsert_document_to_document_store(
+                    doc_name=new_file_name,
+                    doc_path=new_file_path
+                ))
             if upsert_result.get('name') == 'Error':
                 error = upsert_result.get('error', 'Error')
                 send_error_message(

@@ -19,7 +19,7 @@ class GoogleApi:
     Google drive wrapper class
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialise service with credentials
         """

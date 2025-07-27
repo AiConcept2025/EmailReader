@@ -6,7 +6,7 @@ to word document
 import os
 from docx import Document
 from langdetect import detect  # type: ignore
-from src.pdf_image_ocr import is_pdf_searchable_pypdf2, ocr_pdf_image_to_doc
+from src.pdf_image_ocr import is_pdf_searchable_pypdf, ocr_pdf_image_to_doc
 from src.convert_to_docx import convert_pdf_to_docx
 from src.logger import logger
 from src.utils import (
@@ -310,7 +310,7 @@ class DocProcessor:
             document_folder, f'{file_name_no_ext}.docx')
 
         # Check if file is image
-        if is_pdf_searchable_pypdf2(original_file_path):
+        if is_pdf_searchable_pypdf(original_file_path):
             # text = read_pdf_doc_to_text(original_file_path)
             convert_pdf_to_docx(original_file_path, docx_file_path)
         else:
