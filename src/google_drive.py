@@ -6,7 +6,7 @@ import io
 import shutil
 from typing import Dict, List
 from google.oauth2 import service_account
-from googleapiclient.discovery import build  # type: ignore
+from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
@@ -46,7 +46,7 @@ class GoogleApi:
                        .from_service_account_file(  # type: ignore
                            filename=service_account_json_key,
                            scopes=scope))
-        self.service: object = build(
+        self.service = build(
             serviceName='drive',
             version='v3',
             credentials=credentials)
@@ -81,7 +81,7 @@ class GoogleApi:
         query = (
             f"'{parent_folder_id}' in parents and {mime_condition} "
             "and trashed=false ")
-        fields = 'nextPageToken, files(id, name, mimeType)'
+        fields = 'nextPageToken, files(id, name, mimeType, parents)'
         try:
             while True:
                 response = self.service.files().list(  # type: ignore
@@ -92,7 +92,7 @@ class GoogleApi:
                 files: List[Dict[str, str]] = response.get(  # type: ignore
                     'files', [])
                 files_in_folder.extend(files)
-                page_token = response.get('nextPageToken', None)
+                page_token: str | None = response.get('nextPageToken', None)
                 if page_token is None:
                     break
             return files_in_folder
@@ -184,8 +184,7 @@ class GoogleApi:
             print(f"upload_file_to_google_drive: An error occurred: {e}")
             logger.error(
                 'upload_file_to_google_drive: An error occurred: %s', e)
-            error = str(e)
-            return {"name": "Error", "id": error}
+            return {"name": "Error", "id": e}
 
     def download_file_from_google_drive(
             self,
@@ -270,7 +269,7 @@ class GoogleApi:
                 parent_folder_id=current_parent)
             deleted_folder: Dict[str, str] | None = next(
                 filter(
-                    lambda f: f['name'] == deleted_folder_name, folders), None)
+                    lambda f: f['name'] == deleted_folder_name, folders), )
             # Create 'deleted' folder if it doesn't exist
             if deleted_folder:
                 deleted_folder_id = deleted_folder['id']
@@ -282,7 +281,7 @@ class GoogleApi:
                     folder_name='deleted',
                     parent_folder_id=current_parent
                 )
-                deleted_folder_id = deleted_folder.get('id')
+                deleted_folder_id = deleted_folder.get('id', '')
                 if deleted_folder_id == '':
                     logger.error("Failed to create 'deleted' folder")
                     return False
@@ -306,7 +305,8 @@ class GoogleApi:
 
         except HttpError as error:
             print(f"delete_file: An error occurred: {error}")
-            logger.error('delete_file: An error occurred while moving file %s: %s',
+            logger.error(('delete_file: An error "'
+                          '"occurred while moving file %s: %s'),
                          file_id, error)
             return False
         except FileNotFoundError:
@@ -320,7 +320,8 @@ class GoogleApi:
             return False
         except Exception as e:
             print(f"delete_file: An error occurred: {e}")
-            logger.error('delete_file: An error occurred while moving file %s: %s',
+            logger.error(('delete_file: An error '
+                          'occurred while moving file %s: %s'),
                          file_id, e)
             return False
 
@@ -353,7 +354,7 @@ class GoogleApi:
             folder = self.service.files().create(  # type: ignore
                 body=folder_metadata,
                 fields='id').execute()
-            return {'id': folder.get('id'), 'name': folder_name}
+            return {'id': folder.get('id', ''), 'name': folder_name}
         except HttpError as error:
             print(f"create_subfolder_in_folder: An error occurred: {error}")
             logger.error(
@@ -457,7 +458,8 @@ class GoogleApi:
                 fields='name,trashed',
                 supportsAllDrives=True
             ).execute()
-            if not isinstance(file_info, dict) or file_info.get('trashed', True):
+            if not isinstance(
+                    file_info, dict) or file_info.get('trashed', True):
                 logger.error("Invalid file info received: %s", file_id)
                 return ''
             return file_info.get('name', '')

@@ -5,7 +5,7 @@ to word document
 """
 import os
 from docx import Document
-from langdetect import detect
+from langdetect import detect  # type: ignore
 from src.pdf_image_ocr import is_pdf_searchable_pypdf2, ocr_pdf_image_to_doc
 from src.convert_to_docx import convert_pdf_to_docx
 from src.logger import logger

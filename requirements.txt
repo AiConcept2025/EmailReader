@@ -50,3 +50,4 @@ striprtf
 pypdf
 poppler-utils
 pyinstaller
+google-api-python-client-stubs
