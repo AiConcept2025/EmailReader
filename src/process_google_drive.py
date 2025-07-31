@@ -138,8 +138,9 @@ def process_google_drive() -> None:
                 ("Attempting to delete file: "
                     f"{file_name} (ID: {file_id})"))
             result = google_api.move_file_to_deleted_folder(
-                file_id=file_id)
-            if result:
+                file_id=file_id,
+                client_folder_id=client_folder_id)
+            if not result:
                 print("Delete failed - trying alternative approach...")
                 # You could try moving to a "deleted" folder instead
             # Remove files from temp document folder

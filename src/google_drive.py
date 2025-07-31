@@ -241,6 +241,7 @@ class GoogleApi:
     def move_file_to_deleted_folder(
         self,
         file_id: str,
+        client_folder_id: str,
         deleted_folder_name: str = 'deleted1'
     ) -> bool:
         """
@@ -248,6 +249,7 @@ class GoogleApi:
         If 'deleted' folder doesn't exist, create it
         Args:
             file_id: ID of the file to move
+            client_folder_id: ID of the parent folder where the file is located
             deleted_folder: Name of the folder to move the file to
         Returns:
             Response object if successful, None if failed
@@ -266,20 +268,20 @@ class GoogleApi:
                 return False
             # Check if 'deleted' folder exists in the current parent
             folders = self.get_subfolders_list_in_folder(
-                parent_folder_id=current_parent)
+                parent_folder_id=client_folder_id)
             deleted_folder: Dict[str, str] | None = next(
                 filter(
-                    lambda f: f['name'] == deleted_folder_name, folders), )
+                    lambda f: f['name'] == deleted_folder_name, folders), None)
             # Create 'deleted' folder if it doesn't exist
             if deleted_folder:
                 deleted_folder_id = deleted_folder['id']
             else:
                 # Create 'deleted' folder in the current parent folder
                 logger.info(
-                    "Creating 'deleted' folder in parent: %s", current_parent)
+                    "Creating 'deleted' folder in parent: %s", client_folder_id)
                 deleted_folder = self.create_subfolder_in_folder(
                     folder_name='deleted',
-                    parent_folder_id=current_parent
+                    parent_folder_id=client_folder_id
                 )
                 deleted_folder_id = deleted_folder.get('id', '')
                 if deleted_folder_id == '':
