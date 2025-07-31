@@ -4,15 +4,15 @@ Process images pdf files
 import os
 import tempfile
 from sys import platform
-from pypdf import PdfReader
+
 import pytesseract
-from pdf2image import convert_from_path
+from pdf2image import convert_from_path  # type: ignore
 from pdf2image.exceptions import (PDFInfoNotInstalledError, PDFPageCountError,
                                   PDFSyntaxError)
+from pypdf import PdfReader
 
 from src.convert_to_docx import convert_txt_to_docx
 from src.logger import logger
-from langdetect import detect_langs, DetectorFactory
 
 
 def get_platform() -> str:
@@ -26,19 +26,22 @@ def get_platform() -> str:
         app_platform = 'OS X'
     elif platform == "win32":
         app_platform = 'Windows'
+    else:
+        app_platform = 'Unknown'
     logger.info('EmailReader runs on %s', app_platform)
     return app_platform
 
 
-def is_pdf_searchable_pypdf2(pdf_path: str) -> bool:
+def is_pdf_searchable_pypdf(pdf_path: str) -> bool:
     """
     Checks if a PDF is searchable using pypdf (by attempting to extract text).
-
     Args:
         pdf_path (str): Path to the PDF document.
-
     Returns:
         bool: True if text can be extracted, False otherwise.
+        exception: If an error occurs during processing.
+    Raises:
+        Exception: If there is an error reading the PDF.
     """
     try:
         reader = PdfReader(pdf_path)
@@ -59,7 +62,6 @@ def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
     logger.info(
         'Convert pdf image to doc %s',
         os.path.basename(out_doc_file_path))
-    DetectorFactory.seed = 0  # For consistent results
     ocr_str: str = ''
     try:
         with tempfile.TemporaryDirectory(delete=False) as temp_file:
@@ -70,7 +72,7 @@ def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
                 fmt='png',)
             for image in images_from_path:
                 image_path = os.path.join(temp_file, image.filename)
-                text = pytesseract.image_to_string(
+                text: str = pytesseract.image_to_string(
                     image_path,
                     config='-c preserve_interword_spaces=1',
                     lang="eng+rus+aze+uzb+deu")

@@ -19,7 +19,7 @@ from src.flowise_api import FlowiseAiAPI
 from src.google_drive import GoogleApi
 from src.logger import logger
 from src.utils import list_files_in_directory, delete_file, rename_file
-from src.pdf_image_ocr import is_pdf_searchable_pypdf2
+from src.pdf_image_ocr import is_pdf_searchable_pypdf
 from src.convert_to_docx import convert_pdf_to_docx
 
 
@@ -94,7 +94,7 @@ def process_emails():
                 pass
             elif file_ext == '.pdf':
                 # Check if file is image
-                if is_pdf_searchable_pypdf2(old_original_doc_path):
+                if is_pdf_searchable_pypdf(old_original_doc_path):
                     original_doc_name = f'{file_name}+original+original{file_ext}'
                     original_doc_path = os.path.join(
                         document_folder, original_doc_name)
