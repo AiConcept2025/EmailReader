@@ -162,7 +162,7 @@ class GoogleApi:
             file_metadata: Dict[str, str | List[str]] = {
                 'name': file_name,
                 'parents': [parent_folder_id],
-                'mimeType': '*/*'
+                'mimeType': 'application/msword'
             }
             media = MediaFileUpload(filename=file_path, mimetype='*/*')
             file: Dict[str, str] = self.service.files().create(  # type: ignore
