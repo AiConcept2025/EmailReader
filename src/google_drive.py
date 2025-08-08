@@ -162,7 +162,7 @@ class GoogleApi:
             file_metadata: Dict[str, str | List[str]] = {
                 'name': file_name,
                 'parents': [parent_folder_id],
-                'mimeType': '*/*'
+                'mimeType': 'application/msword'
             }
             media = MediaFileUpload(filename=file_path, mimetype='*/*')
             file: Dict[str, str] = self.service.files().create(  # type: ignore
@@ -242,7 +242,7 @@ class GoogleApi:
         self,
         file_id: str,
         client_folder_id: str,
-        deleted_folder_name: str = 'deleted1'
+        deleted_folder_name: str = 'deleted'
     ) -> bool:
         """
         Move file to 'deleted' folder instead of trashing

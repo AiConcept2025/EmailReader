@@ -51,7 +51,7 @@ class DocProcessor:
         """
         logger.info('Process PDF document %s', doc_name)
         file_name_no_ext, file_ext = os.path.splitext(doc_name)
-        file_name = f'{client}+{file_name_no_ext}+original+original{file_ext}'
+        file_name = f'{file_name_no_ext}+original+original{file_ext}'
         file_path = os.path.join(self.docs_path, file_name)
         # Save original file in doc directory
         document = Document()
@@ -235,14 +235,14 @@ class DocProcessor:
 
     def process_word_file(
             self,
-            client: str,
+            client: str,  # Keep parameter for backward compatibility but don't use it
             file_name: str,
             document_folder: str
     ) -> tuple[str, str, str, str]:
         """
         Process Word document text to Word file and translate it if needed.
         Args:
-            client: client email
+            client: client email (no longer used in file naming)
             file_name: new file in google drive inbox sub folder
             document_folder: folder to temp save processed documents
         """
@@ -257,7 +257,8 @@ class DocProcessor:
         text = '/n'.join(full_text)
         # If English, rename file with +english
         if detect(text) == 'en':
-            new_file_name = f'{client}+{file_name_no_ext}+english{file_ext}'
+            # CHANGED: Removed {client}+ prefix
+            new_file_name = f'{file_name_no_ext}+english{file_ext}'
             new_file_path = os.path.join(document_folder, new_file_name)
             rename_file(file_path, new_file_path)
             original_file_name = new_file_name
@@ -265,13 +266,14 @@ class DocProcessor:
         else:
             # If not English, translate it and rename file with +translated
             # Rename original file with +original
-            original_file_name = (
-                f'{client}+{file_name_no_ext}+original{file_ext}')
+            # CHANGED: Removed {client}+ prefix
+            original_file_name = f'{file_name_no_ext}+original{file_ext}'
             original_file_path = os.path.join(
                 document_folder, original_file_name)
             rename_file(file_path, original_file_path)
             # Translate document to English
-            new_file_name = f'{client}+{file_name_no_ext}+translated{file_ext}'
+            # CHANGED: Removed {client}+ prefix
+            new_file_name = f'{file_name_no_ext}+translated{file_ext}'
             new_file_path = os.path.join(document_folder, new_file_name)
             translate_document_to_english(original_file_path, new_file_path)
         return (
@@ -282,14 +284,14 @@ class DocProcessor:
 
     def convert_pdf_file_to_word(
             self,
-            client: str,
+            client: str,  # Keep parameter for backward compatibility but don't use it
             file_name: str,
             document_folder: str
     ) -> tuple[str, str, str, str]:
         """
         Convert PDF file (image or text) to word document
         Args:
-            client: client email
+            client: client email (no longer used in file naming)
             file_name: new file in google drive inbox sub folder
             document_folder: folder to temp save processed documents
         """
@@ -300,7 +302,8 @@ class DocProcessor:
         file_path = os.path.join(document_folder, file_name)
         file_name_no_ext, file_ext = os.path.splitext(file_name)
 
-        original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
+        # CHANGED: Removed {client}+ prefix
+        original_file_name = f'{file_name_no_ext}+original{file_ext}'
         original_file_path = os.path.join(
             document_folder, original_file_name)
 
@@ -311,20 +314,16 @@ class DocProcessor:
 
         # Check if file is image
         if is_pdf_searchable_pypdf(original_file_path):
-            # text = read_pdf_doc_to_text(original_file_path)
             convert_pdf_to_docx(original_file_path, docx_file_path)
         else:
             ocr_pdf_image_to_doc(original_file_path, docx_file_path)
-        #    text = read_word_doc_to_text(docx_file_path)
-        # if detect(text) != 'en':
-        new_file_name = f'{client}+{file_name_no_ext}+translated.docx'
+
+        # CHANGED: Removed {client}+ prefix
+        new_file_name = f'{file_name_no_ext}+translated.docx'
         new_file_path = os.path.join(document_folder, new_file_name)
         translate_document_to_english(
             docx_file_path, new_file_path)
-        # else:
-        #     new_file_name = f'{client}+{file_name_no_ext}+converted.docx'
-        #     new_file_path = os.path.join(document_folder, new_file_name)
-        #     rename_file(docx_file_path, new_file_path)
+
         delete_file(docx_file_path)
         return (
             new_file_path,

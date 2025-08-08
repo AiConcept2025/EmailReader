@@ -25,7 +25,7 @@ def process_google_drive() -> None:
     """
     logger.info('Start google drive processing')
 
-    client_sub_folders: List[str] = ['inbox', 'incoming', 'temp']
+    client_sub_folders: List[str] = ['Inbox', 'Incoming', 'Temp']
     cwd = os.getcwd()
     google_api = GoogleApi()
     flowise_api = FlowiseAiAPI()
@@ -35,8 +35,8 @@ def process_google_drive() -> None:
     # Get client list
     clients = google_api.get_subfolders_list_in_folder()
     # Check if each client folder have sub folders
-    # inbox - for new documents
-    # incoming - for docs sent to flowise and original files
+    # Inbox - for new documents
+    # Incoming - for docs sent to flowise and original files
     for client in [c for c in clients
                    if '@' in c['name'] and '.' in c['name']]:
         client_folder_id: str = client.get('id')  # type: ignore
@@ -48,15 +48,15 @@ def process_google_drive() -> None:
                     parent_folder_id=client_folder_id,
                     folder_name=sub_folder
                 )
-        # Check for new files in inbox
+        # Check for new files in Inbox
         client_folder_id = client.get('id')  # type: ignore
         client_email = client['name']  # Client folder ID's
         subs = google_api.get_subfolders_list_in_folder(
             parent_folder_id=client_folder_id)
         incoming_id = [sub['id']
-                       for sub in subs if sub['name'] == 'incoming'][0]
+                       for sub in subs if sub['name'] == 'Incoming'][0]
         sub = next(
-            filter(lambda s: s['name'] == 'inbox', subs), None)
+            filter(lambda s: s['name'] == 'Inbox', subs), None)
         if sub is None:
             continue
         inbox_id: str = sub['id']
@@ -67,7 +67,7 @@ def process_google_drive() -> None:
             file_id = fl['id']
             file_path = os.path.join(document_folder, file_name)
             _, file_ext = os.path.splitext(file_name)
-            # Download new file from inbox of client on google
+            # Download new file from Inbox of client on google
             # drive to local folder
             if not google_api.download_file_from_google_drive(
                     file_id=file_id,
@@ -98,7 +98,7 @@ def process_google_drive() -> None:
                 )
             else:
                 continue
-            # upload files to google drive incoming folder
+            # upload files to google drive Incoming folder
             # original file and translated file if exists
             google_api.upload_file_to_google_drive(
                 parent_folder_id=incoming_id,
@@ -133,7 +133,7 @@ def process_google_drive() -> None:
                 continue
             # Wait 2 min
             time.sleep(120)
-            # Delete file from inbox
+            # Delete file from Inbox
             print(
                 ("Attempting to delete file: "
                     f"{file_name} (ID: {file_id})"))
