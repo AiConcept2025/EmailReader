@@ -18,3 +18,7 @@ regal-framework-credentials.json
 translate_document/
 poppler-windows/
 .env
+docReader
+translate_document
+*.spec
+_internal/
