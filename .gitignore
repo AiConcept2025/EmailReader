@@ -22,3 +22,4 @@ docReader
 translate_document
 *.spec
 _internal/
+backups/
