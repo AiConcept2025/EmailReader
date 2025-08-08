@@ -25,7 +25,7 @@ def process_google_drive() -> None:
     """
     logger.info('Start google drive processing')
 
-    client_sub_folders: List[str] = ['Inbox', 'Incoming', 'Temp']
+    client_sub_folders: List[str] = ['Inbox', 'In-Progress', 'Temp']
     cwd = os.getcwd()
     google_api = GoogleApi()
     flowise_api = FlowiseAiAPI()
@@ -36,7 +36,7 @@ def process_google_drive() -> None:
     clients = google_api.get_subfolders_list_in_folder()
     # Check if each client folder have sub folders
     # Inbox - for new documents
-    # Incoming - for docs sent to flowise and original files
+    # In-Progress - for docs sent to flowise and original files
     for client in [c for c in clients
                    if '@' in c['name'] and '.' in c['name']]:
         client_folder_id: str = client.get('id')  # type: ignore
@@ -54,7 +54,7 @@ def process_google_drive() -> None:
         subs = google_api.get_subfolders_list_in_folder(
             parent_folder_id=client_folder_id)
         incoming_id = [sub['id']
-                       for sub in subs if sub['name'] == 'Incoming'][0]
+                       for sub in subs if sub['name'] == 'In-Progress'][0]
         sub = next(
             filter(lambda s: s['name'] == 'Inbox', subs), None)
         if sub is None:
@@ -98,7 +98,7 @@ def process_google_drive() -> None:
                 )
             else:
                 continue
-            # upload files to google drive Incoming folder
+            # upload files to google drive In-Progress folder
             # original file and translated file if exists
             google_api.upload_file_to_google_drive(
                 parent_folder_id=incoming_id,

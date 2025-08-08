@@ -51,7 +51,7 @@ class DocProcessor:
         """
         logger.info('Process PDF document %s', doc_name)
         file_name_no_ext, file_ext = os.path.splitext(doc_name)
-        file_name = f'{file_name_no_ext}+original+original{file_ext}'
+        file_name = f'{client}+{file_name_no_ext}+original+original{file_ext}'
         file_path = os.path.join(self.docs_path, file_name)
         # Save original file in doc directory
         document = Document()
@@ -257,8 +257,7 @@ class DocProcessor:
         text = '/n'.join(full_text)
         # If English, rename file with +english
         if detect(text) == 'en':
-            # CHANGED: Removed {client}+ prefix
-            new_file_name = f'{file_name_no_ext}+english{file_ext}'
+            new_file_name = f'{client}+{file_name_no_ext}+english{file_ext}'
             new_file_path = os.path.join(document_folder, new_file_name)
             rename_file(file_path, new_file_path)
             original_file_name = new_file_name
@@ -266,14 +265,12 @@ class DocProcessor:
         else:
             # If not English, translate it and rename file with +translated
             # Rename original file with +original
-            # CHANGED: Removed {client}+ prefix
-            original_file_name = f'{file_name_no_ext}+original{file_ext}'
+            original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
             original_file_path = os.path.join(
                 document_folder, original_file_name)
             rename_file(file_path, original_file_path)
             # Translate document to English
-            # CHANGED: Removed {client}+ prefix
-            new_file_name = f'{file_name_no_ext}+translated{file_ext}'
+            new_file_name = f'{client}+{file_name_no_ext}+translated{file_ext}'
             new_file_path = os.path.join(document_folder, new_file_name)
             translate_document_to_english(original_file_path, new_file_path)
         return (
@@ -303,7 +300,7 @@ class DocProcessor:
         file_name_no_ext, file_ext = os.path.splitext(file_name)
 
         # CHANGED: Removed {client}+ prefix
-        original_file_name = f'{file_name_no_ext}+original{file_ext}'
+        original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
         original_file_path = os.path.join(
             document_folder, original_file_name)
 
@@ -319,7 +316,7 @@ class DocProcessor:
             ocr_pdf_image_to_doc(original_file_path, docx_file_path)
 
         # CHANGED: Removed {client}+ prefix
-        new_file_name = f'{file_name_no_ext}+translated.docx'
+        new_file_name = f'{client}+{file_name_no_ext}+translated.docx'
         new_file_path = os.path.join(document_folder, new_file_name)
         translate_document_to_english(
             docx_file_path, new_file_path)
