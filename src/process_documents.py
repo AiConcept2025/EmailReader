@@ -265,7 +265,8 @@ class DocProcessor:
         else:
             # If not English, translate it and rename file with +translated
             # Rename original file with +original
-            original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
+            original_file_name = (f'{client}+{file_name_no_ext}'
+                                  f'+original{file_ext}')
             original_file_path = os.path.join(
                 document_folder, original_file_name)
             rename_file(file_path, original_file_path)
