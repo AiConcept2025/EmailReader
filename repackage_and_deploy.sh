@@ -53,11 +53,14 @@ pyinstaller --clean --onefile \
             --hidden-import "google.oauth2" \
             --hidden-import "langdetect" \
             --hidden-import "docx" \
-            --hidden-import "PyPDF2" \
+            --hidden-import "pypdf" \
             --hidden-import "pdf2image" \
             --hidden-import "pytesseract" \
             --hidden-import "schedule" \
             --hidden-import "requests" \
+            --hidden-import "pdfplumber" \
+            --hidden-import "striprtf" \
+            --hidden-import "imap_tools" \
             --collect-all "google-api-python-client" \
             --collect-all "google-auth" \
             --collect-all "google-auth-httplib2" \
