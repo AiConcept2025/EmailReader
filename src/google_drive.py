@@ -242,7 +242,7 @@ class GoogleApi:
         self,
         file_id: str,
         client_folder_id: str,
-        deleted_folder_name: str = 'deleted1'
+        deleted_folder_name: str = 'deleted'
     ) -> bool:
         """
         Move file to 'deleted' folder instead of trashing

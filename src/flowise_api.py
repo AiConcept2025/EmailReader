@@ -1,33 +1,54 @@
 """
-Module implements FlowiseAI API
+Module implements FlowiseAI API with enhanced logging
 """
+import logging
 import os
+# import uuid
 from typing import Dict, List
+
 import requests
-# import pip._vendor.requests as requests
 
 from src.utils import read_json_secret_file
+
+# import pip._vendor.requests as requests
+
+
+# Get logger for this module
+logger = logging.getLogger('EmailReader.Flowise')
 
 
 class FlowiseAiAPI:
     """
-    Adapter class for FlowiseAI API
+    Adapter class for FlowiseAI API with enhanced logging
     """
 
     def __init__(self):
+        logger.info("Initializing FlowiseAI API client")
         secrets_file = os.path.join(
             os.getcwd(), 'credentials', 'secrets.json')
+
+        logger.debug("Loading secrets from: %s", secrets_file)
         secrets: Dict[str, str] | None = read_json_secret_file(secrets_file)
+
         if secrets is None:
+            logger.error("No secrets file found or it is empty")
             raise ValueError("No secrets file found or it is empty")
+
         flowise_ai_secrets = secrets.get("flowiseAI")
         if not isinstance(flowise_ai_secrets, dict):
+            logger.error("flowiseAI secrets must be a dictionary")
             raise ValueError("flowiseAI secrets must be a dictionary")
-        self.API_KEY = flowise_ai_secrets.get("API_KEY", "")
-        self.API_URL = flowise_ai_secrets.get("API_URL")
-        self.DOC_STORE_ID = flowise_ai_secrets.get("DOC_STORE_ID")
-        self.DOC_LOADER_DOCX_ID = flowise_ai_secrets.get("DOC_LOADER_DOCX_ID")
-        self.CHATFLOW_ID = flowise_ai_secrets.get("CHATFLOW_ID")
+
+        self.API_KEY: str = flowise_ai_secrets.get("API_KEY", "")
+        self.API_URL: str = flowise_ai_secrets.get("API_URL")
+        self.DOC_STORE_ID: str = flowise_ai_secrets.get("DOC_STORE_ID")
+        self.DOC_LOADER_DOCX_ID: str = flowise_ai_secrets.get(
+            "DOC_LOADER_DOCX_ID")
+        self.CHATFLOW_ID: str = flowise_ai_secrets.get("CHATFLOW_ID")
+
+        logger.info("FlowiseAI API initialized - URL: %s", self.API_URL)
+        logger.debug("Document Store ID: %s", self.DOC_STORE_ID)
+        logger.debug("Document Loader ID: %s", self.DOC_LOADER_DOCX_ID)
 
     def create_new_doc_store(
             self,
@@ -149,37 +170,89 @@ class FlowiseAiAPI:
             store_id: str | None = None,
             loader_id: str | None = None) -> Dict[object, object]:
         """
-        Upsert document to document store
+        Upsert document to document store with enhanced logging
         """
+        logger.info("Starting document upsert - Name: %s", doc_name)
+        logger.debug("Document path: %s", doc_path)
+
         try:
+            # Validate inputs
             if doc_name is None:
+                logger.error("No document name provided")
                 return {'name': 'Error', 'error': 'No document name provided'}
+
+            if not os.path.exists(doc_path):
+                logger.error("Document file not found: %s", doc_path)
+                return {'name': 'Error', 'error': f'File not found: {doc_path}'}
+
+            # Get file size for logging
+            file_size = os.path.getsize(doc_path) / (1024 * 1024)  # Size in MB
+            logger.debug(f"Document size: {file_size:.2f} MB")
+
             if store_id is None:
                 store_id = self.DOC_STORE_ID
+                logger.debug("Using default store ID: %s", store_id)
+
             if loader_id is None:
                 loader_id = self.DOC_LOADER_DOCX_ID
-            form_data = {
-                "files": (doc_name, open(doc_path, 'rb'))
-            }
-            body_data = {
-                "docId": self.DOC_LOADER_DOCX_ID
-            }
-            headers = {
-                "Authorization": f"Bearer {self.API_KEY}"
-            }
+                logger.debug("Using default loader ID: %s", loader_id)
 
-            response = requests.post(
-                url=f"{self.API_URL}/document-store/upsert/{store_id}",
-                files=form_data,
-                data=body_data,
-                headers=headers,
-                timeout=60000
-            )
-            data = response.json()
-            return data
+            # Prepare the request
+            logger.debug("Preparing request to Flowise API")
+
+            with open(doc_path, 'rb') as file:
+                form_data = {
+                    "files": (doc_name, file)
+                }
+                body_data = {
+                    "docId": loader_id
+                }
+                headers = {
+                    "Authorization": f"Bearer {self.API_KEY}"
+                }
+
+                url = f"{self.API_URL}/document-store/upsert/{store_id}"
+                logger.debug("POST request to: %s", url)
+
+                response = requests.post(
+                    url=url,
+                    files=form_data,
+                    data=body_data,
+                    headers=headers,
+                    timeout=60000
+                )
+
+            # Log response status
+            logger.debug("Response status code: %s", response.status_code)
+
+            if response.status_code == 200:
+                data = response.json()
+                logger.info("Document successfully uploaded: %s", doc_name)
+                logger.debug("Response data: %s", data)
+                return data
+            else:
+                logger.error(
+                    "Upload failed with status %s", response.status_code)
+                logger.error("Response: %s", response.text)
+                return {
+                    'name': 'Error',
+                    'error': f'HTTP {response.status_code}: {response.text}'
+                }
+
+        except requests.exceptions.Timeout:
+            logger.error("Timeout while uploading document: %s", doc_name)
+            return {'name': 'Error', 'error': 'Request timeout'}
+
+        except requests.exceptions.ConnectionError as e:
+            logger.error("Connection error while uploading document: %s", e)
+            return {'name': 'Error', 'error': f'Connection error: {str(e)}'}
+
         except Exception as error:
-            print(f'Upsert document to document store: {error}')
-            return {'name': 'Error', 'error': error}
+            logger.error(
+                'Unexpected error during document upload: %s',
+                error,
+                exc_info=True)
+            return {'name': 'Error', 'error': str(error)}
 
     def get_document_page(
             self,
@@ -220,7 +293,8 @@ class FlowiseAiAPI:
         if doc_id is None:
             doc_id = self.DOC_LOADER_DOCX_ID
         response = requests.get(
-            url=f"{self.API_URL}/document-store/chunks/{store_id}/{doc_id}/{page}",
+            url=(f"{self.API_URL}/document-store/chunks/"
+                 f"{store_id}/{doc_id}/{page}"),
             headers={"Authorization": f"Bearer {self.API_KEY}",
                      "Content-Type": "application/json"},
             json={"status": "EMPTY"},
@@ -229,7 +303,10 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def update_docs_in_store(self, store_id: str | None) -> Dict[object, object]:
+    def update_docs_in_store(
+            self,
+            store_id: str | None
+    ) -> Dict[object, object]:
         """
         Update document in the store and returns
         doc store info
@@ -246,66 +323,58 @@ class FlowiseAiAPI:
         data = response.json()
         return data
 
-    def create_new_prediction(self, question: str) -> Dict[object, object]:
+    def create_new_prediction(self, doc_name: str) -> Dict[object, object]:
         """
-        Create a new prediction
-        Returns:
-        {
-            "text": "text",
-            "json": {},
-            "question": "text",
-            "chatId": "text",
-            "chatMessageId": "text",
-            "sessionId": "text",
-            "memoryType": "text",
-            "sourceDocuments": [
-                {
-                "pageContent": "This is the content of the page.",
-                "metadata": {
-                    "author": "John Doe",
-                    "date": "2024-08-24"
-                }
-                }
-            ],
-            "usedTools": [
-                {
-                "tool": "Name of the tool",
-                "toolOutput": "text",
-                "toolInput": {
-                    "input": "search query"
-                }
-                }
-            ],
-            "fileAnnotations": [
-                {
-                "filePath": "path/to/file",
-                "fileName": "file.txt"
-                }
-            ]
-        }
+        Create new prediction with enhanced logging
         """
-        try:
-            data_body: Dict[str, object] = {
-                "overrideConfig": {},
-                "history": [{
-                    "content": question,
-                    "role": "apiMessage"}],
-                "question": question,
+        logger.info("Creating prediction for document: %s", doc_name)
 
-                "uploads": [{
-                    "type": "file",
-                    "name": "image.png",
-                    "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABjElEQVRIS+2Vv0oDQRDG",
-                    "mime": "image/png"}]
+        try:
+            # Use the original Flowise API endpoint (without /api/v1/)
+            url = f"{self.API_URL}/prediction/{self.CHATFLOW_ID}"
+            headers = {
+                "Authorization": f"Bearer {self.API_KEY}"
             }
+
+            # Use the original body structure that was working
+            data_body: Dict[str, object] = {
+                "question": doc_name,
+                "overrideConfig": {},
+                "history": []
+            }
+
+            logger.debug("POST request to: %s", url)
+
             response = requests.post(
-                url=f"{self.API_URL}/prediction/{self.CHATFLOW_ID}",
-                headers={"Authorization": f"Bearer {self.API_KEY}"},
-                data=data_body,
-                timeout=300000
+                url=url,
+                json=data_body,  # Use json parameter for proper content-type
+                headers=headers,
+                timeout=30000
             )
-            data = response.json()
-            return data
-        except requests.RequestException as error:
-            print(f'Create a new prediction: {error}')
-            return {'name': 'Error', 'error': str(error)}
+
+            logger.debug("Response status code: %s", response.status_code)
+            logger.debug("Response headers: %s", response.headers)
+
+            if response.status_code == 200:
+                # Check if response has content before trying to parse JSON
+                if response.text:
+                    data = response.json()
+                    logger.info(
+                        "Prediction created successfully for: %s", doc_name)
+                    return data
+                else:
+                    logger.warning(
+                        "Received empty response body with status 200")
+                    return {'name': 'Success', 'id': 'empty_response'}
+            else:
+                logger.error(
+                    "Prediction failed with status %s", response.status_code)
+                logger.error("Response: %s", response.text)
+                return {
+                    'name': 'Error',
+                    'id': f'HTTP {response.status_code}'
+                }
+
+        except Exception as error:
+            logger.error("Error creating prediction: %s", error, exc_info=True)
+            return {'name': 'Error', 'id': str(error)}
