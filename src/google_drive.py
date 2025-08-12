@@ -508,3 +508,31 @@ class GoogleApi:
         folders = self.get_subfolders_list_in_folder(
             parent_folder_id=parent_folder_id)
         return any(folder['name'] == folder_name for folder in folders)
+
+    def move_file_to_folder_id(
+        self,
+        file_id: str,
+        dest_folder_id: str
+    ) -> bool:
+        """
+        Move a file from its current parent to a destination folder by ID.
+        """
+        try:
+            current_parent: str = self.get_file_parent_folder_id(file_id=file_id)
+            if current_parent == '':
+                logger.error("File %s not found or has no parent folder", file_id)
+                return False
+
+            file_name: str = self.get_file_name_by_id(file_id=file_id)
+            logger.info("Moving file '%s' to folder ID '%s'", file_name, dest_folder_id)
+            self.service.files().update(  # type: ignore
+                fileId=file_id,
+                addParents=dest_folder_id,
+                removeParents=current_parent,
+                fields='id,name,parents',
+                supportsAllDrives=True
+            ).execute()
+            return True
+        except Exception as e:
+            logger.error("Failed to move file %s to folder '%s': %s", file_id, dest_folder_id, e)
+            return False

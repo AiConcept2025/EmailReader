@@ -215,16 +215,15 @@ def process_google_drive() -> None:
                     logger.debug("Waiting 2 minutes before cleanup")
                     time.sleep(120)
 
-                    # Move file to deleted folder
-                    logger.info("Moving file to deleted folder: %s", file_name)
-                    result = google_api.move_file_to_deleted_folder(
+                    # Move original file from Inbox to In-Progress folder
+                    logger.info("Moving original to In-Progress: %s", file_name)
+                    moved = google_api.move_file_to_folder_id(
                         file_id=file_id,
-                        client_folder_id=client_folder_id
+                        dest_folder_id=in_progress_id
                     )
 
-                    if not result:
-                        logger.warning("Failed to move file to deleted folder")
-
+                    if not moved:
+                        logger.warning("Failed to move file to In-Progress")
                     # Clean up local files
                     logger.debug("Cleaning up temporary files")
                     delete_file(new_file_path)

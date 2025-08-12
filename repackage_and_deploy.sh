@@ -18,8 +18,8 @@ PYI_NAME="docReader"                # resulting binary name
 BUILD_DIR="dist"                     # PyInstaller output directory
 ###############################################################################
 
-echo "==> 1/4  Pulling latest commit…"
-git pull --ff-only                               # current branch only
+#echo "==> 1/4  Pulling latest commit…"
+#git pull --ff-only                               # current branch only
 
 echo "==> 2/4  Setting up virtual-env…"
 if [[ ! -d venv ]]; then
