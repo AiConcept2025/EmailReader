@@ -18,7 +18,7 @@ from src.email_sender import send_error_message
 from src.flowise_api import FlowiseAiAPI
 from src.google_drive import GoogleApi
 from src.logger import logger
-from src.utils import list_files_in_directory, delete_file, rename_file
+from src.utils import list_files_in_directory, delete_file, rename_file, build_flowise_question
 from src.pdf_image_ocr import is_pdf_searchable_pypdf
 from src.convert_to_docx import convert_pdf_to_docx
 
@@ -175,17 +175,35 @@ def process_emails():
 
             delete_file(doc_path)
 
-            # Upload to doc store
-            print(f'Upload to doc store: {doc_name}')
+            # Build Flowise/doc store name once and use it for both
+            parts = doc_name.split('+', 1)
+            email = parts[0] if parts and '@' in parts[0] else "unknown"
+            rhs = parts[1] if len(parts) > 1 else doc_name
+            question = build_flowise_question(email, rhs)
+
+            logger.info('DOC STORE upload name: %s', question)
             res_doc_store = flowise_api.upsert_document_to_document_store(
-                doc_name=doc_name, doc_path=doc_path)
+                doc_name=question, doc_path=doc_path)
             if res_doc_store.get('name') == 'Error':
                 send_error_message(
                     f"Upload file doc store error: {res_doc_store.get('error')}")
                 return
-            # run prediction
-            print(f'Upload to prediction: {doc_name}')
-            res_prediction = flowise_api.create_new_prediction(doc_name)
+
+            # Run prediction using the SAME name
+            logger.info("PREDICTION send: %s", question)
+            res_prediction = flowise_api.create_new_prediction(question)
+            if isinstance(res_prediction, dict):
+                text_val = res_prediction.get('text')
+                if isinstance(text_val, str) and len(text_val) > 60:
+                    text_val = text_val[:60] + '…'
+                compact = {
+                    'name': res_prediction.get('name'),
+                    'id': res_prediction.get('id'),
+                    'text': text_val
+                }
+                logger.info("PREDICTION response: %s", compact)
+            else:
+                logger.info("PREDICTION response: %s", res_prediction)
             if res_prediction.get('name') == 'Error':
                 send_error_message(
                     f"Prediction error: {res_prediction.get('id')}")

@@ -7,13 +7,12 @@ import time
 import logging
 from typing import List
 
-from schedule import every, repeat  # type: ignore
 
 from src.email_sender import send_error_message
 from src.flowise_api import FlowiseAiAPI
 from src.google_drive import GoogleApi
 from src.process_documents import DocProcessor
-from src.utils import delete_file
+from src.utils import delete_file, build_flowise_question
 
 # Import the configured logger system
 import src.logger  # This ensures logger is configured
@@ -24,7 +23,6 @@ type FilesFoldersDict = dict[str, str]
 logger = logging.getLogger('EmailReader.GoogleDrive')
 
 
-@repeat(every(15).minutes)
 def process_google_drive() -> None:
     """
     Process all new documents from google drive with enhanced logging
@@ -56,7 +54,10 @@ def process_google_drive() -> None:
 
         for client in client_folders:
             client_folder_id: str = client.get('id')
-            client_email = client['name']
+            client_name_raw = client['name']
+            # Derive pure email token from folder name (handles cases like "Display Name+email")
+            _tokens = client_name_raw.split('+')
+            client_email = next((t for t in _tokens if '@' in t), client_name_raw)
 
             logger.info("Processing client: %s", client_email)
 
@@ -113,16 +114,19 @@ def process_google_drive() -> None:
                     _, file_ext = os.path.splitext(file_name)
 
                     # Download file
-                    logger.debug(
-                        "Downloading file from Google Drive: %s", file_name)
+                    logger.info(
+                        "DOWNLOAD original: id=%s name=%s -> %s",
+                        file_id,
+                        file_name,
+                        file_path,
+                    )
                     if not google_api.download_file_from_google_drive(
                             file_id=file_id,
                             file_path=file_path):
                         logger.error("Failed to download file: %s", file_name)
                         continue
 
-                    logger.debug(
-                        "File downloaded successfully to: %s", file_path)
+                    logger.info("DOWNLOAD OK: %s", file_path)
 
                     # Process based on file type
                     if file_ext.lower() in ['.doc', '.docx']:
@@ -153,14 +157,16 @@ def process_google_drive() -> None:
                         logger.warning("Unsupported file type: %s", file_ext)
                         continue
 
-                    logger.info("Document processed: %s", new_file_name)
+                    logger.info("Processed file (temp): %s", new_file_name)
 
                     # Upload to In-Progress folder
-                    logger.debug(
-                        "Uploading to In-Progress folder: %s", new_file_name)
+                    # Build final name: email + rhs (new_file_name already has rhs now)
+                    rhs = new_file_name
+                    final_name = f"{client_email}+{rhs}"
+                    logger.info("UPLOAD to In-Progress: %s", final_name)
                     upload_result = google_api.upload_file_to_google_drive(
                         parent_folder_id=in_progress_id,
-                        file_name=new_file_name,
+                        file_name=final_name,
                         file_path=new_file_path
                     )
 
@@ -176,18 +182,20 @@ def process_google_drive() -> None:
                             "Uploading original file: %s", original_file_name)
                         google_api.upload_file_to_google_drive(
                             parent_folder_id=in_progress_id,
-                            file_name=original_file_name,
+                            file_name=f"{client_email}+{original_file_name}",
                             file_path=original_file_path
                         )
 
-                    # Upload to Flowise/Pinecone
-                    logger.info(
-                        "Uploading to document store: %s", new_file_name)
+                    # Build Flowise name once and use identically for doc store and prediction
+                    # Build Flowise/doc store name as: email+<rhs>
+                    question = build_flowise_question(client_email, rhs)
+                    logger.info("DOC STORE upload name: %s", question)
                     upsert_result = flowise_api.upsert_document_to_document_store(
-                        doc_name=new_file_name,
+                        doc_name=question,
                         doc_path=new_file_path
                     )
 
+                    logger.debug("DOC STORE response: %s", upsert_result)
                     if upsert_result.get('name') == 'Error':
                         error = upsert_result.get('error', 'Unknown error')
                         logger.error("Document store upload failed: %s", error)
@@ -197,11 +205,22 @@ def process_google_drive() -> None:
 
                     logger.info("Document successfully uploaded to store")
 
-                    # Create prediction
-                    logger.info("Creating prediction for: %s", new_file_name)
-                    res_prediction = flowise_api.create_new_prediction(
-                        new_file_name)
-
+                    # Create prediction using the SAME name
+                    logger.info("PREDICTION send: %s", question)
+                    res_prediction = flowise_api.create_new_prediction(question)
+                    # Limit long 'text' fields to 60 chars for logging clarity
+                    if isinstance(res_prediction, dict):
+                        text_val = res_prediction.get('text')
+                        if isinstance(text_val, str) and len(text_val) > 60:
+                            text_val = text_val[:60] + '…'
+                        compact = {
+                            'name': res_prediction.get('name'),
+                            'id': res_prediction.get('id'),
+                            'text': text_val
+                        }
+                        logger.info("PREDICTION response: %s", compact)
+                    else:
+                        logger.info("PREDICTION response: %s", res_prediction)
                     if res_prediction.get('name') == 'Error':
                         error_id = res_prediction.get('id', 'Unknown')
                         logger.error(
@@ -216,7 +235,7 @@ def process_google_drive() -> None:
                     time.sleep(120)
 
                     # Move original file from Inbox to In-Progress folder
-                    logger.info("Moving original to In-Progress: %s", file_name)
+                    logger.info("MOVE original Inbox -> In-Progress: %s", file_name)
                     moved = google_api.move_file_to_folder_id(
                         file_id=file_id,
                         dest_folder_id=in_progress_id

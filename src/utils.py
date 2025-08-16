@@ -164,7 +164,9 @@ def copy_file(source_file: str, destination_file: str) -> bool:
     destination_file: destination file
     """
     try:
+        logger.info("COPY file: %s -> %s", source_file, destination_file)
         shutil.copy(source_file, destination_file)
+        logger.info("COPY OK: %s", destination_file)
         return True
     except FileNotFoundError:
         logger.error('Error: Source file %s not found.', source_file)
@@ -180,7 +182,9 @@ def delete_file(file_path: str) -> None:
     """
     if os.path.exists(file_path):
         try:
+            logger.info("DELETE file: %s", file_path)
             os.remove(file_path)
+            logger.info("DELETE OK: %s", file_path)
         except OSError as e:
             logger.error('Error %s deleting file %s:', e, file_path)
     else:
@@ -192,18 +196,15 @@ def rename_file(current_file_name: str, new_file_name: str):
     Attempt to rename the file
     """
     try:
+        logger.info("RENAME file: %s -> %s", current_file_name, new_file_name)
         os.rename(current_file_name, new_file_name)
-        print(
-            (f"File '{current_file_name}' successfully "
-             f"renamed to '{new_file_name}'."))
+        logger.info("RENAME OK: %s", new_file_name)
     except FileNotFoundError:
-        print(f"Error: File '{current_file_name}' not found.")
+        logger.error("RENAME missing source: %s", current_file_name)
     except PermissionError:
-        print(
-            "Error: Permission denied. "
-            f"Unable to rename '{current_file_name}'.")
+        logger.error("RENAME permission denied: %s", current_file_name)
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        logger.error("RENAME unexpected error: %s", e)
 
 
 def convert_rtx_to_text(rtf_text: str) -> str:
@@ -228,3 +229,22 @@ def utc_to_local(utc_dt: datetime) -> datetime:
     """
     time_stamp = utc_dt.replace(tzinfo=timezone.utc)
     return time_stamp
+
+
+def build_flowise_question(customer_email: str, file_name_with_ext: str) -> str:
+    """
+    Build Flowise/document-store name:
+    - Strip processing suffix (+english/+translated/+original)
+    - Ensure .docx extension
+    Final format: email+OriginalName.docx
+    """
+    base, ext = os.path.splitext(file_name_with_ext or "")
+    # Remove any processing suffix after the first '+'
+    # e.g., "Serhii Zhuk letter+english" -> "Serhii Zhuk letter"
+    if '+' in base:
+        base = base.split('+', 1)[0]
+    # Enforce .docx extension
+    if not ext or ext.lower() != '.docx':
+        ext = '.docx'
+    clean_name = f"{base}{ext}"
+    return f"{customer_email}+{clean_name}"

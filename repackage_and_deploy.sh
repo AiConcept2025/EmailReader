@@ -44,9 +44,9 @@ if [[ ! -f "$APP_ENTRY" ]]; then
 fi
 
 # Build with PyInstaller
-# Using onefile to create a single executable
+# Using onedir to avoid bootloader parent/child processes
 # Adding necessary data files and hidden imports for the project
-pyinstaller --clean --onefile \
+pyinstaller --clean --onedir \
             --name "$PYI_NAME" \
             --add-data "credentials:credentials" \
             --hidden-import "googleapiclient" \
@@ -67,27 +67,26 @@ pyinstaller --clean --onefile \
             --collect-all "google-auth-oauthlib" \
             "$APP_ENTRY"
 
-echo "==> 4/4  Creating package…"
-# Copy the executable to the project root
-if [[ -f "$BUILD_DIR/$PYI_NAME" ]]; then
-    cp "$BUILD_DIR/$PYI_NAME" .
-    chmod +x "$PYI_NAME"
-    echo "✓ Build complete – docReader executable created in current directory"
-    echo "  Executable location: $(pwd)/$PYI_NAME"
-    echo "  Size: $(du -h $PYI_NAME | cut -f1)"
+echo "==> 4/4  Finalizing build…"
+# Ensure the onedir executable exists and is executable
+if [[ -x "$BUILD_DIR/$PYI_NAME/$PYI_NAME" ]]; then
+    chmod +x "$BUILD_DIR/$PYI_NAME/$PYI_NAME"
+    echo "✓ Build complete – onedir created at: $BUILD_DIR/$PYI_NAME/"
+    echo "  Executable location: $(pwd)/$BUILD_DIR/$PYI_NAME/$PYI_NAME"
+    echo "  Size: $(du -h $BUILD_DIR/$PYI_NAME/$PYI_NAME | cut -f1)"
 else
-    echo "✗ Build failed – executable not found in $BUILD_DIR"
+    echo "✗ Build failed – executable not found at $BUILD_DIR/$PYI_NAME/$PYI_NAME"
     exit 1
 fi
 
-# Optional: Create a backup with timestamp
+# Optional: Create a backup with timestamp (archive the onedir)
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 mkdir -p backups
-cp "$PYI_NAME" "backups/${PYI_NAME}_${TIMESTAMP}"
-echo "  Backup created: backups/${PYI_NAME}_${TIMESTAMP}"
+tar -C "$BUILD_DIR" -czf "backups/${PYI_NAME}_${TIMESTAMP}.tar.gz" "$PYI_NAME"
+echo "  Backup created: backups/${PYI_NAME}_${TIMESTAMP}.tar.gz"
 
 echo ""
-echo "To run the application: ./$PYI_NAME"
+echo "To run the application: ./$BUILD_DIR/$PYI_NAME/$PYI_NAME"
 echo ""
 
 
