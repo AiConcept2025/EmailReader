@@ -52,7 +52,7 @@ file_handler.setFormatter(detailed_formatter)
 
 # Console handler
 console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setLevel(logging.INFO)
+console_handler.setLevel(logging.DEBUG)
 console_handler.setFormatter(simple_formatter)
 
 # Add handlers to logger

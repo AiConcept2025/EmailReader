@@ -4,6 +4,9 @@ Process txt, pdf, rtf, images, foreign language documents documents
 to word document
 """
 import os
+import mimetypes
+from typing import Dict, List, Union
+from googleapiclient.http import MediaFileUpload
 from docx import Document
 from langdetect import detect  # type: ignore
 from src.pdf_image_ocr import is_pdf_searchable_pypdf, ocr_pdf_image_to_doc
@@ -254,10 +257,11 @@ class DocProcessor:
         full_text: list[str] = []
         for paragraph in document.paragraphs:
             full_text.append(paragraph.text)
-        text = '/n'.join(full_text)
+        text = '\n'.join(full_text)
         # If English, rename file with +english
         if detect(text) == 'en':
-            new_file_name = f'{client}+{file_name_no_ext}+english{file_ext}'
+            # Do not prefix with client here; caller will prepend email
+            new_file_name = f'{file_name_no_ext}+english{file_ext}'
             new_file_path = os.path.join(document_folder, new_file_name)
             rename_file(file_path, new_file_path)
             original_file_name = new_file_name
@@ -265,13 +269,13 @@ class DocProcessor:
         else:
             # If not English, translate it and rename file with +translated
             # Rename original file with +original
-            original_file_name = (f'{client}+{file_name_no_ext}'
-                                  f'+original{file_ext}')
+            # Do not prefix with client here; caller will prepend email
+            original_file_name = f'{file_name_no_ext}+original{file_ext}'
             original_file_path = os.path.join(
                 document_folder, original_file_name)
             rename_file(file_path, original_file_path)
             # Translate document to English
-            new_file_name = f'{client}+{file_name_no_ext}+translated{file_ext}'
+            new_file_name = f'{file_name_no_ext}+translated{file_ext}'
             new_file_path = os.path.join(document_folder, new_file_name)
             translate_document_to_english(original_file_path, new_file_path)
         return (
@@ -299,6 +303,23 @@ class DocProcessor:
 
         file_path = os.path.join(document_folder, file_name)
         file_name_no_ext, file_ext = os.path.splitext(file_name)
+
+        # Decide MIME from extension first, then fallback to guess, then octet-stream
+        _, ext = os.path.splitext(file_name.lower())
+        if ext == ".docx":
+            mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        elif ext == ".doc":
+            mime = "application/msword"
+        else:
+            mime = mimetypes.guess_type(file_name)[0] or "application/octet-stream"
+
+        file_metadata: Dict[str, Union[str, List[str]]] = {
+            "name": file_name,
+            "parents": [parent_folder_id],
+            "mimeType": mime
+        }
+
+        media = MediaFileUpload(file_path, mimetype=mime)
 
         # CHANGED: Removed {client}+ prefix
         original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'

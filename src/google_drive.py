@@ -159,6 +159,8 @@ class GoogleApi:
         try:
             if parent_folder_id == '':
                 parent_folder_id = self.parent_folder_id
+            logger.info("DRIVE UPLOAD: name=%s parent=%s path=%s",
+                        file_name, parent_folder_id, file_path)
             file_metadata: Dict[str, str | List[str]] = {
                 'name': file_name,
                 'parents': [parent_folder_id],
@@ -169,6 +171,8 @@ class GoogleApi:
                 body=file_metadata,
                 media_body=media,
                 fields='id,name').execute()
+            logger.info("DRIVE UPLOAD OK: name=%s id=%s",
+                        file.get('name'), file.get('id'))
             return file  # type: ignore
         except HttpError as error:
             print(f"upload_file_to_google_drive: An error occurred: {error}")
@@ -213,9 +217,10 @@ class GoogleApi:
                 _, done = downloader.next_chunk()
             fh.seek(0)
             # Write the received data to the file
+            logger.info("DRIVE DOWNLOAD: id=%s -> %s", file_id, file_path)
             with open(file_path, 'wb') as f:
                 shutil.copyfileobj(fh, f)
-            print("File Downloaded")
+            logger.info("DRIVE DOWNLOAD OK: %s", file_path)
             # Return True if file Downloaded successfully
             return True
         except HttpError as error:
@@ -290,7 +295,7 @@ class GoogleApi:
                 logger.info("Created 'deleted' folder: %s", deleted_folder_id)
             # Move the file to 'deleted' folder
             file_name: str = self.get_file_name_by_id(file_id=file_id)
-            logger.info("Moving file '%s' to 'deleted' folder", file_name)
+            logger.info("DRIVE MOVE: '%s' -> 'deleted'", file_name)
             self.service.files().update(  # type: ignore
                 fileId=file_id,
                 addParents=deleted_folder_id,
@@ -299,7 +304,7 @@ class GoogleApi:
                 supportsAllDrives=True
             ).execute()
             logger.info(
-                "Successfully moved file '%s' (ID: %s) to 'deleted' folder",
+                "DRIVE MOVE OK: '%s' (ID: %s) -> 'deleted'",
                 file_name,
                 file_id)
             print(f"Moved file '{file_name}' to 'deleted' folder")
@@ -508,3 +513,32 @@ class GoogleApi:
         folders = self.get_subfolders_list_in_folder(
             parent_folder_id=parent_folder_id)
         return any(folder['name'] == folder_name for folder in folders)
+
+    def move_file_to_folder_id(
+        self,
+        file_id: str,
+        dest_folder_id: str
+    ) -> bool:
+        """
+        Move a file from its current parent to a destination folder by ID.
+        """
+        try:
+            current_parent: str = self.get_file_parent_folder_id(file_id=file_id)
+            if current_parent == '':
+                logger.error("File %s not found or has no parent folder", file_id)
+                return False
+
+            file_name: str = self.get_file_name_by_id(file_id=file_id)
+            logger.info("DRIVE MOVE: '%s' -> parent=%s", file_name, dest_folder_id)
+            self.service.files().update(  # type: ignore
+                fileId=file_id,
+                addParents=dest_folder_id,
+                removeParents=current_parent,
+                fields='id,name,parents',
+                supportsAllDrives=True
+            ).execute()
+            logger.info("DRIVE MOVE OK: '%s' (ID=%s) -> parent=%s", file_name, file_id, dest_folder_id)
+            return True
+        except Exception as e:
+            logger.error("Failed to move file %s to folder '%s': %s", file_id, dest_folder_id, e)
+            return False
