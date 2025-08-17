@@ -2,10 +2,9 @@
 #
 #  repackage_and_deploy.sh - EmailReader Project
 #  ──────────────────────────────────────────────
-#  1. git pull            – fast-forwards the current branch
-#  2. ensure ./venv       – installs/updates deps
-#  3. PyInstaller build   – creates docReader executable
-#  4. Package creation    – creates the docReader package (no deployment)
+#  1. ensure ./venv       – installs/updates deps
+#  2. PyInstaller build   – creates docReader executable
+#  3. GoogleTranslator    – build and copy translate_document
 #
 #  Make executable:  chmod +x repackage_and_deploy.sh
 #  Run:              ./repackage_and_deploy.sh
@@ -18,21 +17,16 @@ PYI_NAME="docReader"                # resulting binary name
 BUILD_DIR="dist"                     # PyInstaller output directory
 ###############################################################################
 
-#echo "==> 1/4  Pulling latest commit…"
-#git pull --ff-only                               # current branch only
-
-echo "==> 2/4  Setting up virtual-env…"
+echo "==> Setting up virtual-env…"
 if [[ ! -d venv ]]; then
     python3 -m venv venv
 fi
 source venv/bin/activate
 python -m pip install -q --upgrade pip
 python -m pip install -q -r requirements.txt
-
-# Install PyInstaller if not already installed
 python -m pip install -q pyinstaller
 
-echo "==> 3/4  Building docReader executable…"
+echo "==> Building docReader executable…"
 # Clean previous builds
 rm -rf build/ dist/ __pycache__/
 rm -f "$PYI_NAME"
@@ -44,8 +38,6 @@ if [[ ! -f "$APP_ENTRY" ]]; then
 fi
 
 # Build with PyInstaller
-# Using onedir to avoid bootloader parent/child processes
-# Adding necessary data files and hidden imports for the project
 pyinstaller --clean --onedir \
             --name "$PYI_NAME" \
             --add-data "credentials:credentials" \
@@ -67,26 +59,17 @@ pyinstaller --clean --onedir \
             --collect-all "google-auth-oauthlib" \
             "$APP_ENTRY"
 
-echo "==> 4/4  Finalizing build…"
-# Ensure the onedir executable exists and is executable
-if [[ -x "$BUILD_DIR/$PYI_NAME/$PYI_NAME" ]]; then
-    chmod +x "$BUILD_DIR/$PYI_NAME/$PYI_NAME"
-    echo "✓ Build complete – onedir created at: $BUILD_DIR/$PYI_NAME/"
-    echo "  Executable location: $(pwd)/$BUILD_DIR/$PYI_NAME/$PYI_NAME"
-    echo "  Size: $(du -h $BUILD_DIR/$PYI_NAME/$PYI_NAME | cut -f1)"
-else
+# Ensure the onedir executable exists
+if [[ ! -x "$BUILD_DIR/$PYI_NAME/$PYI_NAME" ]]; then
     echo "✗ Build failed – executable not found at $BUILD_DIR/$PYI_NAME/$PYI_NAME"
     exit 1
 fi
 
-# Optional: Create a backup with timestamp (archive the onedir)
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-mkdir -p backups
-tar -C "$BUILD_DIR" -czf "backups/${PYI_NAME}_${TIMESTAMP}.tar.gz" "$PYI_NAME"
-echo "  Backup created: backups/${PYI_NAME}_${TIMESTAMP}.tar.gz"
+echo "✓ Build complete – $BUILD_DIR/$PYI_NAME/$PYI_NAME"
 
-echo ""
-echo "To run the application: ./$BUILD_DIR/$PYI_NAME/$PYI_NAME"
-echo ""
+# Build GoogleTranslator and copy translate_document
+(cd ../GoogleTranslator && ./repackage_deploy.sh)
+cp ../GoogleTranslator/dist/translate_document .
+chmod +x translate_document
 
 

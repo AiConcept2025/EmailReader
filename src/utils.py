@@ -146,7 +146,7 @@ def translate_document_to_english(
     executable_path = Path(os.path.join(
         os.getcwd(), "translate_document"))
     arguments = ['-i', original_path, '-o', translated_path]
-    command = [executable_path] + arguments
+    command = [str(executable_path)] + arguments  # Convert Path to string
     try:
         subprocess.run(command, capture_output=True, text=True, check=True)
     except subprocess.CalledProcessError as e:
