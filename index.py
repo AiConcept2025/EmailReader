@@ -3,12 +3,14 @@ Start point for the application.
 """
 import os
 import time
-import schedule
 from datetime import datetime
 from pathlib import Path
+
+import schedule
+
+from src.logger import logger
 from src.process_google_drive import process_google_drive
 from src.utils import read_json_secret_file
-from src.logger import logger
 
 
 def load_interval_minutes() -> int:
