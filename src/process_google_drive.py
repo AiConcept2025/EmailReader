@@ -113,6 +113,10 @@ def process_google_drive() -> None:
                     file_path = os.path.join(document_folder, file_name)
                     _, file_ext = os.path.splitext(file_name)
 
+                    # Optional target language from Drive appProperties
+                    target_lang = google_api.get_file_app_property(
+                        file_id, 'targetLanguage')
+
                     # Download file
                     logger.info(
                         "DOWNLOAD original: id=%s name=%s -> %s",
@@ -139,7 +143,8 @@ def process_google_drive() -> None:
                         ) = doc_processor.process_word_file(
                             client=client_email,
                             file_name=file_name,
-                            document_folder=document_folder
+                            document_folder=document_folder,
+                            target_lang=target_lang
                         )
                     elif file_ext.lower() == '.pdf':
                         logger.debug("Processing as PDF document")
@@ -151,7 +156,8 @@ def process_google_drive() -> None:
                         ) = doc_processor.convert_pdf_file_to_word(
                             client=client_email,
                             file_name=file_name,
-                            document_folder=document_folder
+                            document_folder=document_folder,
+                            target_lang=target_lang
                         )
                     else:
                         logger.warning("Unsupported file type: %s", file_ext)

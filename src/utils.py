@@ -135,17 +135,21 @@ def read_word_doc_to_text(word_doc_path: str) -> str:
 
 def translate_document_to_english(
         original_path: str,
-        translated_path: str
+        translated_path: str,
+        target_lang: str | None = None
 ) -> None:
     """
-    Translates word document in foreign language to English
+    Translates word document to English (or a specified target language).
     Args:
     original_path: foreign language word document Word format
     translated_path: output english Word document Word format
+    target_lang: optional language code to translate to (e.g., 'fr')
     """
     executable_path = Path(os.path.join(
         os.getcwd(), "translate_document"))
     arguments = ['-i', original_path, '-o', translated_path]
+    if target_lang:
+        arguments += ['--target', target_lang]
     command = [str(executable_path)] + arguments  # Convert Path to string
     try:
         subprocess.run(command, capture_output=True, text=True, check=True)

@@ -497,6 +497,27 @@ class GoogleApi:
                 file_id, e)
             return ''
 
+    def get_file_app_property(self, file_id: str, name: str) -> str | None:
+        """
+        Return a specific appProperties value for a file, or None if not set.
+        """
+        try:
+            info = self.service.files().get(  # type: ignore
+                fileId=file_id,
+                fields='appProperties',
+                supportsAllDrives=True
+            ).execute()
+            if not isinstance(info, dict):
+                return None
+            app_props = info.get('appProperties') or {}
+            if not isinstance(app_props, dict):
+                return None
+            value = app_props.get(name)
+            return value if isinstance(value, str) and value else None
+        except Exception as e:
+            logger.error("get_file_app_property failed for %s (%s): %s", file_id, name, e)
+            return None
+
     def if_folder_exist_by_name(
         self,
         folder_name: str,
