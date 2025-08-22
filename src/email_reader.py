@@ -129,7 +129,7 @@ def extract_attachments_from_mailbox():
             # Process attachments
             for attachment in msg.attachments:
                 file_name = f"{msg.from_}+{attachment.filename}"
-                file_name_no_ext, file_ext = os.path.splitext(file_name)
+                _, file_ext = os.path.splitext(file_name)
                 try:
                     if attachment.filename == "":
                         logger.warning(
