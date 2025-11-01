@@ -84,7 +84,8 @@ process_google_drive()
 ### 2.3 Key Dependencies
 ```python
 # From requirements.txt (inferred)
-flask                  # Web framework
+fastapi               # Web framework
+uvicorn               # ASGI server
 requests              # HTTP client
 google-api-python-client
 google-auth
@@ -101,16 +102,16 @@ pdf2image             # PDF conversion
 ### 3.1 Technology Stack
 
 **Required**:
-- **Framework**: Flask 3.0+
+- **Framework**: FastAPI 0.100+
 - **Python**: 3.10+ (match existing codebase)
-- **WSGI Server**: Gunicorn (production) or Flask dev server (development)
-- **Authentication**: JWT or API Key based
-- **Validation**: Flask-RESTX or Marshmallow for request validation
+- **ASGI Server**: Uvicorn (development) or Gunicorn with Uvicorn workers (production)
+- **Authentication**: JWT or API Key based (FastAPI security utilities)
+- **Validation**: Pydantic models (built-in with FastAPI)
 
 **Optional** (for enhanced functionality):
-- **Rate Limiting**: Flask-Limiter
-- **CORS**: Flask-CORS (if needed for web clients)
-- **API Documentation**: Swagger/OpenAPI (via Flask-RESTX)
+- **Rate Limiting**: slowapi (FastAPI-compatible rate limiting)
+- **CORS**: FastAPI built-in CORS middleware
+- **API Documentation**: Automatic Swagger/OpenAPI (built-in with FastAPI)
 
 ### 3.2 File Location
 - **Main file**: `src/app.py`
@@ -123,7 +124,7 @@ pdf2image             # PDF conversion
 ```python
 # Development
 HOST = "127.0.0.1"
-PORT = 5000
+PORT = 8000  # FastAPI/Uvicorn default
 
 # Production
 HOST = "0.0.0.0"
@@ -484,30 +485,49 @@ from src.utils import read_json_secret_file
 
 **Implementation Options**:
 
-**Option A: Threading** (Recommended for initial implementation)
+**Option A: FastAPI BackgroundTasks** (Recommended for simple tasks)
+```python
+from fastapi import BackgroundTasks
+import uuid
+
+def process_documents_async(job_id: str):
+    """Background task worker"""
+    try:
+        job_status[job_id]['status'] = 'in_progress'
+        process_google_drive()
+        job_status[job_id]['status'] = 'completed'
+    except Exception as e:
+        logger.error(f"Job {job_id} failed: {e}")
+        job_status[job_id]['status'] = 'failed'
+
+@app.post('/api/v1/process/trigger')
+async def trigger_process(background_tasks: BackgroundTasks):
+    job_id = str(uuid.uuid4())
+    job_status[job_id] = {'status': 'queued'}
+    background_tasks.add_task(process_documents_async, job_id)
+    return {"job_id": job_id, "status": "queued"}
+```
+
+**Option B: Threading** (For longer-running tasks)
 ```python
 from threading import Thread
-import queue
 
-job_queue = queue.Queue()
-
-def process_documents_async(job_id):
-    """Background thread worker"""
+def process_documents_async(job_id: str):
     try:
         process_google_drive()
-        # Update job status
     except Exception as e:
         logger.error(f"Job {job_id} failed: {e}")
 
-@app.route('/api/v1/process/trigger', methods=['POST'])
-def trigger_process():
+@app.post('/api/v1/process/trigger')
+async def trigger_process():
     job_id = str(uuid.uuid4())
     thread = Thread(target=process_documents_async, args=(job_id,))
+    thread.daemon = True
     thread.start()
-    return jsonify({"job_id": job_id, "status": "queued"}), 202
+    return {"job_id": job_id, "status": "queued"}
 ```
 
-**Option B: Celery** (For production/scale)
+**Option C: Celery** (For production/scale)
 - More complex setup
 - Better for multiple workers
 - Requires Redis/RabbitMQ
@@ -546,11 +566,15 @@ job_status = {}
 
 **Requirement**: Web server and scheduler should coexist
 
-**Implementation**:
+**Implementation** (using FastAPI lifespan events):
 ```python
 # src/app.py
 import schedule
 from threading import Thread
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+
+scheduler_thread = None
 
 def run_scheduler():
     """Background thread for scheduled tasks"""
@@ -558,24 +582,27 @@ def run_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
-def create_app():
-    app = Flask(__name__)
-
-    # Load configuration
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup and shutdown events"""
+    # Startup
+    global scheduler_thread
     config = read_json_secret_file('credentials/secrets.json')
 
-    # Setup scheduler if enabled
     if config.get('scheduling', {}).get('enabled', True):
-        interval = config.get('scheduling', {}).get('interval_minutes', 15)
+        interval = config.get('scheduling', {}).get('google_drive_interval_minutes', 15)
         schedule.every(interval).minutes.do(process_google_drive)
 
         scheduler_thread = Thread(target=run_scheduler, daemon=True)
         scheduler_thread.start()
+        logger.info(f"Scheduler started: every {interval} minutes")
 
-    # Setup routes
-    # ...
+    yield
 
-    return app
+    # Shutdown
+    logger.info("Shutting down scheduler...")
+
+app = FastAPI(lifespan=lifespan)
 ```
 
 ---
@@ -604,74 +631,89 @@ def create_app():
 }
 ```
 
-**Implementation**:
+**Implementation** (using FastAPI dependencies):
 ```python
-from functools import wraps
-from flask import request, jsonify
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-def require_auth(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        auth_header = request.headers.get('Authorization')
+security = HTTPBearer()
 
-        if not auth_header:
-            return jsonify({'error': 'No authorization header'}), 401
+def verify_api_key(token: str) -> bool:
+    """Verify API key against configuration"""
+    config = read_json_secret_file('credentials/secrets.json')
+    api_keys = config.get('api', {}).get('api_keys', [])
+    return any(key.get('key') == token for key in api_keys)
 
-        # Bearer token format: "Bearer <token>"
-        parts = auth_header.split()
-        if parts[0].lower() != 'bearer' or len(parts) != 2:
-            return jsonify({'error': 'Invalid authorization header'}), 401
+async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    """
+    Dependency to verify API key from Bearer token
+    Returns the token if valid, raises HTTPException if invalid
+    """
+    token = credentials.credentials
 
-        token = parts[1]
-        if not verify_api_key(token):
-            return jsonify({'error': 'Invalid API key'}), 401
+    if not verify_api_key(token):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API key",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-        return f(*args, **kwargs)
-    return decorated_function
+    return token
 
 # Usage
-@app.route('/api/v1/status')
-@require_auth
-def get_status():
-    return jsonify({...})
+@app.get('/api/v1/status')
+async def get_status(token: str = Depends(verify_token)):
+    return {...}
 ```
 
 ### 6.2 Webhook Signature Verification
 
 **Google Drive Webhooks**:
 ```python
-def verify_google_webhook(request):
+from fastapi import Request, HTTPException
+
+async def verify_google_webhook(request: Request):
     """Verify Google Drive webhook authenticity"""
-    channel_token = request.headers.get('X-Goog-Channel-Token')
+    channel_token = request.headers.get('x-goog-channel-token')
 
     # Load expected token from configuration
     config = read_json_secret_file('credentials/secrets.json')
-    expected_token = config.get('webhook', {}).get('google_channel_token')
+    expected_token = config.get('webhook', {}).get('google_drive', {}).get('verification_token')
 
-    return channel_token == expected_token
+    if channel_token != expected_token:
+        raise HTTPException(status_code=401, detail="Invalid webhook token")
+
+    return True
 ```
 
 **FlowiseAI Webhooks** (HMAC):
 ```python
 import hmac
 import hashlib
+from fastapi import Request, HTTPException
 
-def verify_flowise_webhook(request):
+async def verify_flowise_webhook(request: Request):
     """Verify FlowiseAI webhook signature"""
-    signature = request.headers.get('X-Flowise-Signature', '')
+    signature = request.headers.get('x-flowise-signature', '')
 
     # Load webhook secret
     config = read_json_secret_file('credentials/secrets.json')
-    secret = config.get('webhook', {}).get('flowise_secret', '').encode()
+    secret = config.get('webhook', {}).get('flowise', {}).get('secret', '').encode()
+
+    # Read body
+    body = await request.body()
 
     # Compute expected signature
     expected = 'sha256=' + hmac.new(
         secret,
-        request.data,
+        body,
         hashlib.sha256
     ).hexdigest()
 
-    return hmac.compare_digest(signature, expected)
+    if not hmac.compare_digest(signature, expected):
+        raise HTTPException(status_code=401, detail="Invalid webhook signature")
+
+    return True
 ```
 
 ### 6.3 Rate Limiting
@@ -680,21 +722,19 @@ def verify_flowise_webhook(request):
 - API endpoints: 100 requests/minute per API key
 - Webhook endpoints: 1000 requests/minute (legitimate services may send bursts)
 
-**Implementation** (using Flask-Limiter):
+**Implementation** (using slowapi):
 ```python
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
-limiter = Limiter(
-    app=app,
-    key_func=get_remote_address,
-    default_limits=["100 per minute"]
-)
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-@app.route('/api/v1/process/trigger', methods=['POST'])
-@limiter.limit("10 per minute")  # Stricter limit for processing
-@require_auth
-def trigger_process():
+@app.post('/api/v1/process/trigger')
+@limiter.limit("10/minute")  # Stricter limit for processing
+async def trigger_process(request: Request, token: str = Depends(verify_token)):
     ...
 ```
 
@@ -702,12 +742,24 @@ def trigger_process():
 
 **Requirement**: Production deployment MUST use HTTPS
 
-**Implementation**:
+**Implementation** (using FastAPI middleware):
 ```python
-@app.before_request
-def enforce_https():
-    if not request.is_secure and app.config.get('ENFORCE_HTTPS'):
-        return jsonify({'error': 'HTTPS required'}), 403
+from fastapi import Request, HTTPException
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        # Check if HTTPS enforcement is enabled
+        config = read_json_secret_file('credentials/secrets.json')
+        enforce_https = config.get('api', {}).get('enforce_https', False)
+
+        if enforce_https and request.url.scheme != 'https':
+            raise HTTPException(status_code=403, detail="HTTPS required")
+
+        response = await call_next(request)
+        return response
+
+app.add_middleware(HTTPSRedirectMiddleware)
 ```
 
 ### 6.5 Input Validation
@@ -717,26 +769,33 @@ def enforce_https():
 - Sanitize file paths and email addresses
 - Prevent path traversal attacks
 
-**Implementation**:
+**Implementation** (using Pydantic models):
 ```python
-from marshmallow import Schema, fields, validate, ValidationError
+from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
 
-class TriggerProcessSchema(Schema):
-    client_email = fields.Email(required=False, allow_none=True)
-    force = fields.Boolean(missing=False)
+class TriggerProcessRequest(BaseModel):
+    client_email: Optional[EmailStr] = None
+    force: bool = Field(default=False, description="Force reprocess even if no new files")
 
-@app.route('/api/v1/process/trigger', methods=['POST'])
-@require_auth
-def trigger_process():
-    schema = TriggerProcessSchema()
-    try:
-        data = schema.load(request.json or {})
-    except ValidationError as err:
-        return jsonify({'error': 'Validation error', 'details': err.messages}), 400
+class TriggerProcessResponse(BaseModel):
+    job_id: str
+    status: str
+    message: str
+    started_at: str
 
-    # Process with validated data
+@app.post('/api/v1/process/trigger', response_model=TriggerProcessResponse)
+async def trigger_process(
+    request_data: TriggerProcessRequest,
+    token: str = Depends(verify_token)
+):
+    # Pydantic automatically validates the request body
+    # request_data.client_email is already validated as email
+    # request_data.force is already validated as boolean
     ...
 ```
+
+**Note**: FastAPI automatically validates request/response data using Pydantic models and returns 422 Unprocessable Entity for validation errors.
 
 ---
 
@@ -846,20 +905,30 @@ API_KEY = os.getenv('EMAILREADER_API_KEY', config.get('api', {}).get('api_keys',
 **Use existing logger** from `src/logger.py`:
 ```python
 from src.logger import logger
+from fastapi import Request
+from starlette.middleware.base import BaseHTTPMiddleware
 
-# Log all API requests
-@app.before_request
-def log_request():
-    logger.info(f"API Request: {request.method} {request.path}")
+# Logging middleware
+class LoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        logger.info(f"API Request: {request.method} {request.url.path}")
+        response = await call_next(request)
+        logger.info(f"Response: {response.status_code}")
+        return response
 
-# Log errors with context
-@app.errorhandler(Exception)
-def handle_error(error):
-    logger.error(f"Unhandled error: {error}", exc_info=True)
-    return jsonify({
-        'error': 'Internal server error',
-        'error_code': 'INTERNAL_ERROR'
-    }), 500
+app.add_middleware(LoggingMiddleware)
+
+# Global exception handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled error: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            'error': 'Internal server error',
+            'error_code': 'INTERNAL_ERROR'
+        }
+    )
 ```
 
 **Log levels**:
@@ -885,41 +954,49 @@ def handle_error(error):
 
 **Example test structure**:
 ```python
-import unittest
-from src.app import create_app
+import pytest
+from fastapi.testclient import TestClient
+from src.app import app
 
-class TestAPI(unittest.TestCase):
-    def setUp(self):
-        self.app = create_app()
-        self.client = self.app.test_client()
-        self.api_key = "test-api-key"
+client = TestClient(app)
 
-    def test_health_endpoint(self):
-        response = self.client.get('/health')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertEqual(data['status'], 'healthy')
+def test_health_endpoint():
+    response = client.get('/health')
+    assert response.status_code == 200
+    data = response.json()
+    assert data['status'] == 'healthy'
 
-    def test_status_requires_auth(self):
-        response = self.client.get('/api/v1/status')
-        self.assertEqual(response.status_code, 401)
+def test_status_requires_auth():
+    response = client.get('/api/v1/status')
+    assert response.status_code == 403  # FastAPI HTTPBearer returns 403
 
-    def test_status_with_valid_auth(self):
-        response = self.client.get(
-            '/api/v1/status',
-            headers={'Authorization': f'Bearer {self.api_key}'}
-        )
-        self.assertEqual(response.status_code, 200)
+def test_status_with_valid_auth():
+    api_key = "test-api-key"
+    response = client.get(
+        '/api/v1/status',
+        headers={'Authorization': f'Bearer {api_key}'}
+    )
+    assert response.status_code == 200
 
-    def test_trigger_process(self):
-        response = self.client.post(
-            '/api/v1/process/trigger',
-            headers={'Authorization': f'Bearer {self.api_key}'},
-            json={'force': False}
-        )
-        self.assertEqual(response.status_code, 202)
-        data = response.get_json()
-        self.assertIn('job_id', data)
+def test_trigger_process():
+    api_key = "test-api-key"
+    response = client.post(
+        '/api/v1/process/trigger',
+        headers={'Authorization': f'Bearer {api_key}'},
+        json={'force': False}
+    )
+    assert response.status_code == 202
+    data = response.json()
+    assert 'job_id' in data
+
+def test_invalid_request_body():
+    api_key = "test-api-key"
+    response = client.post(
+        '/api/v1/process/trigger',
+        headers={'Authorization': f'Bearer {api_key}'},
+        json={'client_email': 'invalid-email'}  # Invalid email format
+    )
+    assert response.status_code == 422  # Pydantic validation error
 ```
 
 ### 9.2 Integration Tests
@@ -957,37 +1034,45 @@ source venv/bin/activate  # Linux/Mac
 # or
 .\venv\Scripts\activate  # Windows
 
-# Run Flask development server
-python -m src.app
+# Run Uvicorn development server
+uvicorn src.app:app --reload --host 127.0.0.1 --port 8000
 
 # Or with environment variable
-EMAILREADER_PORT=5000 python -m src.app
+uvicorn src.app:app --reload --host 0.0.0.0 --port 8000
+
+# Or using Python script
+python -m src.app
 ```
 
 **Entry point** in `src/app.py`:
 ```python
 if __name__ == '__main__':
-    app = create_app()
+    import uvicorn
+
     config = read_json_secret_file('credentials/secrets.json')
 
     host = config.get('api', {}).get('host', '127.0.0.1')
-    port = config.get('api', {}).get('port', 5000)
-    debug = config.get('api', {}).get('debug', False)
+    port = config.get('api', {}).get('port', 8000)
+    reload = config.get('api', {}).get('debug', False)
 
     logger.info(f"Starting EmailReader API server on {host}:{port}")
-    app.run(host=host, port=port, debug=debug)
+    uvicorn.run("src.app:app", host=host, port=port, reload=reload)
 ```
 
-### 10.2 Production Server (Gunicorn)
+### 10.2 Production Server (Gunicorn with Uvicorn Workers)
 
 **Installation**:
 ```bash
-pip install gunicorn
+pip install gunicorn uvicorn[standard]
 ```
 
 **Running**:
 ```bash
-gunicorn -w 4 -b 0.0.0.0:8080 "src.app:create_app()"
+# Using Gunicorn with Uvicorn workers (recommended for production)
+gunicorn src.app:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8080
+
+# Or using Uvicorn directly (simpler, single process)
+uvicorn src.app:app --host 0.0.0.0 --port 8080 --workers 4
 ```
 
 **Systemd service** (`/etc/systemd/system/emailreader-api.service`):
@@ -1001,7 +1086,7 @@ Type=notify
 User=emailreader
 WorkingDirectory=/opt/emailreader
 Environment="PATH=/opt/emailreader/venv/bin"
-ExecStart=/opt/emailreader/venv/bin/gunicorn -w 4 -b 0.0.0.0:8080 "src.app:create_app()"
+ExecStart=/opt/emailreader/venv/bin/gunicorn src.app:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8080
 Restart=always
 
 [Install]
@@ -1054,8 +1139,8 @@ COPY . .
 # Expose port
 EXPOSE 8080
 
-# Run gunicorn
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "src.app:create_app()"]
+# Run uvicorn with gunicorn workers
+CMD ["gunicorn", "src.app:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8080"]
 ```
 
 ### 10.5 Environment Considerations
@@ -1113,13 +1198,13 @@ CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "src.app:create_app()"]
 ### Phase 1: Basic REST API (Priority: HIGH)
 **Estimated Time**: 4-6 hours
 
-- [ ] Set up Flask application in `src/app.py`
+- [ ] Set up FastAPI application in `src/app.py`
 - [ ] Implement health endpoint (`GET /health`)
-- [ ] Implement authentication middleware
+- [ ] Implement authentication dependency (HTTPBearer)
 - [ ] Implement status endpoint (`GET /api/v1/status`)
 - [ ] Implement configuration endpoint (`GET /api/v1/config`)
-- [ ] Add error handling and logging
-- [ ] Write basic unit tests
+- [ ] Add error handling, logging middleware, and exception handlers
+- [ ] Write basic unit tests with TestClient
 
 **Deliverable**: Working REST API with authentication
 
@@ -1174,46 +1259,76 @@ CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "src.app:create_app()"]
 ```python
 # src/app.py
 """
-EmailReader Web Server API
+EmailReader Web Server API - FastAPI Implementation
 """
 import os
 import uuid
+import time
+import schedule
 from datetime import datetime
 from threading import Thread
-from functools import wraps
+from contextlib import asynccontextmanager
+from typing import Optional
 
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel, EmailStr, Field
+
 from src.logger import logger
 from src.utils import read_json_secret_file
 from src.process_google_drive import process_google_drive
-import schedule
-import time
 
 # Global state (replace with DB in production)
 job_status = {}
+scheduler_thread = None
 
-def verify_api_key(token):
+# Pydantic models
+class HealthResponse(BaseModel):
+    status: str
+    timestamp: str
+    version: str
+
+class TriggerProcessRequest(BaseModel):
+    client_email: Optional[EmailStr] = None
+    force: bool = Field(default=False)
+
+class TriggerProcessResponse(BaseModel):
+    job_id: str
+    status: str
+    message: str
+
+class JobStatusResponse(BaseModel):
+    job_id: str
+    status: str
+    started_at: Optional[str] = None
+    completed_at: Optional[str] = None
+    error: Optional[str] = None
+
+# Authentication
+security = HTTPBearer()
+
+def verify_api_key(token: str) -> bool:
     """Verify API key against configuration"""
     config = read_json_secret_file('credentials/secrets.json')
     api_keys = config.get('api', {}).get('api_keys', [])
     return any(key.get('key') == token for key in api_keys)
 
-def require_auth(f):
-    """Authentication decorator"""
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth_header = request.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return jsonify({'error': 'Unauthorized'}), 401
+async def verify_token(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+) -> str:
+    """Dependency to verify API key from Bearer token"""
+    token = credentials.credentials
+    if not verify_api_key(token):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API key",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return token
 
-        token = auth_header[7:]  # Remove 'Bearer '
-        if not verify_api_key(token):
-            return jsonify({'error': 'Invalid API key'}), 401
-
-        return f(*args, **kwargs)
-    return decorated
-
-def process_async(job_id):
+# Background processing
+def process_async(job_id: str):
     """Background processing worker"""
     try:
         job_status[job_id]['status'] = 'in_progress'
@@ -1234,82 +1349,120 @@ def run_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
-def create_app():
-    app = Flask(__name__)
-
-    # Load configuration
+# Lifespan events (startup/shutdown)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup and shutdown events"""
+    # Startup
+    global scheduler_thread
     config = read_json_secret_file('credentials/secrets.json')
 
-    # Setup scheduler if enabled
     if config.get('scheduling', {}).get('enabled', True):
         interval = config.get('scheduling', {}).get('google_drive_interval_minutes', 15)
         schedule.every(interval).minutes.do(process_google_drive)
-        Thread(target=run_scheduler, daemon=True).start()
-        logger.info(f"Scheduler enabled: every {interval} minutes")
 
-    # Routes
-    @app.route('/health')
-    def health():
-        return jsonify({
-            'status': 'healthy',
-            'timestamp': datetime.utcnow().isoformat() + 'Z',
-            'version': '1.0.0'
-        })
+        scheduler_thread = Thread(target=run_scheduler, daemon=True)
+        scheduler_thread.start()
+        logger.info(f"Scheduler started: every {interval} minutes")
 
-    @app.route('/api/v1/status')
-    @require_auth
-    def get_status():
-        return jsonify({
-            'scheduler': {
-                'enabled': config.get('scheduling', {}).get('enabled', True),
-                'interval_minutes': config.get('scheduling', {}).get('google_drive_interval_minutes', 15)
-            }
-        })
+    logger.info("EmailReader API started")
+    yield
 
-    @app.route('/api/v1/process/trigger', methods=['POST'])
-    @require_auth
-    def trigger_process():
-        job_id = str(uuid.uuid4())
-        job_status[job_id] = {
-            'job_id': job_id,
-            'status': 'queued',
-            'started_at': None,
-            'completed_at': None
+    # Shutdown
+    logger.info("EmailReader API shutting down")
+
+# Create FastAPI app
+app = FastAPI(
+    title="EmailReader API",
+    description="REST API and Webhook Server for EmailReader Application",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# Routes
+@app.get('/health', response_model=HealthResponse, tags=["Health"])
+async def health():
+    """Health check endpoint"""
+    return {
+        'status': 'healthy',
+        'timestamp': datetime.utcnow().isoformat() + 'Z',
+        'version': '1.0.0'
+    }
+
+@app.get('/api/v1/status', tags=["Status"])
+async def get_status(token: str = Depends(verify_token)):
+    """Get application status"""
+    config = read_json_secret_file('credentials/secrets.json')
+    return {
+        'scheduler': {
+            'enabled': config.get('scheduling', {}).get('enabled', True),
+            'interval_minutes': config.get('scheduling', {}).get('google_drive_interval_minutes', 15)
+        },
+        'processing': {
+            'active_jobs': len([j for j in job_status.values() if j['status'] == 'in_progress']),
+            'queued_jobs': len([j for j in job_status.values() if j['status'] == 'queued'])
         }
+    }
 
-        Thread(target=process_async, args=(job_id,), daemon=True).start()
+@app.post('/api/v1/process/trigger',
+          response_model=TriggerProcessResponse,
+          status_code=status.HTTP_202_ACCEPTED,
+          tags=["Processing"])
+async def trigger_process(
+    request_data: TriggerProcessRequest,
+    token: str = Depends(verify_token)
+):
+    """Manually trigger document processing"""
+    job_id = str(uuid.uuid4())
+    job_status[job_id] = {
+        'job_id': job_id,
+        'status': 'queued',
+        'started_at': None,
+        'completed_at': None
+    }
 
-        return jsonify({
-            'job_id': job_id,
-            'status': 'queued',
-            'message': 'Processing started'
-        }), 202
+    # Start background processing
+    Thread(target=process_async, args=(job_id,), daemon=True).start()
 
-    @app.route('/api/v1/process/status/<job_id>')
-    @require_auth
-    def get_job_status(job_id):
-        if job_id not in job_status:
-            return jsonify({'error': 'Job not found'}), 404
-        return jsonify(job_status[job_id])
+    return {
+        'job_id': job_id,
+        'status': 'queued',
+        'message': 'Processing started'
+    }
 
-    # Error handlers
-    @app.errorhandler(Exception)
-    def handle_error(error):
-        logger.error(f"Unhandled error: {error}", exc_info=True)
-        return jsonify({'error': 'Internal server error'}), 500
+@app.get('/api/v1/process/status/{job_id}',
+         response_model=JobStatusResponse,
+         tags=["Processing"])
+async def get_job_status(job_id: str, token: str = Depends(verify_token)):
+    """Get status of processing job"""
+    if job_id not in job_status:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job_status[job_id]
 
-    return app
+# Global exception handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled error: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            'error': 'Internal server error',
+            'error_code': 'INTERNAL_ERROR'
+        }
+    )
 
+# Entry point
 if __name__ == '__main__':
-    app = create_app()
+    import uvicorn
+
     config = read_json_secret_file('credentials/secrets.json')
 
     host = config.get('api', {}).get('host', '127.0.0.1')
-    port = config.get('api', {}).get('port', 5000)
-    debug = config.get('api', {}).get('debug', False)
+    port = config.get('api', {}).get('port', 8000)
+    reload = config.get('api', {}).get('debug', False)
 
     logger.info(f"Starting EmailReader API on {host}:{port}")
-    app.run(host=host, port=port, debug=debug)
+    uvicorn.run("src.app:app", host=host, port=port, reload=reload)
 ```
 
 ---
