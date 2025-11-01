@@ -81,7 +81,7 @@ class GoogleApi:
         query = (
             f"'{parent_folder_id}' in parents and {mime_condition} "
             "and trashed=false ")
-        fields = 'nextPageToken, files(id, name, mimeType, parents)'
+        fields = 'nextPageToken, files(id, name, mimeType, parents,properties, description)'
         try:
             while True:
                 response = self.service.files().list(  # type: ignore
@@ -127,11 +127,11 @@ class GoogleApi:
         parent_folder_id: str = '',
     ) -> List[Dict[str, str]]:
         """
-        Get file subfolders list in folder
+        Get file sub folders list in folder
         Args:
             parent_folder_id: parent folder id
         Returns:
-            List of subfolders in folder as dicts
+            List of sub folders in folder as dicts
             [{'id': '1XZxSOB1k7MW0QY7XbQ7rd5Xko', 'name': 'file_name'}]
         """
         return self.get_item_list_in_folder(
@@ -515,7 +515,8 @@ class GoogleApi:
             value = app_props.get(name)
             return value if isinstance(value, str) and value else None
         except Exception as e:
-            logger.error("get_file_app_property failed for %s (%s): %s", file_id, name, e)
+            logger.error(
+                "get_file_app_property failed for %s (%s): %s", file_id, name, e)
             return None
 
     def if_folder_exist_by_name(
@@ -544,13 +545,16 @@ class GoogleApi:
         Move a file from its current parent to a destination folder by ID.
         """
         try:
-            current_parent: str = self.get_file_parent_folder_id(file_id=file_id)
+            current_parent: str = self.get_file_parent_folder_id(
+                file_id=file_id)
             if current_parent == '':
-                logger.error("File %s not found or has no parent folder", file_id)
+                logger.error(
+                    "File %s not found or has no parent folder", file_id)
                 return False
 
             file_name: str = self.get_file_name_by_id(file_id=file_id)
-            logger.info("DRIVE MOVE: '%s' -> parent=%s", file_name, dest_folder_id)
+            logger.info("DRIVE MOVE: '%s' -> parent=%s",
+                        file_name, dest_folder_id)
             self.service.files().update(  # type: ignore
                 fileId=file_id,
                 addParents=dest_folder_id,
@@ -558,8 +562,10 @@ class GoogleApi:
                 fields='id,name,parents',
                 supportsAllDrives=True
             ).execute()
-            logger.info("DRIVE MOVE OK: '%s' (ID=%s) -> parent=%s", file_name, file_id, dest_folder_id)
+            logger.info("DRIVE MOVE OK: '%s' (ID=%s) -> parent=%s",
+                        file_name, file_id, dest_folder_id)
             return True
         except Exception as e:
-            logger.error("Failed to move file %s to folder '%s': %s", file_id, dest_folder_id, e)
+            logger.error("Failed to move file %s to folder '%s': %s",
+                         file_id, dest_folder_id, e)
             return False

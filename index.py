@@ -10,7 +10,27 @@ import schedule
 
 from src.logger import logger
 from src.process_google_drive import process_google_drive
+from src.process_files_for_translation import process_files_for_translation
 from src.utils import read_json_secret_file
+
+
+def select_program_mode() -> str:
+    """Select the program mode based on configuration."""
+    cfg_path = Path('credentials/secrets.json')
+    cfg = read_json_secret_file(str(cfg_path)) or {}
+    program_mode = cfg.get('program', 'default_mode')
+    # Ensure we always return a string; handle the case where 'program' may be a dict.
+    if isinstance(program_mode, dict):
+        # try to extract a sensible string value
+        for key in ('name', 'mode', 'program'):
+            val = program_mode.get(key)
+            if isinstance(val, str):
+                program_mode = val
+                break
+        else:
+            # fallback to a deterministic string representation
+            program_mode = str(program_mode)
+    return program_mode
 
 
 def load_interval_minutes() -> int:
@@ -21,7 +41,7 @@ def load_interval_minutes() -> int:
     return int(scheduling.get('google_drive_interval_minutes', 15))
 
 
-def ensure_runtime_dirs():
+def ensure_runtime_dirs() -> None:
     """Ensure necessary directories and files exist."""
     data_dir = os.path.join(os.getcwd(), 'data')
     docs_dir = os.path.join(data_dir, 'documents')
@@ -35,7 +55,7 @@ def ensure_runtime_dirs():
             f.write('2020-01-01 01:01:01 +0000')
 
 
-def log_next_run(prefix: str = ""):
+def log_next_run(prefix: str = "") -> None:
     """Log the next scheduled run time."""
     try:
         nr = schedule.next_run()
@@ -48,10 +68,14 @@ def log_next_run(prefix: str = ""):
         logger.debug("Could not determine next run time: %s", str(e))
 
 
-def run_and_log():
+def run_and_log() -> None:
     """Run the Google Drive processing and log the next run time."""
     logger.info("Google Drive cycle started")
-    process_google_drive()
+    if select_program_mode() == "translator":
+        process_files_for_translation()
+    else:
+        process_google_drive()
+
     logger.info("Google Drive cycle finished")
     log_next_run("")
 
