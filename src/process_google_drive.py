@@ -15,7 +15,7 @@ from src.process_documents import DocProcessor
 from src.utils import delete_file, build_flowise_question
 
 # Import the configured logger system
-import src.logger  # This ensures logger is configured
+# import src.logger  # This ensures logger is configured
 
 type FilesFoldersDict = dict[str, str]
 
@@ -53,15 +53,17 @@ def process_google_drive() -> None:
         logger.info("Processing %d client folders", len(client_folders))
 
         for client in client_folders:
-            client_folder_id: str = client.get('id')
+            client_folder_id: str | None = client.get('id', None)
             client_name_raw = client['name']
-            # Derive pure email token from folder name (handles cases like "Display Name+email")
+            # Derive pure email token from folder name (handles cases
+            # like "Display Name+email")
             _tokens = client_name_raw.split('+')
-            client_email = next((t for t in _tokens if '@' in t), client_name_raw)
+            client_email = next(
+                (t for t in _tokens if '@' in t), client_name_raw)
 
             logger.info("Processing client: %s", client_email)
 
-            # Check and create subfolders
+            # Check and create sub folders
             for sub_folder in client_sub_folders:
                 if not google_api.if_folder_exist_by_name(
                         folder_name=sub_folder,
@@ -192,7 +194,8 @@ def process_google_drive() -> None:
                             file_path=original_file_path
                         )
 
-                    # Build Flowise name once and use identically for doc store and prediction
+                    # Build Flowise name once and use identically for doc store
+                    # and prediction
                     # Build Flowise/doc store name as: email+<rhs>
                     question = build_flowise_question(client_email, rhs)
                     logger.info("DOC STORE upload name: %s", question)
@@ -213,7 +216,8 @@ def process_google_drive() -> None:
 
                     # Create prediction using the SAME name
                     logger.info("PREDICTION send: %s", question)
-                    res_prediction = flowise_api.create_new_prediction(question)
+                    res_prediction = flowise_api.create_new_prediction(
+                        question)
                     # Limit long 'text' fields to 60 chars for logging clarity
                     if isinstance(res_prediction, dict):
                         text_val = res_prediction.get('text')
@@ -241,7 +245,8 @@ def process_google_drive() -> None:
                     time.sleep(120)
 
                     # Move original file from Inbox to In-Progress folder
-                    logger.info("MOVE original Inbox -> In-Progress: %s", file_name)
+                    logger.info(
+                        "MOVE original Inbox -> In-Progress: %s", file_name)
                     moved = google_api.move_file_to_folder_id(
                         file_id=file_id,
                         dest_folder_id=in_progress_id
@@ -258,7 +263,7 @@ def process_google_drive() -> None:
                     logger.info(
                         "Successfully completed processing: %s", file_name)
 
-                except Exception as e:
+                except (IOError, OSError, ValueError) as e:
                     logger.error(
                         "Error processing file %s: %s", file_name, e,
                         exc_info=True
