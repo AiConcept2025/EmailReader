@@ -573,3 +573,72 @@ class GoogleApi:
             logger.error("Failed to move file %s to folder '%s': %s",
                          file_id, dest_folder_id, e)
             return False
+
+    def get_file_web_link(self, file_id: str) -> str:
+        """
+        Get shareable web view link for a Google Drive file
+        Args:
+            file_id: ID of the file
+        Returns:
+            Web view link (URL) if successful, empty string otherwise
+        Raises:
+            HttpError: if an error occurs while making the API request
+            Exception: if any other error occurs
+        """
+        try:
+            file_info = self.service.files().get(  # type: ignore
+                fileId=file_id,
+                fields='webViewLink',
+                supportsAllDrives=True
+            ).execute()
+            if not isinstance(file_info, dict):
+                logger.error("Invalid file info received for webViewLink: %s", file_id)
+                return ''
+            web_link = file_info.get('webViewLink', '')
+            logger.info("Got webViewLink for file %s: %s", file_id, web_link)
+            return web_link
+        except HttpError as error:
+            logger.error(
+                'get_file_web_link: HttpError for file %s: %s', file_id, error)
+            return ''
+        except Exception as e:
+            logger.error(
+                'get_file_web_link: Error getting web link for file %s: %s',
+                file_id, e)
+            return ''
+
+    def get_folder_name_by_id(self, folder_id: str) -> str:
+        """
+        Get the name of a folder by its ID
+        Args:
+            folder_id: ID of the folder
+        Returns:
+            The name of the folder if found, otherwise an empty string
+        Raises:
+            HttpError: if an error occurs while making the API request
+            Exception: if any other error occurs
+        """
+        try:
+            folder_info = self.service.files().get(  # type: ignore
+                fileId=folder_id,
+                fields='name,mimeType,trashed',
+                supportsAllDrives=True
+            ).execute()
+            if not isinstance(folder_info, dict) or folder_info.get('trashed', True):
+                logger.error("Invalid folder info received: %s", folder_id)
+                return ''
+            mime_type = folder_info.get('mimeType', '')
+            if mime_type != 'application/vnd.google-apps.folder':
+                logger.warning(
+                    "ID %s is not a folder (mimeType: %s)", folder_id, mime_type)
+            return folder_info.get('name', '')
+        except HttpError as error:
+            logger.error(
+                'get_folder_name_by_id: HttpError for folder %s: %s',
+                folder_id, error)
+            return ''
+        except Exception as e:
+            logger.error(
+                'get_folder_name_by_id: Error getting folder name for %s: %s',
+                folder_id, e)
+            return ''

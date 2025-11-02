@@ -215,11 +215,45 @@ def process_files_for_translation() -> None:
                         "Failed to move original file to Completed: %s",
                         file_name)
                     continue
+
+                # Get file URL for webhook
+                file_url = google_api.get_file_web_link(completed_file_id)
+                if not file_url:
+                    logger.warning("Could not retrieve webViewLink for file: %s", file_name)
+                    file_url = ""
+
+                # Determine company name from folder hierarchy
+                # Get parent folder of client folder
+                parent_folder_id = google_api.get_file_parent_folder_id(client_folder_id)
+                if parent_folder_id == translate_folder_id:
+                    # Client is at root level (individual)
+                    company_name = "Ind"
+                    logger.debug("Client %s is individual (at root level)", client_email)
+                else:
+                    # Client is under a company folder
+                    company_name = google_api.get_folder_name_by_id(parent_folder_id)
+                    if not company_name:
+                        # Fallback: check if parent name looks like email
+                        company_name = "Ind"
+                        logger.warning("Could not determine company name for %s, using 'Ind'", client_email)
+                    else:
+                        # Additional check: if parent folder name contains @ and ., it's likely individual
+                        if '@' in company_name and '.' in company_name:
+                            company_name = "Ind"
+                            logger.debug("Parent folder %s looks like email, treating as individual", company_name)
+                        else:
+                            logger.debug("Client %s belongs to company: %s", client_email, company_name)
+
+                # Send webhook notification
                 data = {
                     "file_name": translated_file_name,
-                    "file_id": completed_file_id,
-                    "email": client_email}
+                    "file_url": file_url,
+                    "user_email": client_email,
+                    "company_name": company_name
+                }
                 headers = {"Content-Type": "application/json"}
+                logger.info("Sending webhook: file=%s, url=%s, user=%s, company=%s",
+                           translated_file_name, file_url, client_email, company_name)
                 response = requests.post(url, json=data, headers=headers)
                 if response.status_code == 200:
                     logger.info(
