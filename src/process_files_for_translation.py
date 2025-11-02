@@ -1,10 +1,13 @@
 """src/process_files_for_translation.py"""
 
+import logging
 import os
 import subprocess
 from pathlib import Path
-import logging
 from typing import List
+
+import requests
+
 from src.google_drive import GoogleApi
 from src.utils import read_json_secret_file
 
@@ -63,15 +66,25 @@ def process_files_for_translation() -> None:
     logger.info("="*60)
 
     try:
+        secrets = read_json_secret_file('credentials/secrets.json')
+        if secrets is None:
+            logger.error(
+                'secrets not specified in secrets.json')
+            return
+        url = secrets.get('translator_url')
+        if not url:
+            logger.error(
+                'Translator_url not specified in secrets.json')
+            return
         # Create temp folders if not exist
         inbox_folder = os.path.join(cwd, 'inbox_temp')
         if not os.path.isdir(inbox_folder):
             os.mkdir(inbox_folder)
-        processed_folder = os.path.join(cwd, 'processed_temp')
-        if not os.path.isdir(processed_folder):
-            os.mkdir(processed_folder)
+        completed_folder = os.path.join(cwd, 'completed_temp')
+        if not os.path.isdir(completed_folder):
+            os.mkdir(completed_folder)
 
-        client_sub_folders: List[str] = ['Inbox', 'Processed']
+        client_sub_folders: List[str] = ['Inbox', 'Completed']
 
         logger.debug("Initializing API clients")
         google_api = GoogleApi()
@@ -96,13 +109,8 @@ def process_files_for_translation() -> None:
 
         # Process each client folder
         for client in client_folders:
+            client_email: str = client.get('name', '')
             client_folder_id: str | None = client.get('id', None)
-            client_name_raw = client['name']
-            # Derive pure email token from folder name (handles cases
-            # like "Display Name+email")
-            _tokens = client_name_raw.split('+')
-            client_email = next(
-                (t for t in _tokens if '@' in t), client_name_raw)
 
             logger.info("Processing client: %s", client_email)
 
@@ -126,7 +134,15 @@ def process_files_for_translation() -> None:
                 logger.warning(
                     "No Inbox folder found for client: %s", client_email)
                 continue
-
+            try:
+                completed_id = [sub['id']
+                                for sub in subs if sub['name'] == 'Completed'][0]
+                logger.debug("In-Progress folder ID: %s", completed_id)
+            except IndexError:
+                logger.error(
+                    "Completed folder not found for client: %s",
+                    client_email)
+                continue
             inbox_id: str = sub['id']
             logger.debug("Inbox folder ID: %s", inbox_id)
 
@@ -140,7 +156,8 @@ def process_files_for_translation() -> None:
                 file_name = fl['name']
                 file_id = fl['id']
                 # Ensure properties is a dict before accessing keys
-                properties = fl.get('properties', {}) or {}
+                properties: dict[str, str] = fl.get('properties', {}) or {}
+                description: str = fl.get('description', '') or ''
                 if not isinstance(properties, dict):
                     properties = {}
                 target_language = properties.get('target_language', None)
@@ -153,7 +170,11 @@ def process_files_for_translation() -> None:
                         file_path=source_file_path):
                     logger.error("Failed to download file: %s", file_name)
                     continue
-                target_file_path = os.path.join(processed_folder, file_name)
+                filename_without_extension, extension = os.path.splitext(
+                    file_name)
+                translated_file_name = f"{filename_without_extension}_translated{extension}"
+                target_file_path = os.path.join(
+                    completed_folder, translated_file_name)
 
                 translate_document(
                     original_path=source_file_path,
@@ -161,6 +182,54 @@ def process_files_for_translation() -> None:
                     source_lang=source_language,
                     target_lang=target_language
                 )
+
+                # Upload translated file to Completed folder on google drive
+                if not os.path.exists(target_file_path):
+                    logger.error("The file %s does not exist.",
+                                 target_file_path)
+                    continue
+
+                file_info = google_api.upload_file_to_google_drive(
+                    file_path=target_file_path,
+                    file_name=file_name,
+                    parent_folder_id=completed_id,
+                    description=description,
+                    properties=properties
+                )
+                completed_file_id = file_info.get('id', None)
+                if not completed_file_id:
+                    logger.error(
+                        "Failed to upload translated file: %s", file_name)
+                    continue
+                logger.info("Uploaded translated file: %s, id: %s",
+                            file_name, completed_file_id)
+                # Move original file from Inbox to Completed folder
+                logger.info(
+                    "MOVE original Inbox -> Completed: %s", file_name)
+                moved = google_api.move_file_to_folder_id(
+                    file_id=file_id,
+                    dest_folder_id=completed_id
+                )
+                if not moved:
+                    logger.error(
+                        "Failed to move original file to Completed: %s",
+                        file_name)
+                    continue
+                data = {
+                    "file_name": translated_file_name,
+                    "file_id": completed_file_id,
+                    "email": client_email}
+                headers = {"Content-Type": "application/json"}
+                response = requests.post(url, json=data, headers=headers)
+                if response.status_code == 200:
+                    logger.info(
+                        "Successfully submitted data for file: %s", file_name)
+                else:
+                    logger.error("Failed to submit data for file: %s, Status Code: %d",
+                                 file_name, response.status_code)
+                # Clean up temp files
+                os.remove(source_file_path)
+                os.remove(target_file_path)
 
     except Exception:
         logger.exception("Error during Google Drive processing cycle")

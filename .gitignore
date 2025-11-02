@@ -23,5 +23,5 @@ translate_document
 *.spec
 _internal/
 backups/
-processed_temp/
+completed_temp/
 inbox_temp/
