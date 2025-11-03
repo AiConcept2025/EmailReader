@@ -25,3 +25,6 @@ _internal/
 backups/
 completed_temp/
 inbox_temp/
+.claude
+CLAUDE.md
+

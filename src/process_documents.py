@@ -4,17 +4,20 @@ Process txt, pdf, rtf, images, foreign language documents documents
 to word document
 """
 import os
+import logging
 from docx import Document
 from langdetect import detect  # type: ignore
 from src.pdf_image_ocr import is_pdf_searchable_pypdf, ocr_pdf_image_to_doc
 from src.convert_to_docx import convert_pdf_to_docx
-from src.logger import logger
 from src.utils import (
     delete_file,
     translate_document_to_english,
     convert_rtx_to_text
 )
 from src.utils import rename_file
+
+# Get logger for this module
+logger = logging.getLogger('EmailReader.DocProcessor')
 
 
 class DocProcessor:
@@ -28,12 +31,14 @@ class DocProcessor:
         Initialise word document list
         and list for original documents
         """
+        logger.debug("Initializing DocProcessor with path: %s", doc_path)
         # Word documents
         self.documents: list[str] = []
         # Original document
         self.original_documents: list[str] = []
         # document folder path
         self.docs_path: str = doc_path
+        logger.debug("DocProcessor initialized successfully")
 
     # Process PDF documents
     def convert_pdf_payload_to_word(
@@ -247,41 +252,81 @@ class DocProcessor:
             file_name: new file in google drive inbox sub folder
             document_folder: folder to temp save processed documents
         """
-        logger.info('Process Word doc text to file %s', file_name)
-        file_path = os.path.join(document_folder, file_name)
-        file_name_no_ext, file_ext = os.path.splitext(file_name)
-        document = Document(file_path)
-        # Check if document language is English
-        full_text: list[str] = []
-        for paragraph in document.paragraphs:
-            full_text.append(paragraph.text)
-        text = '\n'.join(full_text)
-        # If English, rename file with +english
-        if detect(text) == 'en':
-            # Do not prefix with client here; caller will prepend email
-            new_file_name = f'{file_name_no_ext}+english{file_ext}'
-            new_file_path = os.path.join(document_folder, new_file_name)
-            rename_file(file_path, new_file_path)
-            original_file_name = new_file_name
-            original_file_path = new_file_path
-        else:
-            # If not English, translate it and rename file with +translated
-            # Rename original file with +original
-            # Do not prefix with client here; caller will prepend email
-            original_file_name = f'{file_name_no_ext}+original{file_ext}'
-            original_file_path = os.path.join(
-                document_folder, original_file_name)
-            rename_file(file_path, original_file_path)
-            # Translate document (optionally to target_lang)
-            new_file_name = f'{file_name_no_ext}+translated{file_ext}'
-            new_file_path = os.path.join(document_folder, new_file_name)
-            translate_document_to_english(
-                original_file_path, new_file_path, target_lang)
-        return (
-            new_file_path,
-            new_file_name,
-            original_file_name,
-            original_file_path)
+        logger.info('Starting process_word_file() for: %s', file_name)
+        logger.debug("Parameters - client: %s, folder: %s, target_lang: %s",
+                    client, document_folder, target_lang)
+
+        try:
+            file_path = os.path.join(document_folder, file_name)
+            logger.debug("Full file path: %s", file_path)
+
+            if not os.path.exists(file_path):
+                logger.error("File not found: %s", file_path)
+                raise FileNotFoundError(f"File not found: {file_path}")
+
+            file_name_no_ext, file_ext = os.path.splitext(file_name)
+            logger.debug("File name without ext: %s, extension: %s", file_name_no_ext, file_ext)
+
+            logger.debug("Loading Word document")
+            document = Document(file_path)
+
+            # Check if document language is English
+            logger.debug("Extracting text from document")
+            full_text: list[str] = []
+            for paragraph in document.paragraphs:
+                full_text.append(paragraph.text)
+            text = '\n'.join(full_text)
+            text_length = len(text)
+            logger.debug("Extracted text length: %d characters", text_length)
+
+            if text_length < 10:
+                logger.warning("Document has very little text (%d chars)", text_length)
+
+            logger.debug("Detecting language")
+            detected_lang = detect(text)
+            logger.info("Detected language: %s", detected_lang)
+
+            # If English, rename file with +english
+            if detected_lang == 'en':
+                logger.info("Document is in English, no translation needed")
+                # Do not prefix with client here; caller will prepend email
+                new_file_name = f'{file_name_no_ext}+english{file_ext}'
+                new_file_path = os.path.join(document_folder, new_file_name)
+                logger.debug("Renaming to: %s", new_file_name)
+                rename_file(file_path, new_file_path)
+                original_file_name = new_file_name
+                original_file_path = new_file_path
+            else:
+                # If not English, translate it and rename file with +translated
+                logger.info("Document is in %s, translation required", detected_lang)
+                # Rename original file with +original
+                # Do not prefix with client here; caller will prepend email
+                original_file_name = f'{file_name_no_ext}+original{file_ext}'
+                original_file_path = os.path.join(
+                    document_folder, original_file_name)
+                logger.debug("Renaming original to: %s", original_file_name)
+                rename_file(file_path, original_file_path)
+
+                # Translate document (optionally to target_lang)
+                new_file_name = f'{file_name_no_ext}+translated{file_ext}'
+                new_file_path = os.path.join(document_folder, new_file_name)
+                logger.info("Translating document from %s to %s", detected_lang, target_lang or 'en')
+                translate_document_to_english(
+                    original_file_path, new_file_path, target_lang)
+                logger.info("Translation completed: %s", new_file_name)
+
+            logger.info("process_word_file() completed successfully")
+            logger.debug("Returning: new_file=%s, original_file=%s", new_file_name, original_file_name)
+
+            return (
+                new_file_path,
+                new_file_name,
+                original_file_name,
+                original_file_path)
+
+        except Exception as e:
+            logger.error("Error in process_word_file() for %s: %s", file_name, e, exc_info=True)
+            raise
 
     def convert_pdf_file_to_word(
             self,
@@ -297,38 +342,68 @@ class DocProcessor:
             file_name: new file in google drive inbox sub folder
             document_folder: folder to temp save processed documents
         """
-        logger.info(
-            'Convert %s PDF file(image or text) to word document.', file_name)
-        file_name_no_ext, file_ext = os.path.splitext(file_name)
+        logger.info('Starting convert_pdf_file_to_word() for: %s', file_name)
+        logger.debug("Parameters - client: %s, folder: %s, target_lang: %s",
+                    client, document_folder, target_lang)
 
-        file_path = os.path.join(document_folder, file_name)
-        file_name_no_ext, file_ext = os.path.splitext(file_name)
+        try:
+            file_path = os.path.join(document_folder, file_name)
+            logger.debug("Full PDF path: %s", file_path)
 
-        # CHANGED: Removed {client}+ prefix
-        original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
-        original_file_path = os.path.join(
-            document_folder, original_file_name)
+            if not os.path.exists(file_path):
+                logger.error("PDF file not found: %s", file_path)
+                raise FileNotFoundError(f"File not found: {file_path}")
 
-        # Rename file to original
-        rename_file(file_path, original_file_path)
-        docx_file_path = os.path.join(
-            document_folder, f'{file_name_no_ext}.docx')
+            file_name_no_ext, file_ext = os.path.splitext(file_name)
+            logger.debug("File name without ext: %s, extension: %s", file_name_no_ext, file_ext)
 
-        # Check if file is image
-        if is_pdf_searchable_pypdf(original_file_path):
-            convert_pdf_to_docx(original_file_path, docx_file_path)
-        else:
-            ocr_pdf_image_to_doc(original_file_path, docx_file_path)
+            # CHANGED: Removed {client}+ prefix
+            original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
+            original_file_path = os.path.join(
+                document_folder, original_file_name)
 
-        # CHANGED: Removed {client}+ prefix
-        new_file_name = f'{client}+{file_name_no_ext}+translated.docx'
-        new_file_path = os.path.join(document_folder, new_file_name)
-        translate_document_to_english(
-            docx_file_path, new_file_path, target_lang)
+            # Rename file to original
+            logger.debug("Renaming PDF to original: %s", original_file_name)
+            rename_file(file_path, original_file_path)
 
-        delete_file(docx_file_path)
-        return (
-            new_file_path,
-            new_file_name,
-            original_file_name,
-            original_file_path)
+            docx_file_path = os.path.join(
+                document_folder, f'{file_name_no_ext}.docx')
+            logger.debug("Target DOCX path: %s", docx_file_path)
+
+            # Check if file is image or searchable
+            logger.info("Checking if PDF is searchable")
+            is_searchable = is_pdf_searchable_pypdf(original_file_path)
+            logger.info("PDF is %s", "searchable" if is_searchable else "image-based (requires OCR)")
+
+            if is_searchable:
+                logger.info("Converting searchable PDF to DOCX")
+                convert_pdf_to_docx(original_file_path, docx_file_path)
+                logger.info("PDF to DOCX conversion completed")
+            else:
+                logger.info("Starting OCR process for image-based PDF")
+                ocr_pdf_image_to_doc(original_file_path, docx_file_path)
+                logger.info("OCR process completed")
+
+            # CHANGED: Removed {client}+ prefix
+            new_file_name = f'{client}+{file_name_no_ext}+translated.docx'
+            new_file_path = os.path.join(document_folder, new_file_name)
+            logger.info("Translating PDF content to %s", target_lang or 'en')
+            translate_document_to_english(
+                docx_file_path, new_file_path, target_lang)
+            logger.info("Translation completed: %s", new_file_name)
+
+            logger.debug("Cleaning up temporary DOCX file: %s", docx_file_path)
+            delete_file(docx_file_path)
+
+            logger.info("convert_pdf_file_to_word() completed successfully")
+            logger.debug("Returning: new_file=%s, original_file=%s", new_file_name, original_file_name)
+
+            return (
+                new_file_path,
+                new_file_name,
+                original_file_name,
+                original_file_path)
+
+        except Exception as e:
+            logger.error("Error in convert_pdf_file_to_word() for %s: %s", file_name, e, exc_info=True)
+            raise

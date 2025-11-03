@@ -3,8 +3,9 @@
 import logging
 import os
 import subprocess
+import sys
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Tuple
 
 import requests
 
@@ -16,15 +17,118 @@ logger = logging.getLogger('EmailReader.GoogleDrive')
 cwd = os.getcwd()
 
 
+def find_translator_executable() -> Optional[Tuple[Path, Path]]:
+    """
+    Find the translator executable with fallback logic.
+
+    Priority:
+    1. Configured path from secrets.json (translator_executable_path)
+    2. GoogleTranslator project (sibling directory) - Python script
+    3. GoogleTranslator project (sibling directory) - compiled executable
+    4. EmailReader root directory (legacy) - compiled executable
+    5. EmailReader root directory (legacy) - Python script
+
+    Returns:
+        Tuple of (script_path, python_interpreter_path) or None if not found.
+        For GoogleTranslator Python script, returns its own venv Python.
+        For other paths, returns current Python interpreter.
+    """
+    logger.debug("Searching for translator executable")
+
+    # Try configured path from secrets.json
+    try:
+        secrets = read_json_secret_file('credentials/secrets.json')
+        if secrets:
+            configured_path = secrets.get('translator_executable_path')
+            if configured_path:
+                path = Path(configured_path)
+                if path.exists():
+                    logger.info("Using configured translator path: %s", path)
+
+                    # Check if configured path is GoogleTranslator's Python script
+                    if path.suffix == '.py' and 'GoogleTranslator' in str(path):
+                        # Try to use GoogleTranslator's venv
+                        google_translator_venv = Path(__file__).parent.parent.parent / 'GoogleTranslator' / 'venv' / 'bin' / 'python'
+                        if google_translator_venv.exists():
+                            logger.info("Configured path is GoogleTranslator script, using its venv: %s", google_translator_venv)
+                            return (path.resolve(), google_translator_venv)
+                        else:
+                            logger.warning(
+                                "GoogleTranslator venv not found, using current Python (may have missing dependencies)"
+                            )
+
+                    # For other configured paths, use current Python interpreter
+                    return (path, Path(sys.executable))
+                else:
+                    logger.warning("Configured translator path does not exist: %s", configured_path)
+    except Exception as e:
+        logger.debug("Error reading configuration: %s", e)
+
+    # Try GoogleTranslator project (sibling directory) - Python script
+    google_translator_py = Path(__file__).parent.parent.parent / 'GoogleTranslator' / 'translate_document.py'
+    if google_translator_py.exists():
+        logger.info("Found GoogleTranslator Python script: %s", google_translator_py)
+
+        # Try to use GoogleTranslator's own venv Python
+        google_translator_venv = Path(__file__).parent.parent.parent / 'GoogleTranslator' / 'venv' / 'bin' / 'python'
+
+        if google_translator_venv.exists():
+            logger.info("Using GoogleTranslator's venv Python: %s", google_translator_venv)
+            return (google_translator_py.resolve(), google_translator_venv)
+        else:
+            logger.warning(
+                "GoogleTranslator venv not found at: %s. "
+                "Using current Python interpreter (may have missing dependencies)",
+                google_translator_venv
+            )
+            return (google_translator_py.resolve(), Path(sys.executable))
+    else:
+        logger.debug("GoogleTranslator Python script not found at: %s", google_translator_py)
+
+    # Try GoogleTranslator project (sibling directory) - compiled executable
+    google_translator_bin = Path(__file__).parent.parent.parent / 'GoogleTranslator' / 'translate_document'
+    if google_translator_bin.exists():
+        logger.info("Found GoogleTranslator executable: %s", google_translator_bin)
+        # Compiled executable doesn't need Python interpreter
+        return (google_translator_bin, Path(sys.executable))
+    else:
+        logger.debug("GoogleTranslator executable not found at: %s", google_translator_bin)
+
+    # Try EmailReader root directory (legacy) - compiled executable
+    legacy_bin = Path(cwd) / 'translate_document'
+    if legacy_bin.exists():
+        logger.info("Found legacy translator executable: %s", legacy_bin)
+        return (legacy_bin, Path(sys.executable))
+    else:
+        logger.debug("Legacy executable not found at: %s", legacy_bin)
+
+    # Try EmailReader root directory (legacy) - Python script
+    legacy_py = Path(cwd) / 'translate_document.py'
+    if legacy_py.exists():
+        logger.info("Found legacy translator Python script: %s", legacy_py)
+        return (legacy_py, Path(sys.executable))
+    else:
+        logger.debug("Legacy Python script not found at: %s", legacy_py)
+
+    logger.error("Translator executable not found in any location")
+    return None
+
+
 def get_translate_folder_id() -> str:
     """Retrieve the Google Drive folder ID for
     translation files from configuration."""
+    logger.debug("Entering get_translate_folder_id()")
 
     cfg_path = os.path.join('credentials', 'secrets.json')
+    logger.debug("Loading config from: %s", cfg_path)
     cfg = read_json_secret_file(cfg_path) or {}
     folder_id = cfg.get('parent_folder_id', '')
+
     if not folder_id:
-        logger.warning("No 'parent_folder_id' found in configuration.")
+        logger.warning("No 'parent_folder_id' found in configuration")
+    else:
+        logger.debug("Translation folder ID: %s", folder_id)
+
     return folder_id
 
 
@@ -39,22 +143,80 @@ def translate_document(
     Args:
     original_path: foreign language word document Word format
     translated_path: output english Word document Word format
+    source_lang: optional source language code (e.g., 'es')
     target_lang: optional language code to translate to (e.g., 'fr')
     """
-    executable_path = Path(os.path.join(
-        os.getcwd(), "translate_document"))
+    logger.debug("Entering translate_document()")
+    logger.debug("Original: %s", original_path)
+    logger.debug("Translated: %s", translated_path)
+    logger.debug("Source lang: %s, Target lang: %s", source_lang or 'auto', target_lang or 'en')
+
+    if not os.path.exists(original_path):
+        logger.error("Original file not found: %s", original_path)
+        raise FileNotFoundError(f"File not found: {original_path}")
+
+    # Find translator executable with intelligent fallback
+    translator_info = find_translator_executable()
+
+    if not translator_info:
+        error_msg = (
+            "Translator executable not found. Please ensure one of the following:\n"
+            "1. Set 'translator_executable_path' in credentials/secrets.json\n"
+            "2. Place GoogleTranslator project at ../GoogleTranslator/\n"
+            "3. Place translate_document executable in EmailReader root directory\n"
+        )
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
+
+    # Unpack the tuple: (script_path, python_interpreter)
+    executable_path, python_interpreter = translator_info
+
+    # Validate Python interpreter exists
+    if not python_interpreter.exists():
+        logger.error("Python interpreter not found: %s", python_interpreter)
+        raise FileNotFoundError(f"Python interpreter not found: {python_interpreter}")
+
+    # Build command arguments
     arguments = ['-i', original_path, '-o', translated_path]
     if source_lang:
         arguments += ['--source', source_lang]
     if target_lang:
         arguments += ['--target', target_lang]
 
-    command = [str(executable_path)] + arguments  # Convert Path to string
+    # Determine if we need to invoke with Python
+    if executable_path.suffix == '.py':
+        command = [str(python_interpreter), str(executable_path)] + arguments
+        logger.info("Using Python script for translation")
+        logger.info("  Script: %s", executable_path)
+        logger.info("  Python: %s", python_interpreter)
+    else:
+        command = [str(executable_path)] + arguments
+        logger.info("Using compiled executable for translation: %s", executable_path)
+
+    logger.debug("Translation command: %s", ' '.join(command))
+
     try:
-        subprocess.run(command, capture_output=True, text=True, check=True)
+        logger.info("Starting translation subprocess")
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        logger.debug("Translation stdout: %s", result.stdout if result.stdout else "(empty)")
+        logger.info("Translation completed successfully")
+
+        if os.path.exists(translated_path):
+            file_size = os.path.getsize(translated_path) / 1024  # KB
+            logger.debug("Translated file size: %.2f KB", file_size)
+        else:
+            logger.error("Translation completed but output file not found: %s", translated_path)
+
     except subprocess.CalledProcessError as e:
-        error = f'Error executing command: {e} Stdout: {e.stdout}, Stderr: {e.stderr}'
+        error = f'Translation failed with exit code {e.returncode}'
         logger.error(error)
+        logger.error('Command: %s', ' '.join(command))
+        logger.error('Stdout: %s', e.stdout)
+        logger.error('Stderr: %s', e.stderr)
+        raise
+    except Exception as e:
+        logger.error('Unexpected error during translation: %s', e, exc_info=True)
+        raise
 
 
 def process_files_for_translation() -> None:
@@ -162,33 +324,51 @@ def process_files_for_translation() -> None:
                     properties = {}
                 target_language = properties.get('target_language', None)
                 source_language = properties.get('source_language', None)
-                logger.info("Processing file: %s", file_name)
+
+                logger.info("="*60)
+                logger.info("Processing file: %s (ID: %s)", file_name, file_id)
+                logger.debug("File properties: %s", properties)
+                logger.debug("Source language: %s, Target language: %s",
+                           source_language or 'auto', target_language or 'default')
                 # Download file to temp inbox folder
                 source_file_path = os.path.join(inbox_folder, file_name)
+                logger.debug("Downloading to: %s", source_file_path)
+
                 if not google_api.download_file_from_google_drive(
                         file_id=file_id,
                         file_path=source_file_path):
                     logger.error("Failed to download file: %s", file_name)
                     continue
+
+                logger.info("File downloaded successfully")
+
                 filename_without_extension, extension = os.path.splitext(
                     file_name)
                 translated_file_name = f"{filename_without_extension}_translated{extension}"
                 target_file_path = os.path.join(
                     completed_folder, translated_file_name)
 
+                logger.debug("Translation output will be: %s", target_file_path)
+
+                logger.info("Starting translation process")
                 translate_document(
                     original_path=source_file_path,
                     translated_path=target_file_path,
                     source_lang=source_language,
                     target_lang=target_language
                 )
+                logger.info("Translation process completed")
 
                 # Upload translated file to Completed folder on google drive
                 if not os.path.exists(target_file_path):
-                    logger.error("The file %s does not exist.",
+                    logger.error("Translated file does not exist: %s",
                                  target_file_path)
                     continue
 
+                translated_size = os.path.getsize(target_file_path) / 1024  # KB
+                logger.debug("Translated file size: %.2f KB", translated_size)
+
+                logger.info("Uploading translated file to Completed folder")
                 file_info = google_api.upload_file_to_google_drive(
                     file_path=target_file_path,
                     file_name=file_name,
@@ -201,7 +381,7 @@ def process_files_for_translation() -> None:
                     logger.error(
                         "Failed to upload translated file: %s", file_name)
                     continue
-                logger.info("Uploaded translated file: %s, id: %s",
+                logger.info("Uploaded translated file successfully: %s (ID: %s)",
                             file_name, completed_file_id)
                 # Move original file from Inbox to Completed folder
                 logger.info(
@@ -252,18 +432,37 @@ def process_files_for_translation() -> None:
                     "company_name": company_name
                 }
                 headers = {"Content-Type": "application/json"}
-                logger.info("Sending webhook: file=%s, url=%s, user=%s, company=%s",
+                logger.info("Sending webhook notification")
+                logger.debug("Webhook URL: %s", url)
+                logger.debug("Webhook data: file=%s, url=%s, user=%s, company=%s",
                            translated_file_name, file_url, client_email, company_name)
-                response = requests.post(url, json=data, headers=headers)
-                if response.status_code == 200:
-                    logger.info(
-                        "Successfully submitted data for file: %s", file_name)
-                else:
-                    logger.error("Failed to submit data for file: %s, Status Code: %d",
-                                 file_name, response.status_code)
+
+                try:
+                    response = requests.post(url, json=data, headers=headers, timeout=30)
+                    logger.debug("Webhook response status: %d", response.status_code)
+
+                    if response.status_code == 200:
+                        logger.info("Webhook notification sent successfully for: %s", file_name)
+                    else:
+                        logger.error("Webhook failed for: %s, Status: %d, Response: %s",
+                                   file_name, response.status_code, response.text)
+                except Exception as e:
+                    logger.error("Error sending webhook for %s: %s", file_name, e, exc_info=True)
+
                 # Clean up temp files
-                os.remove(source_file_path)
-                os.remove(target_file_path)
+                logger.debug("Cleaning up temporary files")
+                try:
+                    if os.path.exists(source_file_path):
+                        os.remove(source_file_path)
+                        logger.debug("Removed source file: %s", source_file_path)
+                    if os.path.exists(target_file_path):
+                        os.remove(target_file_path)
+                        logger.debug("Removed target file: %s", target_file_path)
+                except Exception as e:
+                    logger.warning("Error cleaning up temp files: %s", e)
+
+                logger.info("File processing completed: %s", file_name)
+                logger.info("="*60)
 
     except Exception:
         logger.exception("Error during Google Drive processing cycle")
