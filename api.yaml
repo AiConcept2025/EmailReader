@@ -26,7 +26,7 @@ components:
           description: Error message or code
     WebhookPayload:
       type: object
-      required: [file_name, file_url, user_email, company_name]
+      required: [file_name, file_url, user_email, company_name, transaction_id]
       properties:
         file_name:
           type: string
@@ -44,6 +44,11 @@ components:
           type: string
           description: Company name or "Ind" for individual clients
           example: "CompanyA"
+        transaction_id:
+          type: string
+          nullable: true
+          description: The transaction ID where this file is being referenced
+          example: "txn_12345abc"
 
 paths:
   # Google Drive API
@@ -534,33 +539,142 @@ paths:
         '200':
           description: Translation processing completed
 
-  # Webhook Notification
-  /webhook/translation-completed:
+  # Webhook Notification (External Server Endpoint)
+  /submit:
     post:
       tags: [Webhook]
-      summary: Webhook notification sent when file is moved to Completed folder
+      summary: Receive translation completion notification from EmailReader
       description: |
-        Automatically triggered when a translated file is uploaded to the Completed folder.
-        This webhook is sent to the external server configured in secrets.json (translator_url).
+        **External server endpoint** that receives webhook notifications when EmailReader completes file translation.
+
+        **Configuration:**
+        - URL configured in EmailReader's credentials/secrets.json: `translator_url`
+        - Default: `http://localhost:8000/submit`
+        - Timeout: 30 seconds
+
+        **When Triggered:**
+        Automatically sent after EmailReader:
+        1. Downloads file from Google Drive Inbox
+        2. Translates the document
+        3. Uploads translated file to Google Drive Completed folder
+        4. Generates shareable link
 
         **Folder Hierarchy Logic:**
-        - If client folder is at root level → company_name = "Ind"
-        - If client folder is under company folder → company_name = company folder name
-        - Root folder name is taken from secrets.json parent_folder_id (e.g., "IrsiSolution")
+        - If client folder is at root level → `company_name = "Ind"` (Individual)
+        - If client folder is under company folder → `company_name = <CompanyFolderName>`
+        - Root folder name is taken from secrets.json `parent_folder_id`
+
+        **EmailReader Source:**
+        - File: `src/process_files_for_translation.py`
+        - Function: `process_files_for_translation()`
+        - Lines: 426-450
+
+        **Request Details:**
+        - Method: POST
+        - Content-Type: application/json
+        - Timeout: 30s
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/WebhookPayload'
+            example:
+              file_name: "Cable_Management_Changes_PRD.docx"
+              file_url: "https://docs.google.com/document/d/1cGiGynq3Q142H7NF1ONuqTztVej9IWrz/edit?usp=drivesdk"
+              user_email: "danishevsky@gmail.com"
+              company_name: "CompanyA"
+              transaction_id: "txn_12345abc"
       responses:
         '200':
-          description: Webhook received successfully
+          description: Webhook received and processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                    example: "Translation notification received"
         '400':
-          description: Invalid payload
+          description: Invalid payload or missing required fields
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Missing required field: file_url"
         '500':
           description: Server error processing webhook
-      x-source:
-        file: src/process_files_for_translation.py
-        function: process_files_for_translation
-        lines: 247-263
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to process notification"
+      x-emailreader-integration:
+        trigger: After translation completion
+        config_key: translator_url
+        default_url: "http://localhost:8000/submit"
+        retry_policy: No retry (logs error and continues)
+        error_handling: Logs error but does not stop processing
+      x-implementation-notes: |
+        **Server Implementation Requirements:**
+
+        1. **Endpoint:** POST /submit
+        2. **Port:** 8000 (or configured in secrets.json)
+        3. **Expected Behavior:**
+           - Accept JSON payload with file_name, file_url, user_email, company_name
+           - Validate required fields
+           - Process notification (e.g., update database, send email, trigger workflow)
+           - Return 200 status code on success
+
+        4. **Sample FastAPI Implementation:**
+           ```python
+           from fastapi import FastAPI, HTTPException
+           from pydantic import BaseModel
+
+           app = FastAPI()
+
+           class TranslationNotification(BaseModel):
+               file_name: str
+               file_url: str
+               user_email: str
+               company_name: str
+               transaction_id: str | None = None
+
+           @app.post("/submit")
+           async def receive_translation_notification(notification: TranslationNotification):
+               # Process the notification
+               print(f"Received translation: {notification.file_name}")
+               print(f"URL: {notification.file_url}")
+               print(f"User: {notification.user_email}")
+               print(f"Company: {notification.company_name}")
+               print(f"Transaction ID: {notification.transaction_id}")
+
+               # Your business logic here:
+               # - Save to database
+               # - Send email notification
+               # - Update user dashboard
+               # - Trigger next workflow step
+
+               return {"status": "success", "message": "Translation notification received"}
+           ```
+
+        5. **Error Handling:**
+           - EmailReader logs errors but does not retry
+           - Connection errors are logged with full stack trace
+           - Non-200 responses are logged with status code and response text
+
+        6. **Security Considerations:**
+           - Consider adding authentication (API key, JWT)
+           - Validate webhook source if needed
+           - Sanitize file URLs before storing
+           - Rate limiting recommended

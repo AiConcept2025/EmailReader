@@ -324,6 +324,7 @@ def process_files_for_translation() -> None:
                     properties = {}
                 target_language = properties.get('target_language', None)
                 source_language = properties.get('source_language', None)
+                transaction_id = properties.get('transaction_id', None)
 
                 logger.info("="*60)
                 logger.info("Processing file: %s (ID: %s)", file_name, file_id)
@@ -429,13 +430,14 @@ def process_files_for_translation() -> None:
                     "file_name": translated_file_name,
                     "file_url": file_url,
                     "user_email": client_email,
-                    "company_name": company_name
+                    "company_name": company_name,
+                    "transaction_id": transaction_id
                 }
                 headers = {"Content-Type": "application/json"}
                 logger.info("Sending webhook notification")
                 logger.debug("Webhook URL: %s", url)
-                logger.debug("Webhook data: file=%s, url=%s, user=%s, company=%s",
-                           translated_file_name, file_url, client_email, company_name)
+                logger.debug("Webhook data: file=%s, url=%s, user=%s, company=%s, transaction_id=%s",
+                           translated_file_name, file_url, client_email, company_name, transaction_id)
 
                 try:
                     response = requests.post(url, json=data, headers=headers, timeout=30)
