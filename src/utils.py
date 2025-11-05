@@ -4,6 +4,7 @@ Utilities
 
 import json
 import os
+import logging
 import subprocess
 import uuid
 from datetime import datetime, timezone
@@ -13,7 +14,9 @@ import shutil
 from pypdf import PdfReader
 from docx import Document
 from striprtf.striprtf import rtf_to_text  # type: ignore
-from src.logger import logger
+
+# Get logger for this module
+logger = logging.getLogger('EmailReader.Utils')
 
 
 def read_json_secret_file(
@@ -35,18 +38,32 @@ def read_json_secret_file(
         OSError: If an OS error occurs while reading the file.
         exception: For any other exceptions that may occur.
     """
+    logger.debug("Entering read_json_secret_file() for: %s", file_path)
+
     try:
+        if not os.path.exists(file_path):
+            logger.error('File not found at %s', file_path)
+            return None
+
+        file_size = os.path.getsize(file_path)
+        logger.debug("Reading JSON file, size: %d bytes", file_size)
+
         with open(file_path, encoding='utf-8', mode='r') as file:
             data = json.load(file)
+            logger.debug("JSON file parsed successfully, keys: %s", list(data.keys()) if isinstance(data, dict) else "not a dict")
             return data
+
     except FileNotFoundError:
         logger.error('Error: File not found at %s', file_path)
         return None
-    except json.JSONDecodeError:
-        logger.error('Error: Invalid JSON format in %s', file_path)
+    except json.JSONDecodeError as e:
+        logger.error('Error: Invalid JSON format in %s: %s', file_path, e)
         return None
     except OSError as e:
-        logger.error('An OS error occurred: %s', e)
+        logger.error('An OS error occurred while reading %s: %s', file_path, e)
+        return None
+    except Exception as e:
+        logger.error('Unexpected error reading JSON file %s: %s', file_path, e, exc_info=True)
         return None
 
 
@@ -145,20 +162,51 @@ def translate_document_to_english(
     translated_path: output english Word document Word format
     target_lang: optional language code to translate to (e.g., 'fr')
     """
+    logger.debug("Entering translate_document_to_english()")
+    logger.debug("Original: %s", original_path)
+    logger.debug("Translated: %s", translated_path)
+    logger.debug("Target language: %s", target_lang or 'en (default)')
+
+    if not os.path.exists(original_path):
+        logger.error("Original file not found: %s", original_path)
+        raise FileNotFoundError(f"File not found: {original_path}")
+
     executable_path = Path(os.path.join(
         os.getcwd(), "translate_document"))
+    logger.debug("Translation executable: %s", executable_path)
+
+    if not executable_path.exists():
+        logger.error("Translation executable not found: %s", executable_path)
+        raise FileNotFoundError(f"Executable not found: {executable_path}")
+
     arguments = ['-i', original_path, '-o', translated_path]
     if target_lang:
         arguments += ['--target', target_lang]
-    command = [str(executable_path)] + arguments  # Convert Path to string
+
+    command = [str(executable_path)] + arguments
+    logger.debug("Translation command: %s", ' '.join(command))
+
     try:
-        subprocess.run(command, capture_output=True, text=True, check=True)
+        logger.info("Starting translation subprocess")
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        logger.debug("Translation stdout: %s", result.stdout if result.stdout else "(empty)")
+        logger.info("Translation completed successfully: %s", os.path.basename(translated_path))
+
+        if os.path.exists(translated_path):
+            file_size = os.path.getsize(translated_path) / 1024  # KB
+            logger.debug("Translated file size: %.2f KB", file_size)
+        else:
+            logger.error("Translation completed but output file not found: %s", translated_path)
+
     except subprocess.CalledProcessError as e:
-        logger.error(
-            'Error executing command: %s Stdout: %s, Stderr: %s',
-            e,
-            e.stdout,
-            e.stderr)
+        logger.error('Translation command failed with exit code %d', e.returncode)
+        logger.error('Command: %s', ' '.join(command))
+        logger.error('Stdout: %s', e.stdout)
+        logger.error('Stderr: %s', e.stderr)
+        raise
+    except Exception as e:
+        logger.error('Unexpected error during translation: %s', e, exc_info=True)
+        raise
 
 
 def copy_file(source_file: str, destination_file: str) -> bool:
@@ -242,13 +290,26 @@ def build_flowise_question(customer_email: str, file_name_with_ext: str) -> str:
     - Ensure .docx extension
     Final format: email+OriginalName.docx
     """
+    logger.debug("Entering build_flowise_question()")
+    logger.debug("Input - email: %s, file: %s", customer_email, file_name_with_ext)
+
     base, ext = os.path.splitext(file_name_with_ext or "")
+    logger.debug("Base name: %s, extension: %s", base, ext)
+
     # Remove any processing suffix after the first '+'
     # e.g., "Serhii Zhuk letter+english" -> "Serhii Zhuk letter"
     if '+' in base:
+        original_base = base
         base = base.split('+', 1)[0]
+        logger.debug("Removed suffix from base: %s -> %s", original_base, base)
+
     # Enforce .docx extension
     if not ext or ext.lower() != '.docx':
+        logger.debug("Enforcing .docx extension (was: %s)", ext or "no extension")
         ext = '.docx'
+
     clean_name = f"{base}{ext}"
-    return f"{customer_email}+{clean_name}"
+    result = f"{customer_email}+{clean_name}"
+    logger.debug("Built Flowise question: %s", result)
+
+    return result

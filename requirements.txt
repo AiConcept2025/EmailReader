@@ -41,13 +41,11 @@ rsa
 rtf-converter
 schedule
 six
-spire-doc
 terminaltables
 typing_extensions
 uritemplate
 urllib3
 striprtf
 pypdf
-poppler-utils
 pyinstaller
 google-api-python-client-stubs
