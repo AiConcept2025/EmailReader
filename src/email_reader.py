@@ -4,6 +4,7 @@ to document store
 """
 
 import os
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict
@@ -13,10 +14,12 @@ from imap_tools import AND, MailBox
 
 # from src.convert_to_docx import (
 #    convert_pdf_to_docx, convert_txt_file_to_docx, convert_txt_to_docx)
-from src.logger import logger
 from src.utils import get_uuid, read_json_secret_file, utc_to_local
 # from src.pdf_image_ocr import is_pdf_searchable_pypdf
 from src.process_documents import DocProcessor
+
+# Get logger for this module
+logger = logging.getLogger('EmailReader.Email')
 
 
 supported_types = [
@@ -62,20 +65,33 @@ def get_last_finish_time(
     Returns:
     tuple: date time
     """
+    logger.debug("Entering get_last_finish_time()")
+    logger.debug("Date file: %s, start_date: %s", date_file, start_date)
+
     date_file_path = Path(os.path.join(cwd, date_file))
+    logger.debug("Full date file path: %s", date_file_path)
+
     if date_file_path.is_file():
+        logger.debug("Date file exists, reading last scan time")
         with open(date_file_path, encoding="utf-8", mode="r") as file:
             date: str = file.read()
+            logger.debug("Read date string: %s", date)
             date_time: datetime = datetime.strptime(
                 date, "%Y-%m-%d %H:%M:%S %z")
+        logger.info("Last scan time loaded: %s", date_time)
     else:
+        logger.info("Date file doesn't exist, creating with default: %s", start_date)
         with open(date_file_path, encoding="utf-8", mode="w") as file:
             file.write(start_date)
             date_time: datetime = datetime.strptime(
                 start_date, "%Y-%m-%d %H:%M:%S %z")
+
     last_date_time = utc_to_local(date_time)
     last_date: datetime = date_time.date()
     last_time: datetime = date_time.time()
+
+    logger.debug("Returning: last_date_time=%s, last_date=%s, last_time=%s",
+                last_date_time, last_date, last_time)
     return (last_date_time, last_date, last_time)
 
 
@@ -87,11 +103,18 @@ def set_last_finish_time(date_file: str, start_date: datetime) -> None:
     date_file: path to the file
     start_date: datetime last scan
     """
+    logger.debug("Entering set_last_finish_time()")
+    logger.debug("Date file: %s, start_date: %s", date_file, start_date)
+
     start_date = utc_to_local(start_date)
     date_file_path = Path(os.path.join(cwd, date_file))
     start_date_str: str = start_date.strftime("%Y-%m-%d %H:%M:%S %z")
+
+    logger.debug("Writing date string: %s to %s", start_date_str, date_file_path)
     with open(date_file_path, encoding="utf-8", mode="w") as file:
         file.write(start_date_str)
+
+    logger.info("Last finish time saved: %s", start_date_str)
 
 
 def extract_attachments_from_mailbox():
@@ -99,17 +122,33 @@ def extract_attachments_from_mailbox():
     Reads emails from mailbox and sends qualified attachments
     fo document store
     """
-    logger.info('Start extract documents from mailbox')
-    secrets_file = os.path.join(os.getcwd(), 'credentials', "secrets.json")
-    secrets: Dict = read_json_secret_file(secrets_file)
-    email: Dict = secrets.get('email')
-    if email is None:
-        raise ValueError("No email object specified")
-    last_date_time, last_date, _ = get_last_finish_time(
-        email.get('date_file'),
-        email.get('start_date'))
-    attachments_file_path = Path(os.path.join(cwd, 'data', "documents"))
-    docProcessor = DocProcessor(attachments_file_path)
+    logger.info("="*80)
+    logger.info('Starting extract_attachments_from_mailbox()')
+    logger.debug("Current working directory: %s", cwd)
+
+    try:
+        secrets_file = os.path.join(os.getcwd(), 'credentials', "secrets.json")
+        logger.debug("Loading secrets from: %s", secrets_file)
+        secrets: Dict = read_json_secret_file(secrets_file)
+
+        email: Dict = secrets.get('email')
+        if email is None:
+            logger.error("No email configuration found in secrets.json")
+            raise ValueError("No email object specified")
+
+        logger.debug("Email config - server: %s, username: %s",
+                    email.get('imap_server'), email.get('username'))
+
+        last_date_time, last_date, _ = get_last_finish_time(
+            email.get('date_file'),
+            email.get('start_date'))
+        logger.info("Scanning for emails since: %s", last_date_time)
+
+        attachments_file_path = Path(os.path.join(cwd, 'data', "documents"))
+        logger.debug("Attachments will be saved to: %s", attachments_file_path)
+
+        logger.debug("Initializing DocProcessor")
+        docProcessor = DocProcessor(attachments_file_path)
 
     with MailBox(host=email.get('imap_server')).login(
             username=email.get("username"),

@@ -1,0 +1,862 @@
+2025-11-08 20:47:52 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-08 20:47:52 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-08 20:47:52 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /Users/vladimirdanishevsky/projects/EmailReader/logs/email_reader.log
+2025-11-08 20:47:52 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-08 20:47:52 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-08 20:47:52 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /Users/vladimirdanishevsky/projects/EmailReader
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /Users/vladimirdanishevsky/projects/EmailReader/data
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /Users/vladimirdanishevsky/projects/EmailReader/data/documents
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /Users/vladimirdanishevsky/projects/EmailReader/data/last_finish_time.txt
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-08 20:47:52 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-08 20:47:52 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-08 20:47:52 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-08 20:47:52 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-08 20:47:52 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-08 20:47:52 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-08 20:47:52 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-08 20:47:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:294  | process_files_for_translation | ============================================================
+2025-11-08 20:47:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:295  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-08 20:47:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:296  | process_files_for_translation | ============================================================
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:47:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:319  | process_files_for_translation | Initializing API clients
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /Users/vladimirdanishevsky/projects/EmailReader/credentials/secrets.json
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:47:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:323  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-08 20:47:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:122  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-08 20:47:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:125  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:47:52 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:47:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:132  | get_translate_folder_id   | Translation folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 20:47:52 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 4 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 4 items: 'Iris Trading', 'FOREIGN-LANGUAGE-DOCS', 'Michael Testing+michael.testing@gmail.com', 'Upload Completed Docs'
+2025-11-08 20:47:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:331  | process_files_for_translation | Found 4 total folders at root level
+2025-11-08 20:47:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:339  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-08 20:47:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:340  | process_files_for_translation | Found 3 potential company folders
+2025-11-08 20:47:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Iris Trading
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1PX8nkC_K3bz-ST6BOAoyV1PjfgdXJYh3
+2025-11-08 20:47:52 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 1PX8nkC_K3bz-ST6BOAoyV1PjfgdXJYh3
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-08 20:47:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:357  | process_files_for_translation | Found 1 nested client(s) in company 'Iris Trading': danishevsky@gmail.com
+2025-11-08 20:47:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: FOREIGN-LANGUAGE-DOCS
+2025-11-08 20:47:52 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 20:47:53 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 20:47:53 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'FOREIGN-LANGUAGE-DOCS'
+2025-11-08 20:47:53 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Upload Completed Docs
+2025-11-08 20:47:53 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 20:47:53 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 20:47:53 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'Upload Completed Docs'
+2025-11-08 20:47:53 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:369  | process_files_for_translation | Processing total of 2 client folders (direct + nested)
+2025-11-08 20:47:53 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: Michael Testing+michael.testing@gmail.com
+2025-11-08 20:47:53 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:47:53 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:47:53 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 20:47:53 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:47:53 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:47:53 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 20:47:53 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:47:54 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:47:54 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 20:47:54 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-08 20:47:54 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 20:47:54 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 20:47:54 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 20:47:54 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in Michael Testing+michael.testing@gmail.com inbox
+2025-11-08 20:47:54 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: danishevsky@gmail.com
+2025-11-08 20:47:54 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:47:54 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:47:54 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 20:47:54 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:47:54 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:47:54 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 20:47:54 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:47:54 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:47:54 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 20:47:54 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 1MK6W_glX2jeIOnG5BVOfAky7xy5iE4rv
+2025-11-08 20:47:54 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 16yAK6A-zYw0PfRBZQo6Mfl-lww8MiZhr
+2025-11-08 20:47:54 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 16yAK6A-zYw0PfRBZQo6Mfl-lww8MiZhr
+2025-11-08 20:47:55 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 16yAK6A-zYw0PfRBZQo6Mfl-lww8MiZhr
+2025-11-08 20:47:55 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in danishevsky@gmail.com inbox
+2025-11-08 20:47:55 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-08 20:47:55 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-08 20:47:55 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-08 20:47:55 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~4 minute(s) (at 2025-11-08 20:52:52)
+2025-11-08 20:47:55 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Initial scan complete - Next cycle in ~4 minute(s) (at 2025-11-08 20:52:52)
+2025-11-08 20:47:55 | INFO     | EmailReader               | index.py            :152  | <module>                  | Entering main scheduler loop
+2025-11-08 20:47:55 | DEBUG    | EmailReader               | index.py            :153  | <module>                  | Scheduler will check every 1 second for pending jobs
+2025-11-08 20:52:52 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-08 20:52:52 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-08 20:52:52 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-08 20:52:52 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-08 20:52:52 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:52:52 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-08 20:52:52 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-08 20:52:52 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-08 20:52:52 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-08 20:52:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:294  | process_files_for_translation | ============================================================
+2025-11-08 20:52:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:295  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-08 20:52:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:296  | process_files_for_translation | ============================================================
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:52:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:319  | process_files_for_translation | Initializing API clients
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /Users/vladimirdanishevsky/projects/EmailReader/credentials/secrets.json
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:52:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:323  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-08 20:52:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:122  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-08 20:52:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:125  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:52:52 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:52:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:132  | get_translate_folder_id   | Translation folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 20:52:52 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 20:52:52 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 4 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 20:52:52 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 4 items: 'Iris Trading', 'FOREIGN-LANGUAGE-DOCS', 'Michael Testing+michael.testing@gmail.com', 'Upload Completed Docs'
+2025-11-08 20:52:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:331  | process_files_for_translation | Found 4 total folders at root level
+2025-11-08 20:52:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:339  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-08 20:52:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:340  | process_files_for_translation | Found 3 potential company folders
+2025-11-08 20:52:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Iris Trading
+2025-11-08 20:52:52 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1PX8nkC_K3bz-ST6BOAoyV1PjfgdXJYh3
+2025-11-08 20:52:52 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 1PX8nkC_K3bz-ST6BOAoyV1PjfgdXJYh3
+2025-11-08 20:52:52 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-08 20:52:52 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:357  | process_files_for_translation | Found 1 nested client(s) in company 'Iris Trading': danishevsky@gmail.com
+2025-11-08 20:52:52 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: FOREIGN-LANGUAGE-DOCS
+2025-11-08 20:52:52 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 20:52:53 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 20:52:53 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'FOREIGN-LANGUAGE-DOCS'
+2025-11-08 20:52:53 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Upload Completed Docs
+2025-11-08 20:52:53 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 20:52:53 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 20:52:53 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'Upload Completed Docs'
+2025-11-08 20:52:53 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:369  | process_files_for_translation | Processing total of 2 client folders (direct + nested)
+2025-11-08 20:52:53 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: Michael Testing+michael.testing@gmail.com
+2025-11-08 20:52:53 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:52:53 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:52:53 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 20:52:53 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:52:53 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:52:53 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 20:52:53 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:52:54 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:52:54 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 20:52:54 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-08 20:52:54 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 20:52:54 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 20:52:54 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 20:52:54 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in Michael Testing+michael.testing@gmail.com inbox
+2025-11-08 20:52:54 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: danishevsky@gmail.com
+2025-11-08 20:52:54 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:52:54 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:52:54 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 20:52:54 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:52:54 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:52:54 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 20:52:54 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:52:55 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:52:55 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 20:52:55 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 1MK6W_glX2jeIOnG5BVOfAky7xy5iE4rv
+2025-11-08 20:52:55 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 16yAK6A-zYw0PfRBZQo6Mfl-lww8MiZhr
+2025-11-08 20:52:55 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 16yAK6A-zYw0PfRBZQo6Mfl-lww8MiZhr
+2025-11-08 20:52:55 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 16yAK6A-zYw0PfRBZQo6Mfl-lww8MiZhr
+2025-11-08 20:52:55 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in danishevsky@gmail.com inbox
+2025-11-08 20:52:55 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-08 20:52:55 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-08 20:52:55 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-08 20:52:55 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~0 minute(s) (at 2025-11-08 20:52:52)
+2025-11-08 20:57:55 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-08 20:57:55 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-08 20:57:55 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-08 20:57:55 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-08 20:57:55 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:57:55 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-08 20:57:55 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-08 20:57:55 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-08 20:57:55 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-08 20:57:55 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:294  | process_files_for_translation | ============================================================
+2025-11-08 20:57:55 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:295  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-08 20:57:55 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:296  | process_files_for_translation | ============================================================
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:57:55 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:319  | process_files_for_translation | Initializing API clients
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /Users/vladimirdanishevsky/projects/EmailReader/credentials/secrets.json
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:57:55 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:323  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-08 20:57:55 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:122  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-08 20:57:55 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:125  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 20:57:55 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 20:57:55 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:132  | get_translate_folder_id   | Translation folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 20:57:55 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 20:57:55 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 4 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 20:57:55 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 4 items: 'Iris Trading', 'FOREIGN-LANGUAGE-DOCS', 'Michael Testing+michael.testing@gmail.com', 'Upload Completed Docs'
+2025-11-08 20:57:55 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:331  | process_files_for_translation | Found 4 total folders at root level
+2025-11-08 20:57:55 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:339  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-08 20:57:55 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:340  | process_files_for_translation | Found 3 potential company folders
+2025-11-08 20:57:55 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Iris Trading
+2025-11-08 20:57:55 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1PX8nkC_K3bz-ST6BOAoyV1PjfgdXJYh3
+2025-11-08 20:57:56 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 1PX8nkC_K3bz-ST6BOAoyV1PjfgdXJYh3
+2025-11-08 20:57:56 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-08 20:57:56 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:357  | process_files_for_translation | Found 1 nested client(s) in company 'Iris Trading': danishevsky@gmail.com
+2025-11-08 20:57:56 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: FOREIGN-LANGUAGE-DOCS
+2025-11-08 20:57:56 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 20:57:56 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 20:57:56 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'FOREIGN-LANGUAGE-DOCS'
+2025-11-08 20:57:56 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Upload Completed Docs
+2025-11-08 20:57:56 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 20:57:56 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 20:57:56 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'Upload Completed Docs'
+2025-11-08 20:57:56 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:369  | process_files_for_translation | Processing total of 2 client folders (direct + nested)
+2025-11-08 20:57:56 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: Michael Testing+michael.testing@gmail.com
+2025-11-08 20:57:56 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:57:56 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:57:56 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 20:57:56 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:57:57 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:57:57 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 20:57:57 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:57:57 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 20:57:57 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 20:57:57 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-08 20:57:57 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 20:57:57 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 20:57:57 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 20:57:57 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in Michael Testing+michael.testing@gmail.com inbox
+2025-11-08 20:57:57 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: danishevsky@gmail.com
+2025-11-08 20:57:57 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:57:57 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:57:57 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 20:57:57 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:57:58 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:57:58 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 20:57:58 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:57:58 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1f4JdBqiVVZpCmL6wyb0hrXYZvPuZko3C
+2025-11-08 20:57:58 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 20:57:58 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 1MK6W_glX2jeIOnG5BVOfAky7xy5iE4rv
+2025-11-08 20:57:58 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 16yAK6A-zYw0PfRBZQo6Mfl-lww8MiZhr
+2025-11-08 20:57:58 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 16yAK6A-zYw0PfRBZQo6Mfl-lww8MiZhr
+2025-11-08 20:57:58 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 16yAK6A-zYw0PfRBZQo6Mfl-lww8MiZhr
+2025-11-08 20:57:58 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in danishevsky@gmail.com inbox
+2025-11-08 20:57:58 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-08 20:57:58 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-08 20:57:58 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-08 20:57:58 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~0 minute(s) (at 2025-11-08 20:57:55)
+2025-11-08 21:02:58 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-08 21:02:58 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-08 21:02:58 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-08 21:02:58 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-08 21:02:58 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:02:58 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-08 21:02:58 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-08 21:02:58 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-08 21:02:58 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-08 21:02:58 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:294  | process_files_for_translation | ============================================================
+2025-11-08 21:02:58 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:295  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-08 21:02:58 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:296  | process_files_for_translation | ============================================================
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:02:58 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:319  | process_files_for_translation | Initializing API clients
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /Users/vladimirdanishevsky/projects/EmailReader/credentials/secrets.json
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:02:58 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:323  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-08 21:02:58 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:122  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-08 21:02:58 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:125  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:02:58 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:02:58 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:132  | get_translate_folder_id   | Translation folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:02:58 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:02:59 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:02:59 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'FOREIGN-LANGUAGE-DOCS', 'Michael Testing+michael.testing@gmail.com', 'Upload Completed Docs'
+2025-11-08 21:02:59 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:331  | process_files_for_translation | Found 3 total folders at root level
+2025-11-08 21:02:59 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:339  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-08 21:02:59 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:340  | process_files_for_translation | Found 2 potential company folders
+2025-11-08 21:02:59 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: FOREIGN-LANGUAGE-DOCS
+2025-11-08 21:02:59 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:02:59 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:02:59 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'FOREIGN-LANGUAGE-DOCS'
+2025-11-08 21:02:59 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Upload Completed Docs
+2025-11-08 21:02:59 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:02:59 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:02:59 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'Upload Completed Docs'
+2025-11-08 21:02:59 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:369  | process_files_for_translation | Processing total of 1 client folders (direct + nested)
+2025-11-08 21:02:59 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: Michael Testing+michael.testing@gmail.com
+2025-11-08 21:02:59 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:02:59 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:02:59 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:02:59 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:02:59 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:02:59 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:02:59 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:03:00 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:03:00 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:03:00 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-08 21:03:00 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:03:00 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:03:00 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:03:00 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in Michael Testing+michael.testing@gmail.com inbox
+2025-11-08 21:03:00 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-08 21:03:00 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-08 21:03:00 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-08 21:03:00 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~0 minute(s) (at 2025-11-08 21:02:58)
+2025-11-08 21:08:00 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-08 21:08:00 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-08 21:08:00 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-08 21:08:00 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-08 21:08:00 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:08:00 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-08 21:08:00 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-08 21:08:00 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-08 21:08:00 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-08 21:08:00 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:294  | process_files_for_translation | ============================================================
+2025-11-08 21:08:00 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:295  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-08 21:08:00 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:296  | process_files_for_translation | ============================================================
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:08:00 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:319  | process_files_for_translation | Initializing API clients
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /Users/vladimirdanishevsky/projects/EmailReader/credentials/secrets.json
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:08:00 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:323  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-08 21:08:00 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:122  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-08 21:08:00 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:125  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:08:00 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:08:00 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:132  | get_translate_folder_id   | Translation folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:08:00 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:08:01 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:08:01 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'FOREIGN-LANGUAGE-DOCS', 'Michael Testing+michael.testing@gmail.com', 'Upload Completed Docs'
+2025-11-08 21:08:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:331  | process_files_for_translation | Found 3 total folders at root level
+2025-11-08 21:08:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:339  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-08 21:08:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:340  | process_files_for_translation | Found 2 potential company folders
+2025-11-08 21:08:01 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: FOREIGN-LANGUAGE-DOCS
+2025-11-08 21:08:01 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:08:01 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:08:01 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'FOREIGN-LANGUAGE-DOCS'
+2025-11-08 21:08:01 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Upload Completed Docs
+2025-11-08 21:08:01 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:08:01 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:08:01 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'Upload Completed Docs'
+2025-11-08 21:08:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:369  | process_files_for_translation | Processing total of 1 client folders (direct + nested)
+2025-11-08 21:08:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: Michael Testing+michael.testing@gmail.com
+2025-11-08 21:08:01 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:08:01 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:08:01 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:08:01 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:08:02 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:08:02 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:08:02 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:08:02 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:08:02 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:08:02 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-08 21:08:02 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:08:02 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:08:02 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:08:02 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in Michael Testing+michael.testing@gmail.com inbox
+2025-11-08 21:08:02 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-08 21:08:02 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-08 21:08:02 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-08 21:08:02 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~0 minute(s) (at 2025-11-08 21:08:00)
+2025-11-08 21:13:02 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-08 21:13:02 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-08 21:13:02 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-08 21:13:02 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-08 21:13:02 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:13:02 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-08 21:13:02 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-08 21:13:02 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-08 21:13:02 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-08 21:13:02 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:294  | process_files_for_translation | ============================================================
+2025-11-08 21:13:02 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:295  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-08 21:13:02 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:296  | process_files_for_translation | ============================================================
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:13:02 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:319  | process_files_for_translation | Initializing API clients
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /Users/vladimirdanishevsky/projects/EmailReader/credentials/secrets.json
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:13:02 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:323  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-08 21:13:02 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:122  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-08 21:13:02 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:125  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:13:02 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:13:02 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:132  | get_translate_folder_id   | Translation folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:13:02 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:13:03 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:13:03 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'FOREIGN-LANGUAGE-DOCS', 'Michael Testing+michael.testing@gmail.com', 'Upload Completed Docs'
+2025-11-08 21:13:03 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:331  | process_files_for_translation | Found 3 total folders at root level
+2025-11-08 21:13:03 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:339  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-08 21:13:03 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:340  | process_files_for_translation | Found 2 potential company folders
+2025-11-08 21:13:03 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: FOREIGN-LANGUAGE-DOCS
+2025-11-08 21:13:03 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:13:03 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:13:03 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'FOREIGN-LANGUAGE-DOCS'
+2025-11-08 21:13:03 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Upload Completed Docs
+2025-11-08 21:13:03 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:13:03 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:13:03 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'Upload Completed Docs'
+2025-11-08 21:13:03 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:369  | process_files_for_translation | Processing total of 1 client folders (direct + nested)
+2025-11-08 21:13:03 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: Michael Testing+michael.testing@gmail.com
+2025-11-08 21:13:03 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:13:03 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:13:03 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:13:03 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:13:04 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:13:04 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:13:04 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:13:04 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:13:04 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:13:04 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-08 21:13:04 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:13:04 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:13:04 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:13:04 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in Michael Testing+michael.testing@gmail.com inbox
+2025-11-08 21:13:04 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-08 21:13:04 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-08 21:13:04 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-08 21:13:04 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~0 minute(s) (at 2025-11-08 21:13:02)
+2025-11-08 21:18:04 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-08 21:18:04 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-08 21:18:04 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-08 21:18:04 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-08 21:18:04 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-08 21:18:04 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:18:04 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:18:04 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:18:04 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-08 21:18:04 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-08 21:18:04 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-08 21:18:04 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-08 21:18:04 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:294  | process_files_for_translation | ============================================================
+2025-11-08 21:18:04 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:295  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-08 21:18:04 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:296  | process_files_for_translation | ============================================================
+2025-11-08 21:18:04 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:18:04 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:18:04 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:18:04 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:319  | process_files_for_translation | Initializing API clients
+2025-11-08 21:18:04 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /Users/vladimirdanishevsky/projects/EmailReader/credentials/secrets.json
+2025-11-08 21:18:04 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:18:04 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:18:05 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:323  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-08 21:18:05 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:122  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-08 21:18:05 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:125  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-08 21:18:05 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:18:05 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:18:05 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:18:05 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:132  | get_translate_folder_id   | Translation folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:18:05 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:18:05 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:18:05 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'FOREIGN-LANGUAGE-DOCS', 'Michael Testing+michael.testing@gmail.com', 'Upload Completed Docs'
+2025-11-08 21:18:05 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:331  | process_files_for_translation | Found 3 total folders at root level
+2025-11-08 21:18:05 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:339  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-08 21:18:05 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:340  | process_files_for_translation | Found 2 potential company folders
+2025-11-08 21:18:05 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: FOREIGN-LANGUAGE-DOCS
+2025-11-08 21:18:05 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:18:05 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:18:05 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'FOREIGN-LANGUAGE-DOCS'
+2025-11-08 21:18:05 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Upload Completed Docs
+2025-11-08 21:18:05 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:18:05 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:18:05 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'Upload Completed Docs'
+2025-11-08 21:18:05 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:369  | process_files_for_translation | Processing total of 1 client folders (direct + nested)
+2025-11-08 21:18:05 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: Michael Testing+michael.testing@gmail.com
+2025-11-08 21:18:05 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:18:06 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:18:06 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:18:06 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:18:06 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:18:06 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:18:06 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:18:06 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:18:06 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:18:06 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-08 21:18:06 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:18:06 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:18:06 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:18:06 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in Michael Testing+michael.testing@gmail.com inbox
+2025-11-08 21:18:06 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-08 21:18:06 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-08 21:18:06 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-08 21:18:06 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~0 minute(s) (at 2025-11-08 21:18:04)
+2025-11-08 21:23:07 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-08 21:23:07 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-08 21:23:07 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-08 21:23:07 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-08 21:23:07 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:23:07 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-08 21:23:07 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-08 21:23:07 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-08 21:23:07 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-08 21:23:07 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:294  | process_files_for_translation | ============================================================
+2025-11-08 21:23:07 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:295  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-08 21:23:07 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:296  | process_files_for_translation | ============================================================
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:23:07 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:319  | process_files_for_translation | Initializing API clients
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /Users/vladimirdanishevsky/projects/EmailReader/credentials/secrets.json
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:23:07 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:323  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-08 21:23:07 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:122  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-08 21:23:07 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:125  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:23:07 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:23:07 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:132  | get_translate_folder_id   | Translation folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:23:07 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:23:07 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 4 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:23:07 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 4 items: 'Iris Trading', 'FOREIGN-LANGUAGE-DOCS', 'Michael Testing+michael.testing@gmail.com', 'Upload Completed Docs'
+2025-11-08 21:23:07 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:331  | process_files_for_translation | Found 4 total folders at root level
+2025-11-08 21:23:07 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:339  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-08 21:23:07 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:340  | process_files_for_translation | Found 3 potential company folders
+2025-11-08 21:23:07 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Iris Trading
+2025-11-08 21:23:07 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 108CB0nZD2IMIQDjqkLy9CwANokfB9Sjk
+2025-11-08 21:23:07 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 108CB0nZD2IMIQDjqkLy9CwANokfB9Sjk
+2025-11-08 21:23:07 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-08 21:23:07 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:357  | process_files_for_translation | Found 1 nested client(s) in company 'Iris Trading': danishevsky@gmail.com
+2025-11-08 21:23:07 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: FOREIGN-LANGUAGE-DOCS
+2025-11-08 21:23:07 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:23:07 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:23:07 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'FOREIGN-LANGUAGE-DOCS'
+2025-11-08 21:23:07 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Upload Completed Docs
+2025-11-08 21:23:07 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:23:08 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:23:08 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'Upload Completed Docs'
+2025-11-08 21:23:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:369  | process_files_for_translation | Processing total of 2 client folders (direct + nested)
+2025-11-08 21:23:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: Michael Testing+michael.testing@gmail.com
+2025-11-08 21:23:08 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:23:08 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:23:08 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:23:08 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:23:08 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:23:08 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:23:08 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:23:08 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:23:08 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:23:08 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-08 21:23:08 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:23:08 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:23:08 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:23:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in Michael Testing+michael.testing@gmail.com inbox
+2025-11-08 21:23:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: danishevsky@gmail.com
+2025-11-08 21:23:08 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:23:09 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:23:09 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 21:23:09 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:23:09 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:23:09 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 21:23:09 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:23:09 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:23:09 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 21:23:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E
+2025-11-08 21:23:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 1v5czQxPrGCV-1uJg1HmLWNnbvIB6SV3g
+2025-11-08 21:23:09 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1v5czQxPrGCV-1uJg1HmLWNnbvIB6SV3g
+2025-11-08 21:23:09 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 files in folder ID: 1v5czQxPrGCV-1uJg1HmLWNnbvIB6SV3g
+2025-11-08 21:23:09 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx', 'Serhii Zhuk letter.docx', 'nuPSYS Lab Management Engineer.docx'
+2025-11-08 21:23:09 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 3 files in danishevsky@gmail.com inbox
+2025-11-08 21:23:09 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:428  | process_files_for_translation | ============================================================
+2025-11-08 21:23:09 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:429  | process_files_for_translation | Processing file: Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx (ID: 11BiL4GsbxVRkNdEuwgrNRPgQdGZ5Lpnh)
+2025-11-08 21:23:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:430  | process_files_for_translation | File properties: {'status': 'confirmed', 'upload_timestamp': '2025-11-08T21:22:52Z', 'confirmation_timestamp': '2025-11-08T21:23:03Z', 'page_count': '97', 'original_filename': 'Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx', 'source_language': 'en', 'target_language': 'fr', 'transaction_id': 'TXN-CC16CB02FC', 'customer_email': 'danishevsky@gmail.com'}
+2025-11-08 21:23:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:431  | process_files_for_translation | Source language: en, Target language: fr
+2025-11-08 21:23:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:465  | process_files_for_translation | Downloading to: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx
+2025-11-08 21:23:10 | INFO     | EmailReader               | google_drive.py     :249  | download_file_from_google_drive | DRIVE DOWNLOAD: Starting download of 'Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx' (ID: 11BiL4GsbxVRkNdEuwgrNRPgQdGZ5Lpnh)
+2025-11-08 21:23:10 | DEBUG    | EmailReader               | google_drive.py     :253  | download_file_from_google_drive |   Destination: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx
+2025-11-08 21:23:20 | INFO     | EmailReader               | google_drive.py     :270  | download_file_from_google_drive | DRIVE DOWNLOAD SUCCESS: File 'Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx' downloaded (2387.63 KB) to /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx
+2025-11-08 21:23:20 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:473  | process_files_for_translation | File downloaded successfully
+2025-11-08 21:23:20 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:477  | process_files_for_translation | MOVE original Inbox -> Completed (before translation): Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx
+2025-11-08 21:23:20 | INFO     | EmailReader               | google_drive.py     :621  | move_file_to_folder_id    | DRIVE MOVE: Moving file 'Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx' from folder ID: 1v5czQxPrGCV-1uJg1HmLWNnbvIB6SV3g to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E
+2025-11-08 21:23:20 | DEBUG    | EmailReader               | google_drive.py     :625  | move_file_to_folder_id    |   File ID: 11BiL4GsbxVRkNdEuwgrNRPgQdGZ5Lpnh
+2025-11-08 21:23:21 | INFO     | EmailReader               | google_drive.py     :635  | move_file_to_folder_id    | DRIVE MOVE SUCCESS: File 'Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx' moved to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E
+2025-11-08 21:23:21 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:488  | process_files_for_translation | Original file moved successfully to Completed
+2025-11-08 21:23:21 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:500  | process_files_for_translation | File is already in Word format, no conversion needed
+2025-11-08 21:23:21 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:520  | process_files_for_translation | Translation output will be: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/Extended Table Figure 1 vs Figure 2 Comparison with Value An_translated.docx
+2025-11-08 21:23:21 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:523  | process_files_for_translation | Step 2: Translating document...
+2025-11-08 21:23:21 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:217  | translate_document        | Entering translate_document()
+2025-11-08 21:23:21 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:218  | translate_document        | Original: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx
+2025-11-08 21:23:21 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:219  | translate_document        | Translated: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/Extended Table Figure 1 vs Figure 2 Comparison with Value An_translated.docx
+2025-11-08 21:23:21 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:220  | translate_document        | Source lang: en, Target lang: fr
+2025-11-08 21:23:21 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:38   | find_translator_executable | Searching for translator executable
+2025-11-08 21:23:21 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:23:21 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:23:21 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:23:21 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:48   | find_translator_executable | Using configured translator path: /Users/vladimirdanishevsky/projects/GoogleTranslator/translate_document.py
+2025-11-08 21:23:21 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:55   | find_translator_executable | Configured path is GoogleTranslator script, using its venv: /Users/vladimirdanishevsky/projects/GoogleTranslator/venv/bin/python
+2025-11-08 21:23:21 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:257  | translate_document        | Using Python script for translation
+2025-11-08 21:23:21 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:258  | translate_document        |   Script: /Users/vladimirdanishevsky/projects/GoogleTranslator/translate_document.py
+2025-11-08 21:23:21 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:259  | translate_document        |   Python: /Users/vladimirdanishevsky/projects/GoogleTranslator/venv/bin/python
+2025-11-08 21:23:21 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:264  | translate_document        | Translation command: /Users/vladimirdanishevsky/projects/GoogleTranslator/venv/bin/python /Users/vladimirdanishevsky/projects/GoogleTranslator/translate_document.py -i /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx -o /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/Extended Table Figure 1 vs Figure 2 Comparison with Value An_translated.docx --source en --target fr
+2025-11-08 21:23:21 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:267  | translate_document        | Starting translation subprocess
+2025-11-08 21:23:26 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:269  | translate_document        | Translation stdout: (empty)
+2025-11-08 21:23:26 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:270  | translate_document        | Translation completed successfully
+2025-11-08 21:23:26 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:274  | translate_document        | Translated file size: 2385.66 KB
+2025-11-08 21:23:26 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:531  | process_files_for_translation | Translation process completed
+2025-11-08 21:23:26 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:547  | process_files_for_translation | Translated file size: 2385.66 KB
+2025-11-08 21:23:26 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:549  | process_files_for_translation | Uploading translated file to Completed folder
+2025-11-08 21:23:26 | INFO     | EmailReader               | google_drive.py     :183  | upload_file_to_google_drive | DRIVE UPLOAD: Uploading file 'Extended Table Figure 1 vs Figure 2 Comparison with Value An_translated.docx' (2385.66 KB) to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E
+2025-11-08 21:23:26 | DEBUG    | EmailReader               | google_drive.py     :187  | upload_file_to_google_drive |   Source path: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/Extended Table Figure 1 vs Figure 2 Comparison with Value An_translated.docx
+2025-11-08 21:23:26 | DEBUG    | EmailReader               | google_drive.py     :189  | upload_file_to_google_drive |   Properties: {'status': 'confirmed', 'upload_timestamp': '2025-11-08T21:22:52Z', 'confirmation_timestamp': '2025-11-08T21:23:03Z', 'page_count': '97', 'original_filename': 'Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx', 'source_language': 'en', 'target_language': 'fr', 'transaction_id': 'TXN-CC16CB02FC', 'customer_email': 'danishevsky@gmail.com'}
+2025-11-08 21:23:28 | INFO     | EmailReader               | google_drive.py     :204  | upload_file_to_google_drive | DRIVE UPLOAD SUCCESS: File 'Extended Table Figure 1 vs Figure 2 Comparison with Value An_translated.docx' uploaded to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E (File ID: 1rAGS7JPHzDa6Y6RM-z__U2pQ3GkExAFF)
+2025-11-08 21:23:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:562  | process_files_for_translation | Uploaded translated file successfully: Extended Table Figure 1 vs Figure 2 Comparison with Value An_translated.docx (ID: 1rAGS7JPHzDa6Y6RM-z__U2pQ3GkExAFF)
+2025-11-08 21:23:28 | INFO     | EmailReader               | google_drive.py     :669  | get_file_web_link         | Got webViewLink for file 1rAGS7JPHzDa6Y6RM-z__U2pQ3GkExAFF: https://docs.google.com/document/d/1rAGS7JPHzDa6Y6RM-z__U2pQ3GkExAFF/edit?usp=drivesdk&ouid=108218023669794979538&rtpof=true&sd=true
+2025-11-08 21:23:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:594  | process_files_for_translation | Client danishevsky@gmail.com belongs to company: Iris Trading
+2025-11-08 21:23:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:605  | process_files_for_translation | Sending webhook notification
+2025-11-08 21:23:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:606  | process_files_for_translation | Webhook URL: http://localhost:8000/submit
+2025-11-08 21:23:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:607  | process_files_for_translation | Webhook data: file=Extended Table Figure 1 vs Figure 2 Comparison with Value An_translated.docx, url=https://docs.google.com/document/d/1rAGS7JPHzDa6Y6RM-z__U2pQ3GkExAFF/edit?usp=drivesdk&ouid=108218023669794979538&rtpof=true&sd=true, user=danishevsky@gmail.com, company=Iris Trading, transaction_id=TXN-CC16CB02FC
+2025-11-08 21:23:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:612  | process_files_for_translation | Webhook response status: 200
+2025-11-08 21:23:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:615  | process_files_for_translation | Webhook notification sent successfully for: Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx
+2025-11-08 21:23:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:643  | process_files_for_translation | Cleaning up temporary files
+2025-11-08 21:23:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:647  | process_files_for_translation | Removed source file: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx
+2025-11-08 21:23:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:650  | process_files_for_translation | Removed translated file: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/Extended Table Figure 1 vs Figure 2 Comparison with Value An_translated.docx
+2025-11-08 21:23:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:658  | process_files_for_translation | File processing completed: Extended Table Figure 1 vs Figure 2 Comparison with Value An.docx
+2025-11-08 21:23:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | ============================================================
+2025-11-08 21:23:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:428  | process_files_for_translation | ============================================================
+2025-11-08 21:23:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:429  | process_files_for_translation | Processing file: Serhii Zhuk letter.docx (ID: 1wNj30ewj3mb2BvqvQMruvN1Q-nlVyvgZ)
+2025-11-08 21:23:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:430  | process_files_for_translation | File properties: {'upload_timestamp': '2025-11-08T21:22:49Z', 'target_language': 'fr', 'transaction_id': 'TXN-CC16CB02FC', 'customer_email': 'danishevsky@gmail.com', 'page_count': '101', 'status': 'confirmed', 'original_filename': 'Serhii Zhuk letter.docx', 'confirmation_timestamp': '2025-11-08T21:23:02Z', 'source_language': 'en'}
+2025-11-08 21:23:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:431  | process_files_for_translation | Source language: en, Target language: fr
+2025-11-08 21:23:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:465  | process_files_for_translation | Downloading to: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Serhii Zhuk letter.docx
+2025-11-08 21:23:28 | INFO     | EmailReader               | google_drive.py     :249  | download_file_from_google_drive | DRIVE DOWNLOAD: Starting download of 'Serhii Zhuk letter.docx' (ID: 1wNj30ewj3mb2BvqvQMruvN1Q-nlVyvgZ)
+2025-11-08 21:23:28 | DEBUG    | EmailReader               | google_drive.py     :253  | download_file_from_google_drive |   Destination: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Serhii Zhuk letter.docx
+2025-11-08 21:23:42 | INFO     | EmailReader               | google_drive.py     :270  | download_file_from_google_drive | DRIVE DOWNLOAD SUCCESS: File 'Serhii Zhuk letter.docx' downloaded (2486.14 KB) to /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Serhii Zhuk letter.docx
+2025-11-08 21:23:42 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:473  | process_files_for_translation | File downloaded successfully
+2025-11-08 21:23:42 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:477  | process_files_for_translation | MOVE original Inbox -> Completed (before translation): Serhii Zhuk letter.docx
+2025-11-08 21:23:42 | INFO     | EmailReader               | google_drive.py     :621  | move_file_to_folder_id    | DRIVE MOVE: Moving file 'Serhii Zhuk letter.docx' from folder ID: 1v5czQxPrGCV-1uJg1HmLWNnbvIB6SV3g to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E
+2025-11-08 21:23:42 | DEBUG    | EmailReader               | google_drive.py     :625  | move_file_to_folder_id    |   File ID: 1wNj30ewj3mb2BvqvQMruvN1Q-nlVyvgZ
+2025-11-08 21:23:43 | INFO     | EmailReader               | google_drive.py     :635  | move_file_to_folder_id    | DRIVE MOVE SUCCESS: File 'Serhii Zhuk letter.docx' moved to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E
+2025-11-08 21:23:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:488  | process_files_for_translation | Original file moved successfully to Completed
+2025-11-08 21:23:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:500  | process_files_for_translation | File is already in Word format, no conversion needed
+2025-11-08 21:23:43 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:520  | process_files_for_translation | Translation output will be: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/Serhii Zhuk letter_translated.docx
+2025-11-08 21:23:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:523  | process_files_for_translation | Step 2: Translating document...
+2025-11-08 21:23:43 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:217  | translate_document        | Entering translate_document()
+2025-11-08 21:23:43 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:218  | translate_document        | Original: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Serhii Zhuk letter.docx
+2025-11-08 21:23:43 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:219  | translate_document        | Translated: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/Serhii Zhuk letter_translated.docx
+2025-11-08 21:23:43 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:220  | translate_document        | Source lang: en, Target lang: fr
+2025-11-08 21:23:43 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:38   | find_translator_executable | Searching for translator executable
+2025-11-08 21:23:43 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:23:43 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:23:43 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:23:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:48   | find_translator_executable | Using configured translator path: /Users/vladimirdanishevsky/projects/GoogleTranslator/translate_document.py
+2025-11-08 21:23:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:55   | find_translator_executable | Configured path is GoogleTranslator script, using its venv: /Users/vladimirdanishevsky/projects/GoogleTranslator/venv/bin/python
+2025-11-08 21:23:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:257  | translate_document        | Using Python script for translation
+2025-11-08 21:23:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:258  | translate_document        |   Script: /Users/vladimirdanishevsky/projects/GoogleTranslator/translate_document.py
+2025-11-08 21:23:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:259  | translate_document        |   Python: /Users/vladimirdanishevsky/projects/GoogleTranslator/venv/bin/python
+2025-11-08 21:23:43 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:264  | translate_document        | Translation command: /Users/vladimirdanishevsky/projects/GoogleTranslator/venv/bin/python /Users/vladimirdanishevsky/projects/GoogleTranslator/translate_document.py -i /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Serhii Zhuk letter.docx -o /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/Serhii Zhuk letter_translated.docx --source en --target fr
+2025-11-08 21:23:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:267  | translate_document        | Starting translation subprocess
+2025-11-08 21:23:49 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:269  | translate_document        | Translation stdout: (empty)
+2025-11-08 21:23:49 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:270  | translate_document        | Translation completed successfully
+2025-11-08 21:23:49 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:274  | translate_document        | Translated file size: 2471.86 KB
+2025-11-08 21:23:49 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:531  | process_files_for_translation | Translation process completed
+2025-11-08 21:23:49 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:547  | process_files_for_translation | Translated file size: 2471.86 KB
+2025-11-08 21:23:49 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:549  | process_files_for_translation | Uploading translated file to Completed folder
+2025-11-08 21:23:49 | INFO     | EmailReader               | google_drive.py     :183  | upload_file_to_google_drive | DRIVE UPLOAD: Uploading file 'Serhii Zhuk letter_translated.docx' (2471.86 KB) to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E
+2025-11-08 21:23:49 | DEBUG    | EmailReader               | google_drive.py     :187  | upload_file_to_google_drive |   Source path: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/Serhii Zhuk letter_translated.docx
+2025-11-08 21:23:49 | DEBUG    | EmailReader               | google_drive.py     :189  | upload_file_to_google_drive |   Properties: {'upload_timestamp': '2025-11-08T21:22:49Z', 'target_language': 'fr', 'transaction_id': 'TXN-CC16CB02FC', 'customer_email': 'danishevsky@gmail.com', 'page_count': '101', 'status': 'confirmed', 'original_filename': 'Serhii Zhuk letter.docx', 'confirmation_timestamp': '2025-11-08T21:23:02Z', 'source_language': 'en'}
+2025-11-08 21:23:50 | INFO     | EmailReader               | google_drive.py     :204  | upload_file_to_google_drive | DRIVE UPLOAD SUCCESS: File 'Serhii Zhuk letter_translated.docx' uploaded to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E (File ID: 1HagF77YynhCf5wxUMyL74MQ-H0dlU0KV)
+2025-11-08 21:23:50 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:562  | process_files_for_translation | Uploaded translated file successfully: Serhii Zhuk letter_translated.docx (ID: 1HagF77YynhCf5wxUMyL74MQ-H0dlU0KV)
+2025-11-08 21:23:50 | INFO     | EmailReader               | google_drive.py     :669  | get_file_web_link         | Got webViewLink for file 1HagF77YynhCf5wxUMyL74MQ-H0dlU0KV: https://docs.google.com/document/d/1HagF77YynhCf5wxUMyL74MQ-H0dlU0KV/edit?usp=drivesdk&ouid=108218023669794979538&rtpof=true&sd=true
+2025-11-08 21:23:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:594  | process_files_for_translation | Client danishevsky@gmail.com belongs to company: Iris Trading
+2025-11-08 21:23:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:605  | process_files_for_translation | Sending webhook notification
+2025-11-08 21:23:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:606  | process_files_for_translation | Webhook URL: http://localhost:8000/submit
+2025-11-08 21:23:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:607  | process_files_for_translation | Webhook data: file=Serhii Zhuk letter_translated.docx, url=https://docs.google.com/document/d/1HagF77YynhCf5wxUMyL74MQ-H0dlU0KV/edit?usp=drivesdk&ouid=108218023669794979538&rtpof=true&sd=true, user=danishevsky@gmail.com, company=Iris Trading, transaction_id=TXN-CC16CB02FC
+2025-11-08 21:23:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:612  | process_files_for_translation | Webhook response status: 200
+2025-11-08 21:23:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:615  | process_files_for_translation | Webhook notification sent successfully for: Serhii Zhuk letter.docx
+2025-11-08 21:23:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:643  | process_files_for_translation | Cleaning up temporary files
+2025-11-08 21:23:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:647  | process_files_for_translation | Removed source file: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/Serhii Zhuk letter.docx
+2025-11-08 21:23:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:650  | process_files_for_translation | Removed translated file: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/Serhii Zhuk letter_translated.docx
+2025-11-08 21:23:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:658  | process_files_for_translation | File processing completed: Serhii Zhuk letter.docx
+2025-11-08 21:23:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | ============================================================
+2025-11-08 21:23:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:428  | process_files_for_translation | ============================================================
+2025-11-08 21:23:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:429  | process_files_for_translation | Processing file: nuPSYS Lab Management Engineer.docx (ID: 1eGhH9uObfGbgR_4dN40ncSY-VFMd3MKn)
+2025-11-08 21:23:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:430  | process_files_for_translation | File properties: {'upload_timestamp': '2025-11-08T21:22:45Z', 'target_language': 'fr', 'original_filename': 'nuPSYS Lab Management Engineer.docx', 'customer_email': 'danishevsky@gmail.com', 'transaction_id': 'TXN-CC16CB02FC', 'source_language': 'en', 'page_count': '115', 'status': 'confirmed', 'confirmation_timestamp': '2025-11-08T21:23:01Z'}
+2025-11-08 21:23:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:431  | process_files_for_translation | Source language: en, Target language: fr
+2025-11-08 21:23:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:465  | process_files_for_translation | Downloading to: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/nuPSYS Lab Management Engineer.docx
+2025-11-08 21:23:51 | INFO     | EmailReader               | google_drive.py     :249  | download_file_from_google_drive | DRIVE DOWNLOAD: Starting download of 'nuPSYS Lab Management Engineer.docx' (ID: 1eGhH9uObfGbgR_4dN40ncSY-VFMd3MKn)
+2025-11-08 21:23:51 | DEBUG    | EmailReader               | google_drive.py     :253  | download_file_from_google_drive |   Destination: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/nuPSYS Lab Management Engineer.docx
+2025-11-08 21:24:10 | INFO     | EmailReader               | google_drive.py     :270  | download_file_from_google_drive | DRIVE DOWNLOAD SUCCESS: File 'nuPSYS Lab Management Engineer.docx' downloaded (2816.38 KB) to /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/nuPSYS Lab Management Engineer.docx
+2025-11-08 21:24:10 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:473  | process_files_for_translation | File downloaded successfully
+2025-11-08 21:24:10 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:477  | process_files_for_translation | MOVE original Inbox -> Completed (before translation): nuPSYS Lab Management Engineer.docx
+2025-11-08 21:24:10 | INFO     | EmailReader               | google_drive.py     :621  | move_file_to_folder_id    | DRIVE MOVE: Moving file 'nuPSYS Lab Management Engineer.docx' from folder ID: 1v5czQxPrGCV-1uJg1HmLWNnbvIB6SV3g to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E
+2025-11-08 21:24:10 | DEBUG    | EmailReader               | google_drive.py     :625  | move_file_to_folder_id    |   File ID: 1eGhH9uObfGbgR_4dN40ncSY-VFMd3MKn
+2025-11-08 21:24:11 | INFO     | EmailReader               | google_drive.py     :635  | move_file_to_folder_id    | DRIVE MOVE SUCCESS: File 'nuPSYS Lab Management Engineer.docx' moved to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E
+2025-11-08 21:24:11 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:488  | process_files_for_translation | Original file moved successfully to Completed
+2025-11-08 21:24:11 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:500  | process_files_for_translation | File is already in Word format, no conversion needed
+2025-11-08 21:24:11 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:520  | process_files_for_translation | Translation output will be: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/nuPSYS Lab Management Engineer_translated.docx
+2025-11-08 21:24:11 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:523  | process_files_for_translation | Step 2: Translating document...
+2025-11-08 21:24:11 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:217  | translate_document        | Entering translate_document()
+2025-11-08 21:24:11 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:218  | translate_document        | Original: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/nuPSYS Lab Management Engineer.docx
+2025-11-08 21:24:11 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:219  | translate_document        | Translated: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/nuPSYS Lab Management Engineer_translated.docx
+2025-11-08 21:24:11 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:220  | translate_document        | Source lang: en, Target lang: fr
+2025-11-08 21:24:11 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:38   | find_translator_executable | Searching for translator executable
+2025-11-08 21:24:11 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:24:11 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:24:11 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:24:11 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:48   | find_translator_executable | Using configured translator path: /Users/vladimirdanishevsky/projects/GoogleTranslator/translate_document.py
+2025-11-08 21:24:11 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:55   | find_translator_executable | Configured path is GoogleTranslator script, using its venv: /Users/vladimirdanishevsky/projects/GoogleTranslator/venv/bin/python
+2025-11-08 21:24:11 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:257  | translate_document        | Using Python script for translation
+2025-11-08 21:24:11 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:258  | translate_document        |   Script: /Users/vladimirdanishevsky/projects/GoogleTranslator/translate_document.py
+2025-11-08 21:24:11 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:259  | translate_document        |   Python: /Users/vladimirdanishevsky/projects/GoogleTranslator/venv/bin/python
+2025-11-08 21:24:11 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:264  | translate_document        | Translation command: /Users/vladimirdanishevsky/projects/GoogleTranslator/venv/bin/python /Users/vladimirdanishevsky/projects/GoogleTranslator/translate_document.py -i /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/nuPSYS Lab Management Engineer.docx -o /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/nuPSYS Lab Management Engineer_translated.docx --source en --target fr
+2025-11-08 21:24:11 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:267  | translate_document        | Starting translation subprocess
+2025-11-08 21:24:24 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:269  | translate_document        | Translation stdout: (empty)
+2025-11-08 21:24:24 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:270  | translate_document        | Translation completed successfully
+2025-11-08 21:24:24 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:274  | translate_document        | Translated file size: 2793.37 KB
+2025-11-08 21:24:24 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:531  | process_files_for_translation | Translation process completed
+2025-11-08 21:24:24 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:547  | process_files_for_translation | Translated file size: 2793.37 KB
+2025-11-08 21:24:24 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:549  | process_files_for_translation | Uploading translated file to Completed folder
+2025-11-08 21:24:24 | INFO     | EmailReader               | google_drive.py     :183  | upload_file_to_google_drive | DRIVE UPLOAD: Uploading file 'nuPSYS Lab Management Engineer_translated.docx' (2793.37 KB) to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E
+2025-11-08 21:24:24 | DEBUG    | EmailReader               | google_drive.py     :187  | upload_file_to_google_drive |   Source path: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/nuPSYS Lab Management Engineer_translated.docx
+2025-11-08 21:24:24 | DEBUG    | EmailReader               | google_drive.py     :189  | upload_file_to_google_drive |   Properties: {'upload_timestamp': '2025-11-08T21:22:45Z', 'target_language': 'fr', 'original_filename': 'nuPSYS Lab Management Engineer.docx', 'customer_email': 'danishevsky@gmail.com', 'transaction_id': 'TXN-CC16CB02FC', 'source_language': 'en', 'page_count': '115', 'status': 'confirmed', 'confirmation_timestamp': '2025-11-08T21:23:01Z'}
+2025-11-08 21:24:25 | INFO     | EmailReader               | google_drive.py     :204  | upload_file_to_google_drive | DRIVE UPLOAD SUCCESS: File 'nuPSYS Lab Management Engineer_translated.docx' uploaded to folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E (File ID: 1RNwCJYnYq9I0sRYRvAdH00vWND7rii3x)
+2025-11-08 21:24:25 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:562  | process_files_for_translation | Uploaded translated file successfully: nuPSYS Lab Management Engineer_translated.docx (ID: 1RNwCJYnYq9I0sRYRvAdH00vWND7rii3x)
+2025-11-08 21:24:26 | INFO     | EmailReader               | google_drive.py     :669  | get_file_web_link         | Got webViewLink for file 1RNwCJYnYq9I0sRYRvAdH00vWND7rii3x: https://docs.google.com/document/d/1RNwCJYnYq9I0sRYRvAdH00vWND7rii3x/edit?usp=drivesdk&ouid=108218023669794979538&rtpof=true&sd=true
+2025-11-08 21:24:26 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:594  | process_files_for_translation | Client danishevsky@gmail.com belongs to company: Iris Trading
+2025-11-08 21:24:26 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:605  | process_files_for_translation | Sending webhook notification
+2025-11-08 21:24:26 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:606  | process_files_for_translation | Webhook URL: http://localhost:8000/submit
+2025-11-08 21:24:26 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:607  | process_files_for_translation | Webhook data: file=nuPSYS Lab Management Engineer_translated.docx, url=https://docs.google.com/document/d/1RNwCJYnYq9I0sRYRvAdH00vWND7rii3x/edit?usp=drivesdk&ouid=108218023669794979538&rtpof=true&sd=true, user=danishevsky@gmail.com, company=Iris Trading, transaction_id=TXN-CC16CB02FC
+2025-11-08 21:24:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:612  | process_files_for_translation | Webhook response status: 200
+2025-11-08 21:24:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:615  | process_files_for_translation | Webhook notification sent successfully for: nuPSYS Lab Management Engineer.docx
+2025-11-08 21:24:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:643  | process_files_for_translation | Cleaning up temporary files
+2025-11-08 21:24:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:647  | process_files_for_translation | Removed source file: /Users/vladimirdanishevsky/projects/EmailReader/inbox_temp/nuPSYS Lab Management Engineer.docx
+2025-11-08 21:24:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:650  | process_files_for_translation | Removed translated file: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/nuPSYS Lab Management Engineer_translated.docx
+2025-11-08 21:24:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:658  | process_files_for_translation | File processing completed: nuPSYS Lab Management Engineer.docx
+2025-11-08 21:24:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | ============================================================
+2025-11-08 21:24:28 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-08 21:24:28 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-08 21:24:28 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-08 21:24:28 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~0 minute(s) (at 2025-11-08 21:23:06)
+2025-11-08 21:29:28 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-08 21:29:28 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-08 21:29:28 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-08 21:29:28 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-08 21:29:28 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-08 21:29:28 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:29:28 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:29:28 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:29:28 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-08 21:29:28 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-08 21:29:28 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-08 21:29:28 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-08 21:29:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:294  | process_files_for_translation | ============================================================
+2025-11-08 21:29:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:295  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-08 21:29:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:296  | process_files_for_translation | ============================================================
+2025-11-08 21:29:28 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:29:28 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:29:28 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:29:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:319  | process_files_for_translation | Initializing API clients
+2025-11-08 21:29:28 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /Users/vladimirdanishevsky/projects/EmailReader/credentials/secrets.json
+2025-11-08 21:29:28 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:29:28 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:29:29 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:323  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-08 21:29:29 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:122  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-08 21:29:29 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:125  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-08 21:29:29 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-08 21:29:29 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1388 bytes
+2025-11-08 21:29:29 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', '_comment_translator_executable_path', 'translator_executable_path', 'email', 'flowiseAI', 'documents', 'scheduling']
+2025-11-08 21:29:29 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:132  | get_translate_folder_id   | Translation folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:29:29 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:29:29 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 4 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-08 21:29:29 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 4 items: 'Iris Trading', 'FOREIGN-LANGUAGE-DOCS', 'Michael Testing+michael.testing@gmail.com', 'Upload Completed Docs'
+2025-11-08 21:29:29 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:331  | process_files_for_translation | Found 4 total folders at root level
+2025-11-08 21:29:29 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:339  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-08 21:29:29 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:340  | process_files_for_translation | Found 3 potential company folders
+2025-11-08 21:29:29 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Iris Trading
+2025-11-08 21:29:29 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 108CB0nZD2IMIQDjqkLy9CwANokfB9Sjk
+2025-11-08 21:29:29 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 108CB0nZD2IMIQDjqkLy9CwANokfB9Sjk
+2025-11-08 21:29:29 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-08 21:29:29 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:357  | process_files_for_translation | Found 1 nested client(s) in company 'Iris Trading': danishevsky@gmail.com
+2025-11-08 21:29:29 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: FOREIGN-LANGUAGE-DOCS
+2025-11-08 21:29:29 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:29:29 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-08 21:29:29 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'FOREIGN-LANGUAGE-DOCS'
+2025-11-08 21:29:29 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:346  | process_files_for_translation | Searching for nested clients in company folder: Upload Completed Docs
+2025-11-08 21:29:29 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:29:29 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-08 21:29:29 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:363  | process_files_for_translation | No nested clients found in company 'Upload Completed Docs'
+2025-11-08 21:29:29 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:369  | process_files_for_translation | Processing total of 2 client folders (direct + nested)
+2025-11-08 21:29:29 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: Michael Testing+michael.testing@gmail.com
+2025-11-08 21:29:29 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:29:30 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:29:30 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:29:30 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:29:30 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:29:30 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:29:30 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:29:30 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-08 21:29:30 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-08 21:29:30 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-08 21:29:30 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:29:30 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:29:30 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-08 21:29:30 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in Michael Testing+michael.testing@gmail.com inbox
+2025-11-08 21:29:30 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:376  | process_files_for_translation | Processing client: danishevsky@gmail.com
+2025-11-08 21:29:30 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:29:31 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:29:31 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 21:29:31 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:29:31 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:29:31 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 21:29:31 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:29:31 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1efMhqINm_gHq4MC5U3qnvDKvhF8JScqX
+2025-11-08 21:29:31 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-08 21:29:31 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:401  | process_files_for_translation | In-Progress folder ID: 16VyMz_eQgmsHZGlexBPujqaNYwJGeQ5E
+2025-11-08 21:29:31 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:408  | process_files_for_translation | Inbox folder ID: 1v5czQxPrGCV-1uJg1HmLWNnbvIB6SV3g
+2025-11-08 21:29:31 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1v5czQxPrGCV-1uJg1HmLWNnbvIB6SV3g
+2025-11-08 21:29:31 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1v5czQxPrGCV-1uJg1HmLWNnbvIB6SV3g
+2025-11-08 21:29:31 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:413  | process_files_for_translation | Found 0 files in danishevsky@gmail.com inbox
+2025-11-08 21:29:31 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-08 21:29:31 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-08 21:29:31 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-08 21:29:31 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~0 minute(s) (at 2025-11-08 21:29:28)
+2025-11-08 21:30:56 | INFO     | EmailReader               | index.py            :160  | <module>                  | ================================================================================
+2025-11-08 21:30:56 | INFO     | EmailReader               | index.py            :161  | <module>                  | Received keyboard interrupt - shutting down gracefully
+2025-11-08 21:30:56 | INFO     | EmailReader               | index.py            :162  | <module>                  | ================================================================================

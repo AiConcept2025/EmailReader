@@ -1,0 +1,680 @@
+openapi: 3.0.0
+info:
+  title: EmailReader API Documentation
+  description: Python application for document processing with Google Drive and FlowiseAI integration
+  version: 1.0.0
+
+components:
+  schemas:
+    FileInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: File ID
+        name:
+          type: string
+          description: File name
+    ErrorResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          enum: [Error]
+        id:
+          type: string
+          description: Error message or code
+    WebhookPayload:
+      type: object
+      required: [file_name, file_url, user_email, company_name, transaction_id]
+      properties:
+        file_name:
+          type: string
+          description: Name of the translated file
+          example: "document_translated.docx"
+        file_url:
+          type: string
+          description: Google Drive shareable URL
+          example: "https://drive.google.com/file/d/1XZxSOB1k7MW0QY7XbQ7rd5Xko/view"
+        user_email:
+          type: string
+          description: Email address of the user (from folder name)
+          example: "client@example.com"
+        company_name:
+          type: string
+          description: Company name or "Ind" for individual clients
+          example: "CompanyA"
+        transaction_id:
+          type: string
+          nullable: true
+          description: The transaction ID where this file is being referenced
+          example: "txn_12345abc"
+
+paths:
+  # Google Drive API
+  /google-drive/folders/{folderId}/files:
+    get:
+      tags: [GoogleDrive]
+      summary: Get file list in folder
+      parameters:
+        - name: folderId
+          in: path
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of files
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileInfo'
+
+  /google-drive/folders/{folderId}/subfolders:
+    get:
+      tags: [GoogleDrive]
+      summary: Get subfolder list
+      parameters:
+        - name: folderId
+          in: path
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of subfolders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileInfo'
+
+  /google-drive/upload:
+    post:
+      tags: [GoogleDrive]
+      summary: Upload file to Google Drive
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file_path, file_name]
+              properties:
+                file_path:
+                  type: string
+                file_name:
+                  type: string
+                parent_folder_id:
+                  type: string
+                description:
+                  type: string
+                properties:
+                  type: object
+                  properties:
+                    source_language:
+                      type: string
+      responses:
+        '200':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /google-drive/download:
+    post:
+      tags: [GoogleDrive]
+      summary: Download file from Google Drive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [file_id, file_path]
+              properties:
+                file_id:
+                  type: string
+                file_path:
+                  type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '400':
+          description: Failure
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+  /google-drive/move:
+    post:
+      tags: [GoogleDrive]
+      summary: Move file to folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [file_id, dest_folder_id]
+              properties:
+                file_id:
+                  type: string
+                dest_folder_id:
+                  type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+  /google-drive/folders/create:
+    post:
+      tags: [GoogleDrive]
+      summary: Create subfolder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [folder_name]
+              properties:
+                folder_name:
+                  type: string
+                parent_folder_id:
+                  type: string
+      responses:
+        '200':
+          description: Created folder info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+
+  /google-drive/file/{fileId}/property:
+    get:
+      tags: [GoogleDrive]
+      summary: Get file app property
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Property value or null
+          content:
+            application/json:
+              schema:
+                type: string
+                nullable: true
+
+  /google-drive/file/{fileId}/web-link:
+    get:
+      tags: [GoogleDrive]
+      summary: Get shareable web view link for file
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Web view link URL
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "https://drive.google.com/file/d/1XZxSOB1k7MW0QY7XbQ7rd5Xko/view"
+        '400':
+          description: File not found or error
+          content:
+            application/json:
+              schema:
+                type: string
+                example: ""
+
+  /google-drive/folder/{folderId}/name:
+    get:
+      tags: [GoogleDrive]
+      summary: Get folder name by ID
+      parameters:
+        - name: folderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Folder name
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "CompanyA"
+        '400':
+          description: Folder not found or error
+          content:
+            application/json:
+              schema:
+                type: string
+                example: ""
+
+  # FlowiseAI API
+  /flowise/document-store/upsert:
+    post:
+      tags: [FlowiseAI]
+      summary: Upsert document to document store
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [doc_path, doc_name]
+              properties:
+                doc_path:
+                  type: string
+                  description: Local file path
+                doc_name:
+                  type: string
+                  description: Document name (must match prediction name)
+                store_id:
+                  type: string
+                  description: Document store ID (optional)
+                loader_id:
+                  type: string
+                  description: Document loader ID (optional)
+      responses:
+        '200':
+          description: Upload successful
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Upload failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /flowise/prediction/create:
+    post:
+      tags: [FlowiseAI]
+      summary: Create new prediction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [doc_name]
+              properties:
+                doc_name:
+                  type: string
+                  description: Document name (must match upserted doc)
+      responses:
+        '200':
+          description: Prediction created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  id:
+                    type: string
+                  text:
+                    type: string
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Document Processing API
+  /documents/process/word:
+    post:
+      tags: [DocumentProcessing]
+      summary: Process Word document (detect language, translate if needed)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [client, file_name, document_folder]
+              properties:
+                client:
+                  type: string
+                  description: Client email
+                file_name:
+                  type: string
+                document_folder:
+                  type: string
+                target_lang:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: Processed file info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  new_file_path:
+                    type: string
+                  new_file_name:
+                    type: string
+                  original_file_name:
+                    type: string
+                  original_file_path:
+                    type: string
+
+  /documents/process/pdf:
+    post:
+      tags: [DocumentProcessing]
+      summary: Convert PDF to Word (OCR if needed), translate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [client, file_name, document_folder]
+              properties:
+                client:
+                  type: string
+                file_name:
+                  type: string
+                document_folder:
+                  type: string
+                target_lang:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: Processed file info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  new_file_path:
+                    type: string
+                  new_file_name:
+                    type: string
+                  original_file_name:
+                    type: string
+                  original_file_path:
+                    type: string
+
+  # Utilities API
+  /utils/translate:
+    post:
+      tags: [Utilities]
+      summary: Translate document to English or target language
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [original_path, translated_path]
+              properties:
+                original_path:
+                  type: string
+                translated_path:
+                  type: string
+                target_lang:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: Translation completed
+
+  /utils/pdf/searchable:
+    get:
+      tags: [Utilities]
+      summary: Check if PDF is searchable
+      parameters:
+        - name: pdf_path
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Searchability status
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+  /utils/ocr:
+    post:
+      tags: [Utilities]
+      summary: Perform OCR on PDF image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ocr_file, out_doc_file_path]
+              properties:
+                ocr_file:
+                  type: string
+                  description: Path to PDF image file
+                out_doc_file_path:
+                  type: string
+                  description: Output DOCX path
+      responses:
+        '200':
+          description: OCR completed
+
+  /utils/convert/pdf-to-docx:
+    post:
+      tags: [Utilities]
+      summary: Convert PDF to DOCX
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pdf_path, docx_path]
+              properties:
+                pdf_path:
+                  type: string
+                docx_path:
+                  type: string
+      responses:
+        '200':
+          description: Conversion completed
+
+  # Processing Workflows
+  /workflows/google-drive:
+    post:
+      tags: [Workflows]
+      summary: Process all documents from Google Drive (standard mode)
+      description: Downloads files from client Inbox, processes/translates, uploads to FlowiseAI, creates predictions, moves to In-Progress
+      responses:
+        '200':
+          description: Processing completed
+
+  /workflows/translation:
+    post:
+      tags: [Workflows]
+      summary: Process files for translation (translator mode)
+      description: Downloads files from Inbox, translates using external executable, uploads to Completed, posts webhook notification
+      responses:
+        '200':
+          description: Translation processing completed
+
+  # Webhook Notification (External Server Endpoint)
+  /submit:
+    post:
+      tags: [Webhook]
+      summary: Receive translation completion notification from EmailReader
+      description: |
+        **External server endpoint** that receives webhook notifications when EmailReader completes file translation.
+
+        **Configuration:**
+        - URL configured in EmailReader's credentials/secrets.json: `translator_url`
+        - Default: `http://localhost:8000/submit`
+        - Timeout: 30 seconds
+
+        **When Triggered:**
+        Automatically sent after EmailReader:
+        1. Downloads file from Google Drive Inbox
+        2. Translates the document
+        3. Uploads translated file to Google Drive Completed folder
+        4. Generates shareable link
+
+        **Folder Hierarchy Logic:**
+        - If client folder is at root level → `company_name = "Ind"` (Individual)
+        - If client folder is under company folder → `company_name = <CompanyFolderName>`
+        - Root folder name is taken from secrets.json `parent_folder_id`
+
+        **EmailReader Source:**
+        - File: `src/process_files_for_translation.py`
+        - Function: `process_files_for_translation()`
+        - Lines: 426-450
+
+        **Request Details:**
+        - Method: POST
+        - Content-Type: application/json
+        - Timeout: 30s
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookPayload'
+            example:
+              file_name: "Cable_Management_Changes_PRD.docx"
+              file_url: "https://docs.google.com/document/d/1cGiGynq3Q142H7NF1ONuqTztVej9IWrz/edit?usp=drivesdk"
+              user_email: "danishevsky@gmail.com"
+              company_name: "CompanyA"
+              transaction_id: "txn_12345abc"
+      responses:
+        '200':
+          description: Webhook received and processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                    example: "Translation notification received"
+        '400':
+          description: Invalid payload or missing required fields
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Missing required field: file_url"
+        '500':
+          description: Server error processing webhook
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to process notification"
+      x-emailreader-integration:
+        trigger: After translation completion
+        config_key: translator_url
+        default_url: "http://localhost:8000/submit"
+        retry_policy: No retry (logs error and continues)
+        error_handling: Logs error but does not stop processing
+      x-implementation-notes: |
+        **Server Implementation Requirements:**
+
+        1. **Endpoint:** POST /submit
+        2. **Port:** 8000 (or configured in secrets.json)
+        3. **Expected Behavior:**
+           - Accept JSON payload with file_name, file_url, user_email, company_name
+           - Validate required fields
+           - Process notification (e.g., update database, send email, trigger workflow)
+           - Return 200 status code on success
+
+        4. **Sample FastAPI Implementation:**
+           ```python
+           from fastapi import FastAPI, HTTPException
+           from pydantic import BaseModel
+
+           app = FastAPI()
+
+           class TranslationNotification(BaseModel):
+               file_name: str
+               file_url: str
+               user_email: str
+               company_name: str
+               transaction_id: str | None = None
+
+           @app.post("/submit")
+           async def receive_translation_notification(notification: TranslationNotification):
+               # Process the notification
+               print(f"Received translation: {notification.file_name}")
+               print(f"URL: {notification.file_url}")
+               print(f"User: {notification.user_email}")
+               print(f"Company: {notification.company_name}")
+               print(f"Transaction ID: {notification.transaction_id}")
+
+               # Your business logic here:
+               # - Save to database
+               # - Send email notification
+               # - Update user dashboard
+               # - Trigger next workflow step
+
+               return {"status": "success", "message": "Translation notification received"}
+           ```
+
+        5. **Error Handling:**
+           - EmailReader logs errors but does not retry
+           - Connection errors are logged with full stack trace
+           - Non-200 responses are logged with status code and response text
+
+        6. **Security Considerations:**
+           - Consider adding authentication (API key, JWT)
+           - Validate webhook source if needed
+           - Sanitize file URLs before storing
+           - Rate limiting recommended
