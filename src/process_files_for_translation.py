@@ -10,7 +10,9 @@ from typing import List, Optional, Tuple
 import requests
 
 from src.google_drive import GoogleApi
-from src.utils import read_json_secret_file
+from src.utils import read_json_secret_file, delete_file
+from src.pdf_image_ocr import is_pdf_searchable_pypdf, ocr_pdf_image_to_doc
+from src.convert_to_docx import convert_pdf_to_docx
 
 logger = logging.getLogger('EmailReader.GoogleDrive')
 
@@ -130,6 +132,72 @@ def get_translate_folder_id() -> str:
         logger.debug("Translation folder ID: %s", folder_id)
 
     return folder_id
+
+
+def convert_to_docx_for_translation(input_path: str, output_path: str) -> None:
+    """
+    Convert various file formats to DOCX for translation.
+    Supports: PDF (searchable and scanned with OCR), images (JPEG, PNG, TIFF).
+
+    Args:
+        input_path: Path to input file (PDF, image, etc.)
+        output_path: Path to output DOCX file
+
+    Raises:
+        ValueError: If file type is not supported
+        FileNotFoundError: If input file doesn't exist
+    """
+    logger.debug("Converting file to DOCX: %s -> %s", input_path, output_path)
+
+    if not os.path.exists(input_path):
+        logger.error("Input file not found: %s", input_path)
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    _, extension = os.path.splitext(input_path)
+    ext_lower = extension.lower()
+
+    # PDF files
+    if ext_lower == '.pdf':
+        logger.info("Processing PDF file...")
+        # Check if PDF is searchable or needs OCR
+        is_searchable = is_pdf_searchable_pypdf(input_path)
+        logger.info("PDF is %s", "searchable" if is_searchable else "image-based (requires OCR)")
+
+        if is_searchable:
+            logger.info("Converting searchable PDF to DOCX")
+            convert_pdf_to_docx(input_path, output_path)
+        else:
+            logger.info("Starting OCR process for scanned PDF")
+            ocr_pdf_image_to_doc(input_path, output_path)
+        logger.info("PDF to DOCX conversion completed")
+
+    # Image files - use OCR
+    elif ext_lower in ['.jpg', '.jpeg', '.png', '.tiff', '.tif', '.gif']:
+        logger.info("Processing image file with OCR: %s", ext_lower)
+        ocr_pdf_image_to_doc(input_path, output_path)
+        logger.info("Image to DOCX conversion completed")
+
+    # DOCX files - just copy
+    elif ext_lower in ['.docx', '.doc']:
+        logger.info("File is already in Word format, no conversion needed")
+        # No conversion needed, but we still need to ensure it's at output_path
+        if input_path != output_path:
+            import shutil
+            shutil.copy2(input_path, output_path)
+            logger.debug("Copied DOCX file to: %s", output_path)
+
+    else:
+        error_msg = f"Unsupported file type: {extension}. Supported: .pdf, .docx, .doc, .jpg, .jpeg, .png, .tiff, .tif, .gif"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+
+    # Verify output file was created
+    if os.path.exists(output_path):
+        file_size = os.path.getsize(output_path) / 1024  # KB
+        logger.info("DOCX file created successfully: %.2f KB", file_size)
+    else:
+        logger.error("Conversion failed - output file not found: %s", output_path)
+        raise FileNotFoundError(f"Conversion failed: {output_path}")
 
 
 def translate_document(
@@ -260,14 +328,45 @@ def process_files_for_translation() -> None:
             return
         clients = google_api.get_subfolders_list_in_folder(
             parent_folder_id=translate_folder_id)
-        logger.info("Found %d total folders", len(clients))
+        logger.info("Found %d total folders at root level", len(clients))
 
-        # Filter for client folders (with email format)
+        # Filter for direct client folders (with email format) and company folders
         client_folders = [
             c for c in clients if '@' in c['name'] and '.' in c['name']]
         companies_folders = [
             c for c in clients if c not in client_folders]
-        logger.info("Processing %d client folders", len(client_folders))
+
+        logger.info("Found %d direct client folders at root level", len(client_folders))
+        logger.info("Found %d potential company folders", len(companies_folders))
+
+        # Search for nested client folders inside company folders
+        for company in companies_folders:
+            company_name = company['name']
+            company_id = company['id']
+            logger.debug("Searching for nested clients in company folder: %s", company_name)
+
+            try:
+                nested_folders = google_api.get_subfolders_list_in_folder(
+                    parent_folder_id=company_id)
+
+                # Filter for client folders (with email format)
+                nested_client_folders = [
+                    c for c in nested_folders if '@' in c['name'] and '.' in c['name']]
+
+                if nested_client_folders:
+                    logger.info("Found %d nested client(s) in company '%s': %s",
+                              len(nested_client_folders),
+                              company_name,
+                              ', '.join(c['name'] for c in nested_client_folders))
+                    client_folders.extend(nested_client_folders)
+                else:
+                    logger.debug("No nested clients found in company '%s'", company_name)
+
+            except Exception as e:
+                logger.error("Error searching company folder '%s': %s", company_name, e)
+                continue
+
+        logger.info("Processing total of %d client folders (direct + nested)", len(client_folders))
 
         # Process each client folder
         for client in client_folders:
@@ -331,6 +430,36 @@ def process_files_for_translation() -> None:
                 logger.debug("File properties: %s", properties)
                 logger.debug("Source language: %s, Target language: %s",
                            source_language or 'auto', target_language or 'default')
+
+                # CRITICAL VALIDATION: Check if transaction_id is missing
+                if not transaction_id:
+                    logger.error("="*60)
+                    logger.error("CRITICAL ERROR: transaction_id is MISSING!")
+                    logger.error("="*60)
+                    logger.error("File Name: %s", file_name)
+                    logger.error("File ID: %s", file_id)
+                    logger.error("Client: %s", client_email)
+                    logger.error("File Properties: %s", properties)
+                    logger.error("")
+                    logger.error("CAUSE: The file was uploaded to Google Drive Inbox WITHOUT the 'transaction_id' property.")
+                    logger.error("")
+                    logger.error("IMPACT:")
+                    logger.error("  - File WILL be translated and uploaded to Completed folder")
+                    logger.error("  - Webhook notification WILL FAIL with 422 error")
+                    logger.error("  - Server cannot update transaction without transaction_id")
+                    logger.error("")
+                    logger.error("ACTION REQUIRED:")
+                    logger.error("  1. Find the external system/API that uploads files to this Inbox folder")
+                    logger.error("  2. Update that code to include 'transaction_id' in the properties dict:")
+                    logger.error("     properties = {")
+                    logger.error("         'source_language': source_lang,")
+                    logger.error("         'target_language': target_lang,")
+                    logger.error("         'transaction_id': transaction_id  # <-- ADD THIS")
+                    logger.error("     }")
+                    logger.error("  3. See TRANSACTION_ID_MISSING_ROOT_CAUSE_ANALYSIS.md for details")
+                    logger.error("="*60)
+                    logger.error("")
+                    logger.warning("Continuing with file processing, but webhook will fail...")
                 # Download file to temp inbox folder
                 source_file_path = os.path.join(inbox_folder, file_name)
                 logger.debug("Downloading to: %s", source_file_path)
@@ -343,22 +472,70 @@ def process_files_for_translation() -> None:
 
                 logger.info("File downloaded successfully")
 
+                # IMPORTANT: Move original file from Inbox to Completed NOW
+                # This prevents race conditions where multiple runs process the same file
+                logger.info("MOVE original Inbox -> Completed (before translation): %s", file_name)
+                moved = google_api.move_file_to_folder_id(
+                    file_id=file_id,
+                    dest_folder_id=completed_id
+                )
+                if not moved:
+                    logger.error(
+                        "Failed to move original file to Completed: %s - skipping",
+                        file_name)
+                    delete_file(source_file_path)
+                    continue
+                logger.info("Original file moved successfully to Completed")
+
                 filename_without_extension, extension = os.path.splitext(
                     file_name)
-                translated_file_name = f"{filename_without_extension}_translated{extension}"
+
+                # Step 2: Convert to DOCX if needed (PDF, images, etc.)
+                ext_lower = extension.lower()
+                docx_for_translation = None  # Track temp DOCX file
+
+                if ext_lower in ['.docx', '.doc']:
+                    # Already in DOCX format
+                    translation_source = source_file_path
+                    logger.info("File is already in Word format, no conversion needed")
+                else:
+                    # Need to convert to DOCX first
+                    logger.info("Step 2: Converting %s to DOCX for translation...", ext_lower)
+                    docx_for_translation = os.path.join(
+                        inbox_folder, f"{filename_without_extension}_temp.docx")
+                    try:
+                        convert_to_docx_for_translation(source_file_path, docx_for_translation)
+                        translation_source = docx_for_translation
+                    except (ValueError, FileNotFoundError) as e:
+                        logger.error("File conversion failed: %s - skipping", e)
+                        # Clean up downloaded file
+                        delete_file(source_file_path)
+                        continue
+
+                # Step 3: Translate the DOCX file
+                translated_file_name = f"{filename_without_extension}_translated.docx"
                 target_file_path = os.path.join(
                     completed_folder, translated_file_name)
 
                 logger.debug("Translation output will be: %s", target_file_path)
 
-                logger.info("Starting translation process")
-                translate_document(
-                    original_path=source_file_path,
-                    translated_path=target_file_path,
-                    source_lang=source_language,
-                    target_lang=target_language
-                )
-                logger.info("Translation process completed")
+                step_label = "Step 3:" if docx_for_translation else "Step 2:"
+                logger.info("%s Translating document...", step_label)
+                try:
+                    translate_document(
+                        original_path=translation_source,
+                        translated_path=target_file_path,
+                        source_lang=source_language,
+                        target_lang=target_language
+                    )
+                    logger.info("Translation process completed")
+                except Exception as e:
+                    logger.error("Translation failed: %s - skipping", e)
+                    # Clean up temp files
+                    delete_file(source_file_path)
+                    if docx_for_translation:
+                        delete_file(docx_for_translation)
+                    continue
 
                 # Upload translated file to Completed folder on google drive
                 if not os.path.exists(target_file_path):
@@ -372,7 +549,7 @@ def process_files_for_translation() -> None:
                 logger.info("Uploading translated file to Completed folder")
                 file_info = google_api.upload_file_to_google_drive(
                     file_path=target_file_path,
-                    file_name=file_name,
+                    file_name=translated_file_name,
                     parent_folder_id=completed_id,
                     description=description,
                     properties=properties
@@ -380,22 +557,13 @@ def process_files_for_translation() -> None:
                 completed_file_id = file_info.get('id', None)
                 if not completed_file_id:
                     logger.error(
-                        "Failed to upload translated file: %s", file_name)
+                        "Failed to upload translated file: %s", translated_file_name)
                     continue
                 logger.info("Uploaded translated file successfully: %s (ID: %s)",
-                            file_name, completed_file_id)
-                # Move original file from Inbox to Completed folder
-                logger.info(
-                    "MOVE original Inbox -> Completed: %s", file_name)
-                moved = google_api.move_file_to_folder_id(
-                    file_id=file_id,
-                    dest_folder_id=completed_id
-                )
-                if not moved:
-                    logger.error(
-                        "Failed to move original file to Completed: %s",
-                        file_name)
-                    continue
+                            translated_file_name, completed_file_id)
+
+                # Note: Original file was already moved to Completed earlier (before translation)
+                # to prevent race conditions with concurrent runs
 
                 # Get file URL for webhook
                 file_url = google_api.get_file_web_link(completed_file_id)
@@ -445,6 +613,26 @@ def process_files_for_translation() -> None:
 
                     if response.status_code == 200:
                         logger.info("Webhook notification sent successfully for: %s", file_name)
+                    elif response.status_code == 422:
+                        logger.error("="*60)
+                        logger.error("WEBHOOK FAILED: 422 Unprocessable Content")
+                        logger.error("="*60)
+                        logger.error("File: %s", file_name)
+                        logger.error("Transaction ID sent: %s", transaction_id)
+                        logger.error("Server Response: %s", response.text)
+                        logger.error("")
+                        logger.error("REASON: Server rejected the webhook because 'transaction_id' is invalid.")
+                        logger.error("")
+                        logger.error("Most likely causes:")
+                        logger.error("  1. transaction_id is None/null (file uploaded without transaction_id property)")
+                        logger.error("  2. transaction_id format is invalid")
+                        logger.error("  3. transaction_id doesn't exist in the server database")
+                        logger.error("")
+                        logger.error("CHECK THE ERROR MESSAGE ABOVE (when file was first processed)")
+                        logger.error("If you saw 'CRITICAL ERROR: transaction_id is MISSING!' then:")
+                        logger.error("  - The file in Google Drive Inbox lacks the transaction_id property")
+                        logger.error("  - Fix the external upload system to set transaction_id in file properties")
+                        logger.error("="*60)
                     else:
                         logger.error("Webhook failed for: %s, Status: %d, Response: %s",
                                    file_name, response.status_code, response.text)
@@ -459,7 +647,11 @@ def process_files_for_translation() -> None:
                         logger.debug("Removed source file: %s", source_file_path)
                     if os.path.exists(target_file_path):
                         os.remove(target_file_path)
-                        logger.debug("Removed target file: %s", target_file_path)
+                        logger.debug("Removed translated file: %s", target_file_path)
+                    # Clean up temp DOCX if it was created
+                    if docx_for_translation and os.path.exists(docx_for_translation):
+                        os.remove(docx_for_translation)
+                        logger.debug("Removed temp DOCX file: %s", docx_for_translation)
                 except Exception as e:
                     logger.warning("Error cleaning up temp files: %s", e)
 
