@@ -506,10 +506,17 @@ def process_files_for_translation() -> None:
                     try:
                         convert_to_docx_for_translation(source_file_path, docx_for_translation)
                         translation_source = docx_for_translation
-                    except (ValueError, FileNotFoundError) as e:
-                        logger.error("File conversion failed: %s - skipping", e)
+                    except (ValueError, FileNotFoundError, RuntimeError) as e:
+                        logger.error("="*60)
+                        logger.error("FILE CONVERSION FAILED - SKIPPING FILE")
+                        logger.error("="*60)
+                        logger.error("File: %s", file_name)
+                        logger.error("Error: %s", e)
+                        logger.error("="*60)
                         # Clean up downloaded file
                         delete_file(source_file_path)
+                        if docx_for_translation:
+                            delete_file(docx_for_translation)
                         continue
 
                 # Step 3: Translate the DOCX file
