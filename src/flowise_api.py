@@ -1,6 +1,7 @@
 """
 Module implements FlowiseAI API with enhanced logging
 """
+import json
 import logging
 import os
 # import uuid
@@ -168,12 +169,22 @@ class FlowiseAiAPI:
             doc_path: str,
             doc_name: str | None = None,
             store_id: str | None = None,
-            loader_id: str | None = None) -> Dict[object, object]:
+            loader_id: str | None = None,
+            metadata: Dict[str, str] | None = None) -> Dict[object, object]:
         """
         Upsert document to document store with enhanced logging
+
+        Args:
+            doc_path: Path to the document file
+            doc_name: Name of the document
+            store_id: Document store ID (uses default if None)
+            loader_id: Document loader ID (uses default if None)
+            metadata: Optional metadata dict to attach to the document
         """
         logger.info("Starting document upsert - Name: %s", doc_name)
         logger.debug("Document path: %s", doc_path)
+        if metadata:
+            logger.debug("Metadata provided: %s", metadata)
 
         try:
             # Validate inputs
@@ -204,6 +215,12 @@ class FlowiseAiAPI:
                 form_data = {
                     "files": (doc_name, file)
                 }
+
+                # Add metadata field if provided
+                if metadata:
+                    form_data["metadata"] = (None, json.dumps(metadata), 'application/json')
+                    logger.debug("Added metadata to form_data")
+
                 body_data = {
                     "docId": loader_id
                 }
@@ -333,14 +350,14 @@ class FlowiseAiAPI:
             # Use the original Flowise API endpoint (without /api/v1/)
             url = f"{self.API_URL}/prediction/{self.CHATFLOW_ID}"
             headers = {
-                "Authorization": f"Bearer {self.API_KEY}"
+                "Authorization": f"Bearer {self.API_KEY}",
+                "Content-Type": "application/json"
             }
 
-            # Use the original body structure that was working
+            # Use simplified body structure with streaming flag
             data_body: Dict[str, object] = {
                 "question": doc_name,
-                "overrideConfig": {},
-                "history": []
+                "streaming": False
             }
 
             logger.debug("POST request to: %s", url)
