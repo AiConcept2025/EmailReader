@@ -50,25 +50,32 @@ def find_translator_executable() -> Optional[Tuple[Path, Path]]:
                 if path.exists():
                     logger.info("Using configured translator path: %s", path)
 
-                    # Check if configured path is GoogleTranslator's Python script
+                    # Check if configured path is
+                    # GoogleTranslator's Python script
                     if path.suffix == '.py' and 'GoogleTranslator' in str(path):
                         # Try to use GoogleTranslator's venv
                         google_translator_venv = Path(
                             __file__).parent.parent.parent / 'GoogleTranslator' / 'venv' / 'bin' / 'python'
                         if google_translator_venv.exists():
                             logger.info(
-                                "Configured path is GoogleTranslator script, using its venv: %s", google_translator_venv)
+                                ("Configured path is GoogleTranslator script"
+                                 ", using its venv: %s"),
+                                google_translator_venv)
                             return (path.resolve(), google_translator_venv)
                         else:
                             logger.warning(
-                                "GoogleTranslator venv not found, using current Python (may have missing dependencies)"
+                                ("GoogleTranslator venv not found, using"
+                                 " current Python (may have missing "
+                                 "dependencies)")
                             )
 
-                    # For other configured paths, use current Python interpreter
+                    # For other configured paths, use current "
+                    # "Python interpreter
                     return (path, Path(sys.executable))
                 else:
                     logger.warning(
-                        "Configured translator path does not exist: %s", configured_path)
+                        "Configured translator path does not exist: %s",
+                        configured_path)
     except Exception as e:
         logger.debug("Error reading configuration: %s", e)
 
@@ -90,13 +97,15 @@ def find_translator_executable() -> Optional[Tuple[Path, Path]]:
         else:
             logger.warning(
                 "GoogleTranslator venv not found at: %s. "
-                "Using current Python interpreter (may have missing dependencies)",
+                "Using current Python interpreter (may have "
+                "missing dependencies)",
                 google_translator_venv
             )
             return (google_translator_py.resolve(), Path(sys.executable))
     else:
         logger.debug(
-            "GoogleTranslator Python script not found at: %s", google_translator_py)
+            "GoogleTranslator Python script not found at: %s",
+            google_translator_py)
 
     # Try GoogleTranslator project (sibling directory) - compiled executable
     google_translator_bin = Path(
@@ -144,7 +153,6 @@ def get_translate_folder_id() -> str:
         logger.warning("No 'parent_folder_id' found in configuration")
     else:
         logger.debug("Translation folder ID: %s", folder_id)
-
     return folder_id
 
 
@@ -717,7 +725,7 @@ def process_files_for_translation() -> None:
         # Process each client folder
         for client in client_folders:
             client_email: str = client.get('name', '')
-            client_folder_id: str | None = client.get('id', None)
+            client_folder_id: str = client.get('id')
 
             logger.info("Processing client: %s", client_email)
 

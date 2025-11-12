@@ -860,3 +860,1086 @@
 2025-11-08 21:30:56 | INFO     | EmailReader               | index.py            :160  | <module>                  | ================================================================================
 2025-11-08 21:30:56 | INFO     | EmailReader               | index.py            :161  | <module>                  | Received keyboard interrupt - shutting down gracefully
 2025-11-08 21:30:56 | INFO     | EmailReader               | index.py            :162  | <module>                  | ================================================================================
+2025-11-10 17:18:35 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-10 17:18:35 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-10 17:18:35 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-10 17:18:35 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1256 bytes
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:18:36 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-10 17:18:36 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1256 bytes
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-10 17:18:36 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-10 17:18:36 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-10 17:18:36 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-10 17:18:36 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1256 bytes
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: no translator (type: str)
+2025-11-10 17:18:36 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: no translator
+2025-11-10 17:18:36 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: no translator
+2025-11-10 17:18:36 | INFO     | EmailReader               | index.py            :117  | run_and_log               | Starting standard processing workflow
+2025-11-10 17:18:36 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:30   | process_google_drive      | ============================================================
+2025-11-10 17:18:36 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:31   | process_google_drive      | Starting Google Drive processing cycle
+2025-11-10 17:18:36 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:32   | process_google_drive      | ============================================================
+2025-11-10 17:18:36 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:38   | process_google_drive      | Initializing API clients
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1256 bytes
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:18:36 | INFO     | EmailReader.Flowise       | flowise_api.py      :26   | __init__                  | Initializing FlowiseAI API client
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Flowise       | flowise_api.py      :30   | __init__                  | Loading secrets from: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1256 bytes
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:18:36 | INFO     | EmailReader.Flowise       | flowise_api.py      :49   | __init__                  | FlowiseAI API initialized - URL: http://74.208.74.244:4000/api/v1
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Flowise       | flowise_api.py      :50   | __init__                  | Document Store ID: 01aebc69-b969-45d8-9ed6-f7a9146c16e3
+2025-11-10 17:18:36 | DEBUG    | EmailReader.Flowise       | flowise_api.py      :51   | __init__                  | Document Loader ID: 7daecac8-21e8-4e18-a2e4-d810dcbd8ff7
+2025-11-10 17:18:36 | DEBUG    | EmailReader.DocProcessor  | process_documents.py:34   | __init__                  | Initializing DocProcessor with path: /home/vlad/projects/EmailReader/data/documents
+2025-11-10 17:18:36 | DEBUG    | EmailReader.DocProcessor  | process_documents.py:41   | __init__                  | DocProcessor initialized successfully
+2025-11-10 17:18:36 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:46   | process_google_drive      | Fetching client folders from Google Drive
+2025-11-10 17:18:36 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:50   | process_google_drive      | Root folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:18:36 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:18:37 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:18:37 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-10 17:18:37 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:53   | process_google_drive      | Found 1 total folders at root level
+2025-11-10 17:18:37 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:61   | process_google_drive      | Found 1 direct client folders at root level
+2025-11-10 17:18:37 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:62   | process_google_drive      | Found 0 potential company folders
+2025-11-10 17:18:37 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:91   | process_google_drive      | Processing total of 1 client folders (direct + nested)
+2025-11-10 17:18:37 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:102  | process_google_drive      | 
+2025-11-10 17:18:37 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:103  | process_google_drive      | ============================================================
+2025-11-10 17:18:37 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:104  | process_google_drive      | Processing client 1/1: danishevsky@gmail.com
+2025-11-10 17:18:37 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:105  | process_google_drive      |   Client folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:18:37 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:106  | process_google_drive      | ============================================================
+2025-11-10 17:18:37 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:109  | process_google_drive      | Verifying required subfolders: Inbox, In-Progress, Temp
+2025-11-10 17:18:37 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:18:37 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 5 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:18:37 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'completed', 'Processed', 'Completed', 'Temp', 'Inbox'
+2025-11-10 17:18:37 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:120  | process_google_drive      |   Subfolder exists: 'Inbox'
+2025-11-10 17:18:37 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:18:37 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 5 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:18:37 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'completed', 'Processed', 'Completed', 'Temp', 'Inbox'
+2025-11-10 17:18:37 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:114  | process_google_drive      | Creating missing subfolder 'In-Progress' for client danishevsky@gmail.com
+2025-11-10 17:18:37 | INFO     | EmailReader               | google_drive.py     :411  | create_subfolder_in_folder | DRIVE CREATE FOLDER: Creating subfolder 'In-Progress' in parent folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:18:38 | INFO     | EmailReader               | google_drive.py     :426  | create_subfolder_in_folder | DRIVE CREATE FOLDER SUCCESS: Created subfolder 'In-Progress' (ID: 1sSLSbqFqCEOv5dn-AzywpitQ_5VpWL1I) in parent ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:18:38 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:18:38 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:18:38 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:18:38 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:120  | process_google_drive      |   Subfolder exists: 'Temp'
+2025-11-10 17:18:38 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:123  | process_google_drive      | Retrieving subfolder IDs for client danishevsky@gmail.com
+2025-11-10 17:18:38 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:18:38 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:18:38 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:18:38 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:131  | process_google_drive      |   In-Progress folder ID: 1sSLSbqFqCEOv5dn-AzywpitQ_5VpWL1I
+2025-11-10 17:18:38 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:147  | process_google_drive      |   Inbox folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:18:38 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:150  | process_google_drive      | Checking Inbox for new files...
+2025-11-10 17:18:38 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:18:39 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:18:39 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:155  | process_google_drive      |   No files found in Inbox
+2025-11-10 17:18:39 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:344  | process_google_drive      | Google Drive processing cycle completed
+2025-11-10 17:18:39 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:345  | process_google_drive      | ============================================================
+2025-11-10 17:18:39 | INFO     | EmailReader               | index.py            :119  | run_and_log               | Standard processing workflow completed
+2025-11-10 17:18:39 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-10 17:18:39 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-10 17:18:39 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~4 minute(s) (at 2025-11-10 17:23:36)
+2025-11-10 17:18:39 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Initial scan complete - Next cycle in ~4 minute(s) (at 2025-11-10 17:23:36)
+2025-11-10 17:18:39 | INFO     | EmailReader               | index.py            :152  | <module>                  | Entering main scheduler loop
+2025-11-10 17:18:39 | DEBUG    | EmailReader               | index.py            :153  | <module>                  | Scheduler will check every 1 second for pending jobs
+2025-11-10 17:19:15 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-10 17:19:15 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-10 17:19:15 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-10 17:19:15 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1256 bytes
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:19:15 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-10 17:19:15 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1256 bytes
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-10 17:19:15 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-10 17:19:15 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-10 17:19:15 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-10 17:19:15 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1256 bytes
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: no translator (type: str)
+2025-11-10 17:19:15 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: no translator
+2025-11-10 17:19:15 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: no translator
+2025-11-10 17:19:15 | INFO     | EmailReader               | index.py            :117  | run_and_log               | Starting standard processing workflow
+2025-11-10 17:19:15 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:30   | process_google_drive      | ============================================================
+2025-11-10 17:19:15 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:31   | process_google_drive      | Starting Google Drive processing cycle
+2025-11-10 17:19:15 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:32   | process_google_drive      | ============================================================
+2025-11-10 17:19:15 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:38   | process_google_drive      | Initializing API clients
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1256 bytes
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:19:15 | INFO     | EmailReader.Flowise       | flowise_api.py      :26   | __init__                  | Initializing FlowiseAI API client
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Flowise       | flowise_api.py      :30   | __init__                  | Loading secrets from: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1256 bytes
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:19:15 | INFO     | EmailReader.Flowise       | flowise_api.py      :49   | __init__                  | FlowiseAI API initialized - URL: http://74.208.74.244:4000/api/v1
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Flowise       | flowise_api.py      :50   | __init__                  | Document Store ID: 01aebc69-b969-45d8-9ed6-f7a9146c16e3
+2025-11-10 17:19:15 | DEBUG    | EmailReader.Flowise       | flowise_api.py      :51   | __init__                  | Document Loader ID: 7daecac8-21e8-4e18-a2e4-d810dcbd8ff7
+2025-11-10 17:19:15 | DEBUG    | EmailReader.DocProcessor  | process_documents.py:34   | __init__                  | Initializing DocProcessor with path: /home/vlad/projects/EmailReader/data/documents
+2025-11-10 17:19:15 | DEBUG    | EmailReader.DocProcessor  | process_documents.py:41   | __init__                  | DocProcessor initialized successfully
+2025-11-10 17:19:15 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:46   | process_google_drive      | Fetching client folders from Google Drive
+2025-11-10 17:19:15 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:50   | process_google_drive      | Root folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:19:15 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:19:16 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:19:16 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-10 17:19:16 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:53   | process_google_drive      | Found 1 total folders at root level
+2025-11-10 17:19:16 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:61   | process_google_drive      | Found 1 direct client folders at root level
+2025-11-10 17:19:16 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:62   | process_google_drive      | Found 0 potential company folders
+2025-11-10 17:19:16 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:91   | process_google_drive      | Processing total of 1 client folders (direct + nested)
+2025-11-10 17:19:16 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:102  | process_google_drive      | 
+2025-11-10 17:19:16 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:103  | process_google_drive      | ============================================================
+2025-11-10 17:19:16 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:104  | process_google_drive      | Processing client 1/1: danishevsky@gmail.com
+2025-11-10 17:19:16 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:105  | process_google_drive      |   Client folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:19:16 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:106  | process_google_drive      | ============================================================
+2025-11-10 17:19:16 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:109  | process_google_drive      | Verifying required subfolders: Inbox, In-Progress, Temp
+2025-11-10 17:19:16 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:19:16 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:19:16 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:19:16 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:120  | process_google_drive      |   Subfolder exists: 'Inbox'
+2025-11-10 17:19:16 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:19:16 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:19:16 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:19:16 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:120  | process_google_drive      |   Subfolder exists: 'In-Progress'
+2025-11-10 17:19:16 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:19:17 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:19:17 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:19:17 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:120  | process_google_drive      |   Subfolder exists: 'Temp'
+2025-11-10 17:19:17 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:123  | process_google_drive      | Retrieving subfolder IDs for client danishevsky@gmail.com
+2025-11-10 17:19:17 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:19:17 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:19:17 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:19:17 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:131  | process_google_drive      |   In-Progress folder ID: 1sSLSbqFqCEOv5dn-AzywpitQ_5VpWL1I
+2025-11-10 17:19:17 | DEBUG    | EmailReader.GoogleDrive   | process_google_drive.py:147  | process_google_drive      |   Inbox folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:19:17 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:150  | process_google_drive      | Checking Inbox for new files...
+2025-11-10 17:19:17 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:19:17 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:19:17 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:155  | process_google_drive      |   No files found in Inbox
+2025-11-10 17:19:17 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:344  | process_google_drive      | Google Drive processing cycle completed
+2025-11-10 17:19:17 | INFO     | EmailReader.GoogleDrive   | process_google_drive.py:345  | process_google_drive      | ============================================================
+2025-11-10 17:19:17 | INFO     | EmailReader               | index.py            :119  | run_and_log               | Standard processing workflow completed
+2025-11-10 17:19:17 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-10 17:19:17 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-10 17:19:17 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~4 minute(s) (at 2025-11-10 17:24:15)
+2025-11-10 17:19:17 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Initial scan complete - Next cycle in ~4 minute(s) (at 2025-11-10 17:24:15)
+2025-11-10 17:19:17 | INFO     | EmailReader               | index.py            :152  | <module>                  | Entering main scheduler loop
+2025-11-10 17:19:17 | DEBUG    | EmailReader               | index.py            :153  | <module>                  | Scheduler will check every 1 second for pending jobs
+2025-11-10 17:20:04 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-10 17:20:04 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-10 17:20:04 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-10 17:20:04 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-10 17:20:04 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:20:04 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:20:04 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:20:04 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-10 17:20:04 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-10 17:20:04 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:20:04 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:20:04 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-10 17:20:04 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-10 17:20:04 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-10 17:20:04 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-10 17:20:04 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-10 17:20:04 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:20:04 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:20:04 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:20:04 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-10 17:20:04 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-10 17:20:04 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-10 17:20:04 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-10 17:20:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:631  | process_files_for_translation | ============================================================
+2025-11-10 17:20:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:632  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-10 17:20:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:633  | process_files_for_translation | ============================================================
+2025-11-10 17:20:08 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:20:08 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:20:08 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:20:08 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:656  | process_files_for_translation | Initializing API clients
+2025-11-10 17:20:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-10 17:20:08 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:136  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-10 17:20:08 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:139  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-10 17:20:08 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:20:08 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:20:08 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:20:08 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:146  | get_translate_folder_id   | Translation folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:20:08 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:20:08 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:20:08 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-10 17:20:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:667  | process_files_for_translation | Found 1 total folders at root level
+2025-11-10 17:20:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:676  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-10 17:20:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:678  | process_files_for_translation | Found 0 potential company folders
+2025-11-10 17:20:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:713  | process_files_for_translation | Processing total of 1 client folders (direct + nested)
+2025-11-10 17:20:08 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:722  | process_files_for_translation | Processing client: danishevsky@gmail.com
+2025-11-10 17:20:08 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:09 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:09 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:20:09 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:09 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:09 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:20:09 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:09 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:09 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:20:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:747  | process_files_for_translation | In-Progress folder ID: 1aci2eshHwF6hFcEu4QZaW_nStdPZJuFy
+2025-11-10 17:20:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:754  | process_files_for_translation | Inbox folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:20:09 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:20:09 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:20:09 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:759  | process_files_for_translation | Found 0 files in danishevsky@gmail.com inbox
+2025-11-10 17:20:36 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-10 17:20:36 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-10 17:20:36 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-10 17:20:36 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-10 17:20:37 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:20:37 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:20:37 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:20:37 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-10 17:20:37 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-10 17:20:37 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:20:37 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:20:37 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-10 17:20:37 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-10 17:20:37 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-10 17:20:37 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-10 17:20:37 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-10 17:20:37 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:20:37 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:20:37 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:20:37 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-10 17:20:37 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-10 17:20:37 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-10 17:20:37 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-10 17:20:42 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:631  | process_files_for_translation | ============================================================
+2025-11-10 17:20:42 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:632  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-10 17:20:42 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:633  | process_files_for_translation | ============================================================
+2025-11-10 17:20:42 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:20:42 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:20:42 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:20:42 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:656  | process_files_for_translation | Initializing API clients
+2025-11-10 17:20:42 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-10 17:20:42 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:136  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-10 17:20:42 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:139  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-10 17:20:42 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:20:42 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:20:42 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:20:42 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:146  | get_translate_folder_id   | Translation folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:20:42 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:20:43 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:20:43 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-10 17:20:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:667  | process_files_for_translation | Found 1 total folders at root level
+2025-11-10 17:20:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:676  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-10 17:20:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:678  | process_files_for_translation | Found 0 potential company folders
+2025-11-10 17:20:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:713  | process_files_for_translation | Processing total of 1 client folders (direct + nested)
+2025-11-10 17:20:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:722  | process_files_for_translation | Processing client: danishevsky@gmail.com
+2025-11-10 17:20:43 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:43 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:43 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:20:43 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:44 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:44 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:20:44 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:44 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:20:44 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:20:44 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:747  | process_files_for_translation | In-Progress folder ID: 1aci2eshHwF6hFcEu4QZaW_nStdPZJuFy
+2025-11-10 17:20:44 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:754  | process_files_for_translation | Inbox folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:20:44 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:20:44 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:20:44 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:759  | process_files_for_translation | Found 0 files in danishevsky@gmail.com inbox
+2025-11-10 17:20:48 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-10 17:20:48 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-10 17:20:48 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-10 17:20:48 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~4 minute(s) (at 2025-11-10 17:25:37)
+2025-11-10 17:20:48 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Initial scan complete - Next cycle in ~4 minute(s) (at 2025-11-10 17:25:37)
+2025-11-10 17:20:48 | INFO     | EmailReader               | index.py            :152  | <module>                  | Entering main scheduler loop
+2025-11-10 17:20:48 | DEBUG    | EmailReader               | index.py            :153  | <module>                  | Scheduler will check every 1 second for pending jobs
+2025-11-10 17:21:00 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-10 17:21:00 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-10 17:21:00 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-10 17:21:00 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:21:01 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-10 17:21:01 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-10 17:21:01 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-10 17:21:01 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-10 17:21:01 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-10 17:21:01 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-10 17:21:01 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-10 17:21:01 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-10 17:21:01 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-10 17:21:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:631  | process_files_for_translation | ============================================================
+2025-11-10 17:21:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:632  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-10 17:21:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:633  | process_files_for_translation | ============================================================
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:21:01 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:656  | process_files_for_translation | Initializing API clients
+2025-11-10 17:21:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-10 17:21:01 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:136  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-10 17:21:01 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:139  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:21:01 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:21:01 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:146  | get_translate_folder_id   | Translation folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:21:01 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-10 17:21:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:667  | process_files_for_translation | Found 1 total folders at root level
+2025-11-10 17:21:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:676  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-10 17:21:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:678  | process_files_for_translation | Found 0 potential company folders
+2025-11-10 17:21:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:713  | process_files_for_translation | Processing total of 1 client folders (direct + nested)
+2025-11-10 17:21:01 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:722  | process_files_for_translation | Processing client: danishevsky@gmail.com
+2025-11-10 17:21:01 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:21:02 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:21:02 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:21:02 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:21:02 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:21:02 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:21:02 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:21:02 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 6 folders in folder ID: 1m9JiQ05jKJlVSnK2MzU9v9Wcv3OwA7ax
+2025-11-10 17:21:02 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'In-Progress', 'completed', 'Processed', 'Completed', 'Temp'
+2025-11-10 17:21:02 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:747  | process_files_for_translation | In-Progress folder ID: 1aci2eshHwF6hFcEu4QZaW_nStdPZJuFy
+2025-11-10 17:21:02 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:754  | process_files_for_translation | Inbox folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:21:02 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:21:03 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 files in folder ID: 1vQkjp9xfdiHJxBWnHufsYCAlTHvRTt7b
+2025-11-10 17:21:03 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:759  | process_files_for_translation | Found 0 files in danishevsky@gmail.com inbox
+2025-11-10 17:24:45 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-10 17:24:45 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-10 17:24:45 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-10 17:24:45 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:24:46 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-10 17:24:46 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-10 17:24:46 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-10 17:24:46 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-10 17:24:46 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-10 17:24:46 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-10 17:24:46 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-10 17:24:46 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-10 17:24:46 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-10 17:24:46 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:631  | process_files_for_translation | ============================================================
+2025-11-10 17:24:46 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:632  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-10 17:24:46 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:633  | process_files_for_translation | ============================================================
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:24:46 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:656  | process_files_for_translation | Initializing API clients
+2025-11-10 17:24:46 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-10 17:24:46 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:136  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-10 17:24:46 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:139  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 17:24:46 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 17:24:46 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:146  | get_translate_folder_id   | Translation folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:24:46 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:24:47 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 10cuhXozIf5KFlNK4L1O1QlbKFXO4p1AP
+2025-11-10 17:24:47 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-10 17:24:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:667  | process_files_for_translation | Found 1 total folders at root level
+2025-11-10 17:24:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:676  | process_files_for_translation | Found 1 direct client folders at root level
+2025-11-10 17:24:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:678  | process_files_for_translation | Found 0 potential company folders
+2025-11-10 17:24:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:713  | process_files_for_translation | Processing total of 1 client folders (direct + nested)
+2025-11-10 22:17:16 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-10 22:17:16 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-10 22:17:16 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-10 22:17:16 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 22:17:17 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-10 22:17:17 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-10 22:17:17 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-10 22:17:17 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-10 22:17:17 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-10 22:17:17 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-10 22:17:17 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-10 22:17:17 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-10 22:17:17 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-10 22:17:17 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:631  | process_files_for_translation | ============================================================
+2025-11-10 22:17:17 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:632  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-10 22:17:17 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:633  | process_files_for_translation | ============================================================
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 22:17:17 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:656  | process_files_for_translation | Initializing API clients
+2025-11-10 22:17:17 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-10 22:17:17 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:136  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-10 22:17:17 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:139  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-10 22:17:17 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 22:17:17 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:146  | get_translate_folder_id   | Translation folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE41qH8H
+2025-11-10 22:17:17 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE41qH8H
+2025-11-10 22:17:17 | ERROR    | EmailReader               | google_drive.py     :113  | get_item_list_in_folder   | Failed to list folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE41qH8H - <HttpError 404 when requesting https://www.googleapis.com/drive/v3/files?q=%271yMgwBceXBRAPTeSBuuQs0cdelE41qH8H%27+in+parents+and+mimeType+%3D+%27application%2Fvnd.google-apps.folder%27+and+trashed%3Dfalse+&fields=nextPageToken%2C+files%28id%2C+name%2C+mimeType%2C+parents%2Cproperties%2C+description%29&alt=json returned "File not found: .". Details: "[{'message': 'File not found: .', 'domain': 'global', 'reason': 'notFound', 'location': 'fileId', 'locationType': 'parameter'}]">
+2025-11-10 22:17:17 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:667  | process_files_for_translation | Found 0 total folders at root level
+2025-11-10 22:17:17 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:676  | process_files_for_translation | Found 0 direct client folders at root level
+2025-11-10 22:17:17 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:678  | process_files_for_translation | Found 0 potential company folders
+2025-11-10 22:17:17 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:713  | process_files_for_translation | Processing total of 0 client folders (direct + nested)
+2025-11-10 22:17:26 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-10 22:17:26 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-10 22:17:26 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-10 22:17:26 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~4 minute(s) (at 2025-11-10 22:22:17)
+2025-11-10 22:17:26 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Initial scan complete - Next cycle in ~4 minute(s) (at 2025-11-10 22:22:17)
+2025-11-10 22:17:26 | INFO     | EmailReader               | index.py            :152  | <module>                  | Entering main scheduler loop
+2025-11-10 22:17:26 | DEBUG    | EmailReader               | index.py            :153  | <module>                  | Scheduler will check every 1 second for pending jobs
+2025-11-10 22:17:50 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-10 22:17:50 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-10 22:17:50 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-10 22:17:50 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1248 bytes
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 22:17:51 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-10 22:17:51 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1248 bytes
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-10 22:17:51 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-10 22:17:51 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-10 22:17:51 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-10 22:17:51 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1248 bytes
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-10 22:17:51 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-10 22:17:51 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-10 22:17:51 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-10 22:17:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:631  | process_files_for_translation | ============================================================
+2025-11-10 22:17:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:632  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-10 22:17:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:633  | process_files_for_translation | ============================================================
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1248 bytes
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 22:17:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:656  | process_files_for_translation | Initializing API clients
+2025-11-10 22:17:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-10 22:17:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:136  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-10 22:17:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:139  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1248 bytes
+2025-11-10 22:17:51 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-10 22:17:51 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:146  | get_translate_folder_id   | Translation folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4
+2025-11-10 22:17:51 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4
+2025-11-10 22:17:51 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4
+2025-11-10 22:17:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:667  | process_files_for_translation | Found 0 total folders at root level
+2025-11-10 22:17:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:676  | process_files_for_translation | Found 0 direct client folders at root level
+2025-11-10 22:17:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:678  | process_files_for_translation | Found 0 potential company folders
+2025-11-10 22:17:51 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:713  | process_files_for_translation | Processing total of 0 client folders (direct + nested)
+2025-11-11 00:19:46 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-11 00:19:46 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-11 00:19:46 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-11 00:19:46 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:19:47 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-11 00:19:47 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-11 00:19:47 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-11 00:19:47 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-11 00:19:47 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-11 00:19:47 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-11 00:19:47 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-11 00:19:47 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-11 00:19:47 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-11 00:19:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:631  | process_files_for_translation | ============================================================
+2025-11-11 00:19:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:632  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-11 00:19:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:633  | process_files_for_translation | ============================================================
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:19:47 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:656  | process_files_for_translation | Initializing API clients
+2025-11-11 00:19:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-11 00:19:47 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:136  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-11 00:19:47 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:139  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:19:47 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:19:47 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:146  | get_translate_folder_id   | Translation folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:19:47 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:19:48 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:19:48 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-11 00:19:48 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:667  | process_files_for_translation | Found 7 total folders at root level
+2025-11-11 00:19:48 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:676  | process_files_for_translation | Found 0 direct client folders at root level
+2025-11-11 00:19:48 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:678  | process_files_for_translation | Found 7 potential company folders
+2025-11-11 00:19:48 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Completed
+2025-11-11 00:19:48 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-11 00:19:48 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-11 00:19:48 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Completed'
+2025-11-11 00:19:48 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Temp
+2025-11-11 00:19:48 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 15ZK0kV-V-r7JjnOUx8yYh0VIQhTfDEJw
+2025-11-11 00:19:48 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 15ZK0kV-V-r7JjnOUx8yYh0VIQhTfDEJw
+2025-11-11 00:19:48 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Temp'
+2025-11-11 00:19:48 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: In-Progress
+2025-11-11 00:19:48 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1CCJkPu8So1RwOsOOxz_eWS54B66ul1ut
+2025-11-11 00:19:48 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1CCJkPu8So1RwOsOOxz_eWS54B66ul1ut
+2025-11-11 00:19:48 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'In-Progress'
+2025-11-11 00:19:48 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Temp
+2025-11-11 00:19:48 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1TzseReI3BDGt9OUaBtbvSj5YIO2MRn7N
+2025-11-11 00:19:49 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1TzseReI3BDGt9OUaBtbvSj5YIO2MRn7N
+2025-11-11 00:19:49 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Temp'
+2025-11-11 00:19:49 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: files-fogeign-language
+2025-11-11 00:19:49 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9A9OeYX6gmHSU9qi9TfUovtLpm_c24-
+2025-11-11 00:19:49 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1m9A9OeYX6gmHSU9qi9TfUovtLpm_c24-
+2025-11-11 00:19:49 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'files-fogeign-language'
+2025-11-11 00:19:49 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: In-Progress
+2025-11-11 00:19:49 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1XXlkcJSBWyeDc8wkzTKtHQ-FLYMWVDI_
+2025-11-11 00:19:49 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1XXlkcJSBWyeDc8wkzTKtHQ-FLYMWVDI_
+2025-11-11 00:19:49 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'In-Progress'
+2025-11-11 00:19:49 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Inbox
+2025-11-11 00:19:49 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-11 00:19:50 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-11 00:19:50 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Inbox'
+2025-11-11 00:19:50 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:713  | process_files_for_translation | Processing total of 0 client folders (direct + nested)
+2025-11-11 00:20:18 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-11 00:20:18 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-11 00:20:18 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-11 00:20:18 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~4 minute(s) (at 2025-11-11 00:24:47)
+2025-11-11 00:20:18 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Initial scan complete - Next cycle in ~4 minute(s) (at 2025-11-11 00:24:47)
+2025-11-11 00:20:18 | INFO     | EmailReader               | index.py            :152  | <module>                  | Entering main scheduler loop
+2025-11-11 00:20:18 | DEBUG    | EmailReader               | index.py            :153  | <module>                  | Scheduler will check every 1 second for pending jobs
+2025-11-11 00:21:25 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-11 00:21:25 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-11 00:21:25 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-11 00:21:25 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:21:26 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-11 00:21:26 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-11 00:21:26 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-11 00:21:26 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-11 00:21:26 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-11 00:21:26 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-11 00:21:26 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-11 00:21:26 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-11 00:21:26 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-11 00:21:26 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:631  | process_files_for_translation | ============================================================
+2025-11-11 00:21:26 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:632  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-11 00:21:26 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:633  | process_files_for_translation | ============================================================
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:21:26 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:656  | process_files_for_translation | Initializing API clients
+2025-11-11 00:21:26 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-11 00:21:26 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:136  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-11 00:21:26 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:139  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:21:26 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:21:26 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:146  | get_translate_folder_id   | Translation folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:21:26 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:21:27 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:21:27 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-11 00:21:27 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:667  | process_files_for_translation | Found 7 total folders at root level
+2025-11-11 00:21:27 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:676  | process_files_for_translation | Found 0 direct client folders at root level
+2025-11-11 00:21:27 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:678  | process_files_for_translation | Found 7 potential company folders
+2025-11-11 00:21:27 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Completed
+2025-11-11 00:21:27 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-11 00:21:27 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-11 00:21:27 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Completed'
+2025-11-11 00:21:27 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Temp
+2025-11-11 00:21:27 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 15ZK0kV-V-r7JjnOUx8yYh0VIQhTfDEJw
+2025-11-11 00:21:27 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 15ZK0kV-V-r7JjnOUx8yYh0VIQhTfDEJw
+2025-11-11 00:21:27 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Temp'
+2025-11-11 00:21:27 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: In-Progress
+2025-11-11 00:21:27 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1CCJkPu8So1RwOsOOxz_eWS54B66ul1ut
+2025-11-11 00:21:27 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1CCJkPu8So1RwOsOOxz_eWS54B66ul1ut
+2025-11-11 00:21:27 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'In-Progress'
+2025-11-11 00:21:27 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Temp
+2025-11-11 00:21:27 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1TzseReI3BDGt9OUaBtbvSj5YIO2MRn7N
+2025-11-11 00:21:28 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1TzseReI3BDGt9OUaBtbvSj5YIO2MRn7N
+2025-11-11 00:21:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Temp'
+2025-11-11 00:21:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: files-fogeign-language
+2025-11-11 00:21:28 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9A9OeYX6gmHSU9qi9TfUovtLpm_c24-
+2025-11-11 00:21:28 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1m9A9OeYX6gmHSU9qi9TfUovtLpm_c24-
+2025-11-11 00:21:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'files-fogeign-language'
+2025-11-11 00:21:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: In-Progress
+2025-11-11 00:21:28 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1XXlkcJSBWyeDc8wkzTKtHQ-FLYMWVDI_
+2025-11-11 00:21:28 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1XXlkcJSBWyeDc8wkzTKtHQ-FLYMWVDI_
+2025-11-11 00:21:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'In-Progress'
+2025-11-11 00:21:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Inbox
+2025-11-11 00:21:28 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-11 00:21:28 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-11 00:21:28 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Inbox'
+2025-11-11 00:21:28 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:713  | process_files_for_translation | Processing total of 0 client folders (direct + nested)
+2025-11-11 00:24:48 | INFO     | EmailReader               | index.py            :115  | run_and_log               | Translation workflow completed
+2025-11-11 00:24:48 | INFO     | EmailReader               | index.py            :121  | run_and_log               | Google Drive cycle finished successfully
+2025-11-11 00:24:48 | INFO     | EmailReader               | index.py            :122  | run_and_log               | ================================================================================
+2025-11-11 00:24:48 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Next cycle in ~1 minute(s) (at 2025-11-11 00:26:26)
+2025-11-11 00:24:48 | INFO     | EmailReader               | index.py            :95   | log_next_run              | Initial scan complete - Next cycle in ~1 minute(s) (at 2025-11-11 00:26:26)
+2025-11-11 00:24:48 | INFO     | EmailReader               | index.py            :152  | <module>                  | Entering main scheduler loop
+2025-11-11 00:24:48 | DEBUG    | EmailReader               | index.py            :153  | <module>                  | Scheduler will check every 1 second for pending jobs
+2025-11-11 00:33:36 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-11 00:33:36 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-11 00:33:36 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-11 00:33:36 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-11 00:33:52 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-11 00:33:52 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-11 00:33:52 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-11 00:33:52 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-11 00:35:12 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-11 00:35:12 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-11 00:35:12 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-11 00:35:12 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:35:13 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-11 00:35:13 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-11 00:35:13 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-11 00:35:13 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-11 00:35:13 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-11 00:35:13 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:35:13 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-11 00:35:13 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-11 00:35:13 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-11 00:35:13 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-11 00:35:13 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:631  | process_files_for_translation | ============================================================
+2025-11-11 00:35:13 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:632  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-11 00:35:13 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:633  | process_files_for_translation | ============================================================
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:35:13 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:35:35 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:656  | process_files_for_translation | Initializing API clients
+2025-11-11 00:35:40 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-11 00:35:41 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:136  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-11 00:35:41 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:139  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-11 00:35:41 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:35:41 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:35:41 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:35:41 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:146  | get_translate_folder_id   | Translation folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:35:53 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:35:54 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:35:54 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-11 00:35:55 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:667  | process_files_for_translation | Found 7 total folders at root level
+2025-11-11 00:37:06 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:676  | process_files_for_translation | Found 0 direct client folders at root level
+2025-11-11 00:37:06 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:678  | process_files_for_translation | Found 7 potential company folders
+2025-11-11 00:37:20 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Completed
+2025-11-11 00:37:56 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-11 00:37:56 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-11 00:39:33 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-11 00:39:33 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-11 00:39:33 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-11 00:39:33 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-11 00:39:34 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-11 00:39:34 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:39:34 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:39:35 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-11 00:39:35 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-11 00:39:35 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:39:35 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:39:35 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-11 00:39:35 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-11 00:39:35 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-11 00:39:35 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-11 00:39:35 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-11 00:39:35 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:39:35 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:39:35 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:39:35 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-11 00:39:35 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-11 00:39:35 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-11 00:39:35 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-11 00:39:35 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:631  | process_files_for_translation | ============================================================
+2025-11-11 00:39:35 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:632  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-11 00:39:35 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:633  | process_files_for_translation | ============================================================
+2025-11-11 00:39:35 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:39:35 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:39:35 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:39:39 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:656  | process_files_for_translation | Initializing API clients
+2025-11-11 00:39:39 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-11 00:39:39 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:136  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-11 00:39:39 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:139  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-11 00:39:39 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:39:39 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:39:39 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:39:39 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:146  | get_translate_folder_id   | Translation folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:39:39 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:39:43 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 7 folders in folder ID: 1yMgwBceXBRAPTeSBuuQs0cdelE4__-nq
+2025-11-11 00:39:43 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'Completed', 'Temp', 'In-Progress', 'Temp', 'files-fogeign-language'
+2025-11-11 00:39:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:667  | process_files_for_translation | Found 7 total folders at root level
+2025-11-11 00:39:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:676  | process_files_for_translation | Found 0 direct client folders at root level
+2025-11-11 00:39:43 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:678  | process_files_for_translation | Found 7 potential company folders
+2025-11-11 00:40:05 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Completed
+2025-11-11 00:40:05 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-11 00:40:05 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 10YIPJCznc2UdNzKM9dpxIjjxm_uoiw6j
+2025-11-11 00:40:25 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Completed'
+2025-11-11 00:40:32 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Temp
+2025-11-11 00:40:32 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 15ZK0kV-V-r7JjnOUx8yYh0VIQhTfDEJw
+2025-11-11 00:40:32 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 15ZK0kV-V-r7JjnOUx8yYh0VIQhTfDEJw
+2025-11-11 00:40:48 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Temp'
+2025-11-11 00:40:48 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: In-Progress
+2025-11-11 00:40:48 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1CCJkPu8So1RwOsOOxz_eWS54B66ul1ut
+2025-11-11 00:40:48 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1CCJkPu8So1RwOsOOxz_eWS54B66ul1ut
+2025-11-11 00:40:55 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'In-Progress'
+2025-11-11 00:40:55 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Temp
+2025-11-11 00:40:55 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1TzseReI3BDGt9OUaBtbvSj5YIO2MRn7N
+2025-11-11 00:40:55 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1TzseReI3BDGt9OUaBtbvSj5YIO2MRn7N
+2025-11-11 00:41:08 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Temp'
+2025-11-11 00:41:08 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: files-fogeign-language
+2025-11-11 00:41:08 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1m9A9OeYX6gmHSU9qi9TfUovtLpm_c24-
+2025-11-11 00:41:09 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1m9A9OeYX6gmHSU9qi9TfUovtLpm_c24-
+2025-11-11 00:41:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'files-fogeign-language'
+2025-11-11 00:41:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: In-Progress
+2025-11-11 00:41:09 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1XXlkcJSBWyeDc8wkzTKtHQ-FLYMWVDI_
+2025-11-11 00:41:09 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1XXlkcJSBWyeDc8wkzTKtHQ-FLYMWVDI_
+2025-11-11 00:41:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'In-Progress'
+2025-11-11 00:41:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Inbox
+2025-11-11 00:41:09 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-11 00:41:09 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1vzxQ4-AwLWb5aJUXq2kdrUs7862hDc50
+2025-11-11 00:41:09 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Inbox'
+2025-11-11 00:41:09 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:713  | process_files_for_translation | Processing total of 0 client folders (direct + nested)
+2025-11-11 00:47:45 | INFO     | EmailReader               | logger.py           :73   | <module>                  | ================================================================================
+2025-11-11 00:47:45 | INFO     | EmailReader               | logger.py           :74   | <module>                  | EmailReader Application Started
+2025-11-11 00:47:45 | INFO     | EmailReader               | logger.py           :75   | <module>                  | Log file: /home/vlad/projects/EmailReader/logs/email_reader.log
+2025-11-11 00:47:45 | INFO     | EmailReader               | logger.py           :76   | <module>                  | ================================================================================
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: /home/vlad/projects/EmailReader/credentials/secrets.json
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:47:46 | INFO     | EmailReader               | index.py            :132  | <module>                  | ================================================================================
+2025-11-11 00:47:46 | INFO     | EmailReader               | index.py            :133  | <module>                  | EmailReader main process starting
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :134  | <module>                  | Python process started
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :137  | <module>                  | Ensuring runtime directories exist
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :59   | ensure_runtime_dirs       | Entering ensure_runtime_dirs()
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :61   | ensure_runtime_dirs       | Current working directory: /home/vlad/projects/EmailReader
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :70   | ensure_runtime_dirs       | Data directory exists: /home/vlad/projects/EmailReader/data
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :76   | ensure_runtime_dirs       | Documents directory exists: /home/vlad/projects/EmailReader/data/documents
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :84   | ensure_runtime_dirs       | last_finish_time.txt exists: /home/vlad/projects/EmailReader/data/last_finish_time.txt
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :86   | ensure_runtime_dirs       | Runtime directories ensured successfully
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :140  | <module>                  | Loading configuration
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :48   | load_interval_minutes     | Entering load_interval_minutes()
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :53   | load_interval_minutes     | Loaded interval: 5 minutes
+2025-11-11 00:47:46 | INFO     | EmailReader               | index.py            :142  | <module>                  | Configured Google Drive interval: 5 minute(s)
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :144  | <module>                  | Setting up schedule: every 5 minutes
+2025-11-11 00:47:46 | INFO     | EmailReader               | index.py            :148  | <module>                  | Running initial processing cycle
+2025-11-11 00:47:46 | INFO     | EmailReader               | index.py            :104  | run_and_log               | ================================================================================
+2025-11-11 00:47:46 | INFO     | EmailReader               | index.py            :105  | run_and_log               | Google Drive cycle started
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :106  | run_and_log               | Entering run_and_log()
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :19   | select_program_mode       | Entering select_program_mode()
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :21   | select_program_mode       | Reading configuration from: credentials/secrets.json
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | index.py            :25   | select_program_mode       | Raw program mode value: translator (type: str)
+2025-11-11 00:47:46 | INFO     | EmailReader               | index.py            :42   | select_program_mode       | Selected program mode: translator
+2025-11-11 00:47:46 | INFO     | EmailReader               | index.py            :110  | run_and_log               | Running in mode: translator
+2025-11-11 00:47:46 | INFO     | EmailReader               | index.py            :113  | run_and_log               | Starting translation workflow
+2025-11-11 00:47:46 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:631  | process_files_for_translation | ============================================================
+2025-11-11 00:47:46 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:632  | process_files_for_translation | Starting Google Drive processing cycle
+2025-11-11 00:47:46 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:633  | process_files_for_translation | ============================================================
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:47:46 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:656  | process_files_for_translation | Initializing API clients
+2025-11-11 00:47:46 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:659  | process_files_for_translation | Fetching client folders from Google Drive
+2025-11-11 00:47:46 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:136  | get_translate_folder_id   | Entering get_translate_folder_id()
+2025-11-11 00:47:46 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:139  | get_translate_folder_id   | Loading config from: credentials/secrets.json
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:47:46 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:47:46 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:146  | get_translate_folder_id   | Translation folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-11 00:47:46 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-11 00:47:47 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 5 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+2025-11-11 00:47:47 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 5 items: 'danishevsky@yahoo.com', 'Iris Trading', 'FOREIGN-LANGUAGE-DOCS', 'Michael Testing+michael.testing@gmail.com', 'Upload Completed Docs'
+2025-11-11 00:47:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:667  | process_files_for_translation | Found 5 total folders at root level
+2025-11-11 00:47:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:676  | process_files_for_translation | Found 2 direct client folders at root level
+2025-11-11 00:47:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:678  | process_files_for_translation | Found 3 potential company folders
+2025-11-11 00:47:47 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Iris Trading
+2025-11-11 00:47:47 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 108CB0nZD2IMIQDjqkLy9CwANokfB9Sjk
+2025-11-11 00:47:47 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 1 folders in folder ID: 108CB0nZD2IMIQDjqkLy9CwANokfB9Sjk
+2025-11-11 00:47:47 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 1 items: 'danishevsky@gmail.com'
+2025-11-11 00:47:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:698  | process_files_for_translation | Found 1 nested client(s) in company 'Iris Trading': danishevsky@gmail.com
+2025-11-11 00:47:47 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: FOREIGN-LANGUAGE-DOCS
+2025-11-11 00:47:47 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-11 00:47:47 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1cUeGPbqqGQ3M2wWdkV4-FG8B4XkLG8sJ
+2025-11-11 00:47:47 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'FOREIGN-LANGUAGE-DOCS'
+2025-11-11 00:47:47 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:685  | process_files_for_translation | Searching for nested clients in company folder: Upload Completed Docs
+2025-11-11 00:47:47 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-11 00:47:47 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 0 folders in folder ID: 1QLTjo4eh8vtpnCb0QwEvSO8OfyhOsfD0
+2025-11-11 00:47:47 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:704  | process_files_for_translation | No nested clients found in company 'Upload Completed Docs'
+2025-11-11 00:47:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:713  | process_files_for_translation | Processing total of 3 client folders (direct + nested)
+2025-11-11 00:47:47 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:722  | process_files_for_translation | Processing client: danishevsky@yahoo.com
+2025-11-11 00:47:47 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1i2Ych-t03BA38GQxoedK_eGx_nukIWne
+2025-11-11 00:47:48 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1i2Ych-t03BA38GQxoedK_eGx_nukIWne
+2025-11-11 00:47:48 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-11 00:47:48 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1i2Ych-t03BA38GQxoedK_eGx_nukIWne
+2025-11-11 00:47:48 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1i2Ych-t03BA38GQxoedK_eGx_nukIWne
+2025-11-11 00:47:48 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-11 00:47:48 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing folders in folder ID: 1i2Ych-t03BA38GQxoedK_eGx_nukIWne
+2025-11-11 00:47:48 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 3 folders in folder ID: 1i2Ych-t03BA38GQxoedK_eGx_nukIWne
+2025-11-11 00:47:48 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 3 items: 'Completed', 'Temp', 'Inbox'
+2025-11-11 00:47:48 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:747  | process_files_for_translation | In-Progress folder ID: 1DfTZgDZiHE9bMAdv7fQ_SsYEJUBUMSOH
+2025-11-11 00:47:48 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:754  | process_files_for_translation | Inbox folder ID: 1TIh0SiPw2iz8FCxiDkXEe8Fv36n6LoLz
+2025-11-11 00:47:48 | DEBUG    | EmailReader               | google_drive.py     :79   | get_item_list_in_folder   | Listing files in folder ID: 1TIh0SiPw2iz8FCxiDkXEe8Fv36n6LoLz
+2025-11-11 00:47:48 | INFO     | EmailReader               | google_drive.py     :106  | get_item_list_in_folder   | Found 2 files in folder ID: 1TIh0SiPw2iz8FCxiDkXEe8Fv36n6LoLz
+2025-11-11 00:47:48 | DEBUG    | EmailReader               | google_drive.py     :108  | get_item_list_in_folder   |   First 2 items: 'Lab Management Engineer.docx', 'NuVIZ_Cable_Management_Comparison_Short (1).docx'
+2025-11-11 00:47:48 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:759  | process_files_for_translation | Found 2 files in danishevsky@yahoo.com inbox
+2025-11-11 00:48:29 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:335  | translate_file            | ============================================================
+2025-11-11 00:48:29 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:336  | translate_file            | Processing file: Lab Management Engineer.docx (ID: 16yZpuFguDXChTrFOeW1wpfXFHVcCTgoC)
+2025-11-11 00:48:30 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:337  | translate_file            | File properties: {'page_count': '1', 'unit_type': 'page', 'source_language': 'en', 'original_filename': 'Lab Management Engineer.docx', 'payment_confirmed_at': '2025-11-11T00:35:42.489223', 'target_language': 'fr', 'customer_email': 'danishevsky@yahoo.com', 'status': 'payment_confirmed', 'payment_intent_id': 'payment_sq_1762821339791_z2wcp66im', 'upload_timestamp': '2025-11-10T19:34:53Z', 'user_name': 'Bob Test', 'transaction_id': 'USER612035'}
+2025-11-11 00:48:33 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:338  | translate_file            | Source language: en, Target language: fr
+2025-11-11 00:48:39 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:385  | translate_file            | Downloading to: /home/vlad/projects/EmailReader/inbox_temp/Lab Management Engineer.docx
+2025-11-11 00:48:42 | INFO     | EmailReader               | google_drive.py     :249  | download_file_from_google_drive | DRIVE DOWNLOAD: Starting download of 'Lab Management Engineer.docx' (ID: 16yZpuFguDXChTrFOeW1wpfXFHVcCTgoC)
+2025-11-11 00:48:42 | DEBUG    | EmailReader               | google_drive.py     :253  | download_file_from_google_drive |   Destination: /home/vlad/projects/EmailReader/inbox_temp/Lab Management Engineer.docx
+2025-11-11 00:48:43 | INFO     | EmailReader               | google_drive.py     :270  | download_file_from_google_drive | DRIVE DOWNLOAD SUCCESS: File 'Lab Management Engineer.docx' downloaded (45.06 KB) to /home/vlad/projects/EmailReader/inbox_temp/Lab Management Engineer.docx
+2025-11-11 00:48:46 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:393  | translate_file            | File downloaded successfully
+2025-11-11 00:48:48 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:397  | translate_file            | MOVE original Inbox -> Completed (before translation): Lab Management Engineer.docx
+2025-11-11 00:48:54 | INFO     | EmailReader               | google_drive.py     :621  | move_file_to_folder_id    | DRIVE MOVE: Moving file 'Lab Management Engineer.docx' from folder ID: 1TIh0SiPw2iz8FCxiDkXEe8Fv36n6LoLz to folder ID: 1DfTZgDZiHE9bMAdv7fQ_SsYEJUBUMSOH
+2025-11-11 00:48:54 | DEBUG    | EmailReader               | google_drive.py     :625  | move_file_to_folder_id    |   File ID: 16yZpuFguDXChTrFOeW1wpfXFHVcCTgoC
+2025-11-11 00:48:55 | INFO     | EmailReader               | google_drive.py     :635  | move_file_to_folder_id    | DRIVE MOVE SUCCESS: File 'Lab Management Engineer.docx' moved to folder ID: 1DfTZgDZiHE9bMAdv7fQ_SsYEJUBUMSOH
+2025-11-11 00:49:05 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:409  | translate_file            | Original file moved successfully to Completed
+2025-11-11 00:49:44 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:421  | translate_file            | File is already in Word format, no conversion needed
+2025-11-11 00:49:44 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:445  | translate_file            | Translation output will be: /home/vlad/projects/EmailReader/completed_temp/Lab Management Engineer_translated.docx
+2025-11-11 00:49:44 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:449  | translate_file            | Step 2: Translating document...
+2025-11-11 00:49:44 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:233  | translate_document        | Entering translate_document()
+2025-11-11 00:49:44 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:234  | translate_document        | Original: /home/vlad/projects/EmailReader/inbox_temp/Lab Management Engineer.docx
+2025-11-11 00:49:44 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:235  | translate_document        | Translated: /home/vlad/projects/EmailReader/completed_temp/Lab Management Engineer_translated.docx
+2025-11-11 00:49:44 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:236  | translate_document        | Source lang: en, Target lang: fr
+2025-11-11 00:49:44 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:41   | find_translator_executable | Searching for translator executable
+2025-11-11 00:49:44 | DEBUG    | EmailReader.Utils         | utils.py            :41   | read_json_secret_file     | Entering read_json_secret_file() for: credentials/secrets.json
+2025-11-11 00:49:44 | DEBUG    | EmailReader.Utils         | utils.py            :49   | read_json_secret_file     | Reading JSON file, size: 1253 bytes
+2025-11-11 00:49:44 | DEBUG    | EmailReader.Utils         | utils.py            :53   | read_json_secret_file     | JSON file parsed successfully, keys: ['program', 'parent_folder_id', 'translator_url', 'email', 'flowiseAI', 'documents', 'google_drive', 'scheduling']
+2025-11-11 00:49:44 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:79   | find_translator_executable | Found GoogleTranslator Python script: /home/vlad/projects/GoogleTranslator/translate_document.py
+2025-11-11 00:49:44 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:87   | find_translator_executable | Using GoogleTranslator's venv Python: /home/vlad/projects/GoogleTranslator/venv/bin/python
+2025-11-11 00:49:44 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:275  | translate_document        | Using Python script for translation
+2025-11-11 00:49:44 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:276  | translate_document        |   Script: /home/vlad/projects/GoogleTranslator/translate_document.py
+2025-11-11 00:49:44 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:277  | translate_document        |   Python: /home/vlad/projects/GoogleTranslator/venv/bin/python
+2025-11-11 00:49:44 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:283  | translate_document        | Translation command: /home/vlad/projects/GoogleTranslator/venv/bin/python /home/vlad/projects/GoogleTranslator/translate_document.py -i /home/vlad/projects/EmailReader/inbox_temp/Lab Management Engineer.docx -o /home/vlad/projects/EmailReader/completed_temp/Lab Management Engineer_translated.docx --source en --target fr
+2025-11-11 00:49:44 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:286  | translate_document        | Starting translation subprocess
+2025-11-11 00:49:57 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:289  | translate_document        | Translation stdout: (empty)
+2025-11-11 00:49:57 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:291  | translate_document        | Translation completed successfully
+2025-11-11 00:49:57 | DEBUG    | EmailReader.GoogleDrive   | process_files_for_translation.py:295  | translate_document        | Translated file size: 41.43 KB
+2025-11-11 00:50:12 | INFO     | EmailReader.GoogleDrive   | process_files_for_translation.py:457  | translate_file            | Translation process completed
