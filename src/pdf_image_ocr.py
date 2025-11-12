@@ -39,6 +39,57 @@ def get_platform() -> str:
     return app_platform
 
 
+def validate_pdf_file(pdf_path: str) -> bool:
+    """
+    Validates that a file is actually a PDF by checking magic bytes.
+
+    Args:
+        pdf_path (str): Path to the PDF file
+
+    Returns:
+        bool: True if valid PDF, False otherwise
+
+    Raises:
+        ValueError: If file is not a valid PDF
+    """
+    logger.debug("Validating PDF file: %s", pdf_path)
+
+    if not os.path.exists(pdf_path):
+        logger.error("File does not exist: %s", pdf_path)
+        raise FileNotFoundError(f"File not found: {pdf_path}")
+
+    # Check file size
+    file_size = os.path.getsize(pdf_path)
+    logger.debug("File size: %d bytes", file_size)
+
+    if file_size < 100:  # PDFs are typically > 100 bytes
+        logger.error("File too small to be valid PDF: %d bytes (minimum ~100 bytes)", file_size)
+        raise ValueError(f"Invalid PDF: file too small ({file_size} bytes)")
+
+    # Check magic bytes (PDF header: %PDF-)
+    try:
+        with open(pdf_path, 'rb') as f:
+            header = f.read(5)
+            if not header.startswith(b'%PDF-'):
+                logger.error(
+                    "Invalid PDF header: %s (expected b'%%PDF-')",
+                    header
+                )
+                raise ValueError(
+                    f"Invalid PDF file: wrong magic bytes. "
+                    f"Expected b'%PDF-', got {header!r}. "
+                    f"This file may not be a real PDF document."
+                )
+        logger.debug("PDF validation passed")
+        return True
+    except ValueError:
+        # Re-raise validation errors
+        raise
+    except Exception as e:
+        logger.error("Error validating PDF: %s", e)
+        raise ValueError(f"Failed to validate PDF file: {e}")
+
+
 def is_pdf_searchable_pypdf(pdf_path: str) -> bool:
     """
     Checks if a PDF is searchable using pypdf (by attempting to extract text).
@@ -48,9 +99,13 @@ def is_pdf_searchable_pypdf(pdf_path: str) -> bool:
         bool: True if text can be extracted, False otherwise.
         exception: If an error occurs during processing.
     Raises:
+        ValueError: If file is not a valid PDF
         Exception: If there is an error reading the PDF.
     """
     logger.debug("Entering is_pdf_searchable_pypdf() for: %s", pdf_path)
+
+    # Validate PDF format first
+    validate_pdf_file(pdf_path)
 
     try:
         if not os.path.exists(pdf_path):
@@ -81,9 +136,13 @@ def is_pdf_searchable_pypdf(pdf_path: str) -> bool:
         logger.info("PDF is not searchable - no text found in %d pages", num_pages)
         return False  # No text found
 
+    except (ValueError, FileNotFoundError):
+        # Re-raise validation errors - these are fatal
+        raise
     except Exception as e:
         logger.error('Error checking if PDF is searchable: %s', e, exc_info=True)
-        return False
+        # Don't assume it's image-based - raise error to avoid false processing
+        raise RuntimeError(f"Failed to read PDF file: {e}")
 
 
 def ocr_pdf_image_to_doc(ocr_file: str, out_doc_file_path: str) -> None:
