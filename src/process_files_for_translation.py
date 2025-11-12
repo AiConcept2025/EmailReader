@@ -768,7 +768,6 @@ def process_files_for_translation() -> None:
 
             # Process each file
             for fl in files:
-<<<<<<< HEAD
                 asyncio.run(translate_file(
                     fl,
                     client_email,
@@ -778,7 +777,6 @@ def process_files_for_translation() -> None:
                     client_folder_id,
                     translate_folder_id,
                     url))
-=======
                 file_name = fl['name']
                 file_id = fl['id']
                 # Ensure properties is a dict before accessing keys
@@ -794,7 +792,7 @@ def process_files_for_translation() -> None:
                 logger.info("Processing file: %s (ID: %s)", file_name, file_id)
                 logger.debug("File properties: %s", properties)
                 logger.debug("Source language: %s, Target language: %s",
-                           source_language or 'auto', target_language or 'default')
+                             source_language or 'auto', target_language or 'default')
 
                 # CRITICAL VALIDATION: Check if transaction_id is missing
                 if not transaction_id:
@@ -806,25 +804,34 @@ def process_files_for_translation() -> None:
                     logger.error("Client: %s", client_email)
                     logger.error("File Properties: %s", properties)
                     logger.error("")
-                    logger.error("CAUSE: The file was uploaded to Google Drive Inbox WITHOUT the 'transaction_id' property.")
+                    logger.error(
+                        "CAUSE: The file was uploaded to Google Drive Inbox WITHOUT the 'transaction_id' property.")
                     logger.error("")
                     logger.error("IMPACT:")
-                    logger.error("  - File WILL be translated and uploaded to Completed folder")
-                    logger.error("  - Webhook notification WILL FAIL with 422 error")
-                    logger.error("  - Server cannot update transaction without transaction_id")
+                    logger.error(
+                        "  - File WILL be translated and uploaded to Completed folder")
+                    logger.error(
+                        "  - Webhook notification WILL FAIL with 422 error")
+                    logger.error(
+                        "  - Server cannot update transaction without transaction_id")
                     logger.error("")
                     logger.error("ACTION REQUIRED:")
-                    logger.error("  1. Find the external system/API that uploads files to this Inbox folder")
-                    logger.error("  2. Update that code to include 'transaction_id' in the properties dict:")
+                    logger.error(
+                        "  1. Find the external system/API that uploads files to this Inbox folder")
+                    logger.error(
+                        "  2. Update that code to include 'transaction_id' in the properties dict:")
                     logger.error("     properties = {")
                     logger.error("         'source_language': source_lang,")
                     logger.error("         'target_language': target_lang,")
-                    logger.error("         'transaction_id': transaction_id  # <-- ADD THIS")
+                    logger.error(
+                        "         'transaction_id': transaction_id  # <-- ADD THIS")
                     logger.error("     }")
-                    logger.error("  3. See TRANSACTION_ID_MISSING_ROOT_CAUSE_ANALYSIS.md for details")
+                    logger.error(
+                        "  3. See TRANSACTION_ID_MISSING_ROOT_CAUSE_ANALYSIS.md for details")
                     logger.error("="*60)
                     logger.error("")
-                    logger.warning("Continuing with file processing, but webhook will fail...")
+                    logger.warning(
+                        "Continuing with file processing, but webhook will fail...")
                 # Download file to temp inbox folder
                 source_file_path = os.path.join(inbox_folder, file_name)
                 logger.debug("Downloading to: %s", source_file_path)
@@ -839,7 +846,8 @@ def process_files_for_translation() -> None:
 
                 # IMPORTANT: Move original file from Inbox to Completed NOW
                 # This prevents race conditions where multiple runs process the same file
-                logger.info("MOVE original Inbox -> Completed (before translation): %s", file_name)
+                logger.info(
+                    "MOVE original Inbox -> Completed (before translation): %s", file_name)
                 moved = google_api.move_file_to_folder_id(
                     file_id=file_id,
                     dest_folder_id=completed_id
@@ -862,14 +870,17 @@ def process_files_for_translation() -> None:
                 if ext_lower in ['.docx', '.doc']:
                     # Already in DOCX format
                     translation_source = source_file_path
-                    logger.info("File is already in Word format, no conversion needed")
+                    logger.info(
+                        "File is already in Word format, no conversion needed")
                 else:
                     # Need to convert to DOCX first
-                    logger.info("Step 2: Converting %s to DOCX for translation...", ext_lower)
+                    logger.info(
+                        "Step 2: Converting %s to DOCX for translation...", ext_lower)
                     docx_for_translation = os.path.join(
                         inbox_folder, f"{filename_without_extension}_temp.docx")
                     try:
-                        convert_to_docx_for_translation(source_file_path, docx_for_translation)
+                        convert_to_docx_for_translation(
+                            source_file_path, docx_for_translation)
                         translation_source = docx_for_translation
                     except (ValueError, FileNotFoundError, RuntimeError) as e:
                         logger.error("="*60)
@@ -889,7 +900,8 @@ def process_files_for_translation() -> None:
                 target_file_path = os.path.join(
                     completed_folder, translated_file_name)
 
-                logger.debug("Translation output will be: %s", target_file_path)
+                logger.debug("Translation output will be: %s",
+                             target_file_path)
 
                 step_label = "Step 3:" if docx_for_translation else "Step 2:"
                 logger.info("%s Translating document...", step_label)
@@ -915,7 +927,8 @@ def process_files_for_translation() -> None:
                                  target_file_path)
                     continue
 
-                translated_size = os.path.getsize(target_file_path) / 1024  # KB
+                translated_size = os.path.getsize(
+                    target_file_path) / 1024  # KB
                 logger.debug("Translated file size: %.2f KB", translated_size)
 
                 logger.info("Uploading translated file to Completed folder")
@@ -940,30 +953,37 @@ def process_files_for_translation() -> None:
                 # Get file URL for webhook
                 file_url = google_api.get_file_web_link(completed_file_id)
                 if not file_url:
-                    logger.warning("Could not retrieve webViewLink for file: %s", file_name)
+                    logger.warning(
+                        "Could not retrieve webViewLink for file: %s", file_name)
                     file_url = ""
 
                 # Determine company name from folder hierarchy
                 # Get parent folder of client folder
-                parent_folder_id = google_api.get_file_parent_folder_id(client_folder_id)
+                parent_folder_id = google_api.get_file_parent_folder_id(
+                    client_folder_id)
                 if parent_folder_id == translate_folder_id:
                     # Client is at root level (individual)
                     company_name = "Ind"
-                    logger.debug("Client %s is individual (at root level)", client_email)
+                    logger.debug(
+                        "Client %s is individual (at root level)", client_email)
                 else:
                     # Client is under a company folder
-                    company_name = google_api.get_folder_name_by_id(parent_folder_id)
+                    company_name = google_api.get_folder_name_by_id(
+                        parent_folder_id)
                     if not company_name:
                         # Fallback: check if parent name looks like email
                         company_name = "Ind"
-                        logger.warning("Could not determine company name for %s, using 'Ind'", client_email)
+                        logger.warning(
+                            "Could not determine company name for %s, using 'Ind'", client_email)
                     else:
                         # Additional check: if parent folder name contains @ and ., it's likely individual
                         if '@' in company_name and '.' in company_name:
                             company_name = "Ind"
-                            logger.debug("Parent folder %s looks like email, treating as individual", company_name)
+                            logger.debug(
+                                "Parent folder %s looks like email, treating as individual", company_name)
                         else:
-                            logger.debug("Client %s belongs to company: %s", client_email, company_name)
+                            logger.debug(
+                                "Client %s belongs to company: %s", client_email, company_name)
 
                 # Send webhook notification
                 data = {
@@ -977,59 +997,73 @@ def process_files_for_translation() -> None:
                 logger.info("Sending webhook notification")
                 logger.debug("Webhook URL: %s", url)
                 logger.debug("Webhook data: file=%s, url=%s, user=%s, company=%s, transaction_id=%s",
-                           translated_file_name, file_url, client_email, company_name, transaction_id)
+                             translated_file_name, file_url, client_email, company_name, transaction_id)
 
                 try:
-                    response = requests.post(url, json=data, headers=headers, timeout=30)
-                    logger.debug("Webhook response status: %d", response.status_code)
+                    response = requests.post(
+                        url, json=data, headers=headers, timeout=30)
+                    logger.debug("Webhook response status: %d",
+                                 response.status_code)
 
                     if response.status_code == 200:
-                        logger.info("Webhook notification sent successfully for: %s", file_name)
+                        logger.info(
+                            "Webhook notification sent successfully for: %s", file_name)
                     elif response.status_code == 422:
                         logger.error("="*60)
-                        logger.error("WEBHOOK FAILED: 422 Unprocessable Content")
+                        logger.error(
+                            "WEBHOOK FAILED: 422 Unprocessable Content")
                         logger.error("="*60)
                         logger.error("File: %s", file_name)
                         logger.error("Transaction ID sent: %s", transaction_id)
                         logger.error("Server Response: %s", response.text)
                         logger.error("")
-                        logger.error("REASON: Server rejected the webhook because 'transaction_id' is invalid.")
+                        logger.error(
+                            "REASON: Server rejected the webhook because 'transaction_id' is invalid.")
                         logger.error("")
                         logger.error("Most likely causes:")
-                        logger.error("  1. transaction_id is None/null (file uploaded without transaction_id property)")
+                        logger.error(
+                            "  1. transaction_id is None/null (file uploaded without transaction_id property)")
                         logger.error("  2. transaction_id format is invalid")
-                        logger.error("  3. transaction_id doesn't exist in the server database")
+                        logger.error(
+                            "  3. transaction_id doesn't exist in the server database")
                         logger.error("")
-                        logger.error("CHECK THE ERROR MESSAGE ABOVE (when file was first processed)")
-                        logger.error("If you saw 'CRITICAL ERROR: transaction_id is MISSING!' then:")
-                        logger.error("  - The file in Google Drive Inbox lacks the transaction_id property")
-                        logger.error("  - Fix the external upload system to set transaction_id in file properties")
+                        logger.error(
+                            "CHECK THE ERROR MESSAGE ABOVE (when file was first processed)")
+                        logger.error(
+                            "If you saw 'CRITICAL ERROR: transaction_id is MISSING!' then:")
+                        logger.error(
+                            "  - The file in Google Drive Inbox lacks the transaction_id property")
+                        logger.error(
+                            "  - Fix the external upload system to set transaction_id in file properties")
                         logger.error("="*60)
                     else:
                         logger.error("Webhook failed for: %s, Status: %d, Response: %s",
-                                   file_name, response.status_code, response.text)
+                                     file_name, response.status_code, response.text)
                 except Exception as e:
-                    logger.error("Error sending webhook for %s: %s", file_name, e, exc_info=True)
+                    logger.error("Error sending webhook for %s: %s",
+                                 file_name, e, exc_info=True)
 
                 # Clean up temp files
                 logger.debug("Cleaning up temporary files")
                 try:
                     if os.path.exists(source_file_path):
                         os.remove(source_file_path)
-                        logger.debug("Removed source file: %s", source_file_path)
+                        logger.debug("Removed source file: %s",
+                                     source_file_path)
                     if os.path.exists(target_file_path):
                         os.remove(target_file_path)
-                        logger.debug("Removed translated file: %s", target_file_path)
+                        logger.debug("Removed translated file: %s",
+                                     target_file_path)
                     # Clean up temp DOCX if it was created
                     if docx_for_translation and os.path.exists(docx_for_translation):
                         os.remove(docx_for_translation)
-                        logger.debug("Removed temp DOCX file: %s", docx_for_translation)
+                        logger.debug("Removed temp DOCX file: %s",
+                                     docx_for_translation)
                 except Exception as e:
                     logger.warning("Error cleaning up temp files: %s", e)
 
                 logger.info("File processing completed: %s", file_name)
                 logger.info("="*60)
->>>>>>> b41135def5ac47888a3e735905d533ea55145acb
 
     except Exception:
         logger.exception("Error during Google Drive processing cycle")
