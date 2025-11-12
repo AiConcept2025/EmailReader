@@ -14,7 +14,8 @@ from imap_tools import AND, MailBox
 
 # from src.convert_to_docx import (
 #    convert_pdf_to_docx, convert_txt_file_to_docx, convert_txt_to_docx)
-from src.utils import get_uuid, read_json_secret_file, utc_to_local
+from src.utils import get_uuid, utc_to_local
+from src.config import load_config
 # from src.pdf_image_ocr import is_pdf_searchable_pypdf
 from src.process_documents import DocProcessor
 
@@ -127,13 +128,12 @@ def extract_attachments_from_mailbox():
     logger.debug("Current working directory: %s", cwd)
 
     try:
-        secrets_file = os.path.join(os.getcwd(), 'credentials', "secrets.json")
-        logger.debug("Loading secrets from: %s", secrets_file)
-        secrets: Dict = read_json_secret_file(secrets_file)
+        logger.debug("Loading configuration")
+        config: Dict = load_config()
 
-        email: Dict = secrets.get('email')
+        email: Dict = config.get('email')
         if email is None:
-            logger.error("No email configuration found in secrets.json")
+            logger.error("No email configuration found in config")
             raise ValueError("No email object specified")
 
         logger.debug("Email config - server: %s, username: %s",

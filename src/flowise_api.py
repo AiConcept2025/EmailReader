@@ -9,7 +9,7 @@ from typing import Dict, List
 
 import requests
 
-from src.utils import read_json_secret_file
+from src.config import load_config
 
 # import pip._vendor.requests as requests
 
@@ -25,31 +25,29 @@ class FlowiseAiAPI:
 
     def __init__(self):
         logger.info("Initializing FlowiseAI API client")
-        secrets_file = os.path.join(
-            os.getcwd(), 'credentials', 'secrets.json')
 
-        logger.debug("Loading secrets from: %s", secrets_file)
-        secrets: Dict[str, str] | None = read_json_secret_file(secrets_file)
+        # Load configuration
+        config = load_config()
 
-        if secrets is None:
-            logger.error("No secrets file found or it is empty")
-            raise ValueError("No secrets file found or it is empty")
+        if 'flowise' not in config:
+            logger.error("'flowise' section not found in configuration")
+            raise ValueError("'flowise' section not found in configuration")
 
-        flowise_ai_secrets = secrets.get("flowiseAI")
-        if not isinstance(flowise_ai_secrets, dict):
-            logger.error("flowiseAI secrets must be a dictionary")
-            raise ValueError("flowiseAI secrets must be a dictionary")
+        flowise_config = config['flowise']
+        if not isinstance(flowise_config, dict):
+            logger.error("flowise configuration must be a dictionary")
+            raise ValueError("flowise configuration must be a dictionary")
 
-        self.API_KEY: str = flowise_ai_secrets.get("API_KEY", "")
-        self.API_URL: str = flowise_ai_secrets.get("API_URL")
-        self.DOC_STORE_ID: str = flowise_ai_secrets.get("DOC_STORE_ID")
-        self.DOC_LOADER_DOCX_ID: str = flowise_ai_secrets.get(
-            "DOC_LOADER_DOCX_ID")
-        self.CHATFLOW_ID: str = flowise_ai_secrets.get("CHATFLOW_ID")
+        self.API_KEY: str = flowise_config.get("api_key", "")
+        self.API_URL: str = flowise_config.get("api_url")
+        self.DOC_STORE_ID: str = flowise_config.get("doc_store_id")
+        self.DOC_LOADER_DOCX_ID: str = flowise_config.get("doc_loader_docx_id")
+        self.CHATFLOW_ID: str = flowise_config.get("chatflow_id")
 
         logger.info("FlowiseAI API initialized - URL: %s", self.API_URL)
         logger.debug("Document Store ID: %s", self.DOC_STORE_ID)
         logger.debug("Document Loader ID: %s", self.DOC_LOADER_DOCX_ID)
+        logger.debug("Chatflow ID: %s", self.CHATFLOW_ID)
 
     def create_new_doc_store(
             self,

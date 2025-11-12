@@ -10,7 +10,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
-from src.utils import read_json_secret_file
+from src.config import load_config, get_service_account_path
 from src.logger import logger
 
 
@@ -21,29 +21,25 @@ class GoogleApi:
 
     def __init__(self) -> None:
         """
-        Initialise service with credentials
+        Initialise service with credentials from environment-aware config
         """
-        secrets_path = os.path.join(
-            os.getcwd(), 'credentials', 'secrets.json')
-        secrets = read_json_secret_file(secrets_path)
-        if not isinstance(secrets, Dict):
-            logger.error('Secrets file not found or invalid')
-            raise FileNotFoundError('Secrets file not found or invalid')
+        logger.debug("Initializing Google Drive API client")
 
-        # Try flat structure first, fall back to nested for backward compatibility
-        self.parent_folder_id: str = secrets.get('parent_folder_id', '')
-        if not self.parent_folder_id:
-            google_drive_settings = secrets.get('google_drive', {})
-            if isinstance(google_drive_settings, Dict):
-                self.parent_folder_id = google_drive_settings.get('parent_folder_id', '')
-                logger.warning("Using deprecated nested 'google_drive.parent_folder_id' config - consider moving to root level")
+        # Load configuration
+        config = load_config()
 
-        if self.parent_folder_id == '':
-            logger.error('Parent folder ID not specified in secrets.json')
-            raise KeyError('Parent folder ID not specified in secrets.json')
+        # Get parent folder ID from config
+        if 'google_drive' not in config or 'parent_folder_id' not in config['google_drive']:
+            logger.error('google_drive.parent_folder_id not found in configuration')
+            raise KeyError('google_drive.parent_folder_id not specified in config')
+
+        self.parent_folder_id: str = config['google_drive']['parent_folder_id']
+        logger.debug("Parent folder ID: %s", self.parent_folder_id)
+
+        # Get service account credentials
         scope = ['https://www.googleapis.com/auth/drive']
-        service_account_json_key = os.path.join(
-            os.getcwd(), 'credentials', 'service-account-key.json')
+        service_account_json_key = get_service_account_path()
+        logger.debug("Using service account from: %s", service_account_json_key)
 
         credentials = (service_account.Credentials
                        .from_service_account_file(  # type: ignore
@@ -53,6 +49,8 @@ class GoogleApi:
             serviceName='drive',
             version='v3',
             credentials=credentials)
+
+        logger.info("Google Drive API client initialized successfully")
 
     def get_item_list_in_folder(
         self,

@@ -11,17 +11,16 @@ import schedule
 from src.logger import logger
 from src.process_google_drive import process_google_drive
 from src.process_files_for_translation import process_files_for_translation
-from src.utils import read_json_secret_file
+from src.config import load_config
 
 
 def select_program_mode() -> str:
     """Select the program mode based on configuration."""
     logger.debug("Entering select_program_mode()")
-    cfg_path = Path('credentials/secrets.json')
-    logger.debug("Reading configuration from: %s", cfg_path)
+    logger.debug("Loading configuration")
 
-    cfg = read_json_secret_file(str(cfg_path)) or {}
-    program_mode = cfg.get('program', 'default_mode')
+    cfg = load_config()
+    program_mode = cfg.get('app', {}).get('program', 'default_mode')
     logger.debug("Raw program mode value: %s (type: %s)", program_mode, type(program_mode).__name__)
 
     # Ensure we always return a string; handle the case where 'program' may be a dict.
@@ -46,8 +45,7 @@ def select_program_mode() -> str:
 def load_interval_minutes() -> int:
     """Load the Google Drive processing interval from configuration."""
     logger.debug("Entering load_interval_minutes()")
-    cfg_path = Path('credentials/secrets.json')
-    cfg = read_json_secret_file(str(cfg_path)) or {}
+    cfg = load_config()
     scheduling = cfg.get('scheduling', {})
     interval = int(scheduling.get('google_drive_interval_minutes', 15))
     logger.debug("Loaded interval: %d minutes", interval)
