@@ -1,6 +1,7 @@
 """
 Module implements FlowiseAI API with enhanced logging
 """
+import json
 import logging
 import os
 # import uuid
@@ -8,7 +9,7 @@ from typing import Dict, List
 
 import requests
 
-from src.utils import read_json_secret_file
+from src.config import load_config
 
 # import pip._vendor.requests as requests
 
@@ -24,31 +25,29 @@ class FlowiseAiAPI:
 
     def __init__(self):
         logger.info("Initializing FlowiseAI API client")
-        secrets_file = os.path.join(
-            os.getcwd(), 'credentials', 'secrets.json')
 
-        logger.debug("Loading secrets from: %s", secrets_file)
-        secrets: Dict[str, str] | None = read_json_secret_file(secrets_file)
+        # Load configuration
+        config = load_config()
 
-        if secrets is None:
-            logger.error("No secrets file found or it is empty")
-            raise ValueError("No secrets file found or it is empty")
+        if 'flowise' not in config:
+            logger.error("'flowise' section not found in configuration")
+            raise ValueError("'flowise' section not found in configuration")
 
-        flowise_ai_secrets = secrets.get("flowiseAI")
-        if not isinstance(flowise_ai_secrets, dict):
-            logger.error("flowiseAI secrets must be a dictionary")
-            raise ValueError("flowiseAI secrets must be a dictionary")
+        flowise_config = config['flowise']
+        if not isinstance(flowise_config, dict):
+            logger.error("flowise configuration must be a dictionary")
+            raise ValueError("flowise configuration must be a dictionary")
 
-        self.API_KEY: str = flowise_ai_secrets.get("API_KEY", "")
-        self.API_URL: str = flowise_ai_secrets.get("API_URL")
-        self.DOC_STORE_ID: str = flowise_ai_secrets.get("DOC_STORE_ID")
-        self.DOC_LOADER_DOCX_ID: str = flowise_ai_secrets.get(
-            "DOC_LOADER_DOCX_ID")
-        self.CHATFLOW_ID: str = flowise_ai_secrets.get("CHATFLOW_ID")
+        self.API_KEY: str = flowise_config.get("api_key", "")
+        self.API_URL: str = flowise_config.get("api_url")
+        self.DOC_STORE_ID: str = flowise_config.get("doc_store_id")
+        self.DOC_LOADER_DOCX_ID: str = flowise_config.get("doc_loader_docx_id")
+        self.CHATFLOW_ID: str = flowise_config.get("chatflow_id")
 
         logger.info("FlowiseAI API initialized - URL: %s", self.API_URL)
         logger.debug("Document Store ID: %s", self.DOC_STORE_ID)
         logger.debug("Document Loader ID: %s", self.DOC_LOADER_DOCX_ID)
+        logger.debug("Chatflow ID: %s", self.CHATFLOW_ID)
 
     def create_new_doc_store(
             self,
@@ -168,12 +167,22 @@ class FlowiseAiAPI:
             doc_path: str,
             doc_name: str | None = None,
             store_id: str | None = None,
-            loader_id: str | None = None) -> Dict[object, object]:
+            loader_id: str | None = None,
+            metadata: Dict[str, str] | None = None) -> Dict[object, object]:
         """
         Upsert document to document store with enhanced logging
+
+        Args:
+            doc_path: Path to the document file
+            doc_name: Name of the document
+            store_id: Document store ID (uses default if None)
+            loader_id: Document loader ID (uses default if None)
+            metadata: Optional metadata dict to attach to the document
         """
         logger.info("Starting document upsert - Name: %s", doc_name)
         logger.debug("Document path: %s", doc_path)
+        if metadata:
+            logger.debug("Metadata provided: %s", metadata)
 
         try:
             # Validate inputs
@@ -204,6 +213,12 @@ class FlowiseAiAPI:
                 form_data = {
                     "files": (doc_name, file)
                 }
+
+                # Add metadata field if provided
+                if metadata:
+                    form_data["metadata"] = (None, json.dumps(metadata), 'application/json')
+                    logger.debug("Added metadata to form_data")
+
                 body_data = {
                     "docId": loader_id
                 }
@@ -333,14 +348,14 @@ class FlowiseAiAPI:
             # Use the original Flowise API endpoint (without /api/v1/)
             url = f"{self.API_URL}/prediction/{self.CHATFLOW_ID}"
             headers = {
-                "Authorization": f"Bearer {self.API_KEY}"
+                "Authorization": f"Bearer {self.API_KEY}",
+                "Content-Type": "application/json"
             }
 
-            # Use the original body structure that was working
+            # Use simplified body structure with streaming flag
             data_body: Dict[str, object] = {
                 "question": doc_name,
-                "overrideConfig": {},
-                "history": []
+                "streaming": False
             }
 
             logger.debug("POST request to: %s", url)

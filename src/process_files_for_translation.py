@@ -11,7 +11,8 @@ import asyncio
 import requests
 
 from src.google_drive import GoogleApi
-from src.utils import read_json_secret_file, delete_file
+from src.config import load_config
+from src.utils import delete_file
 from src.pdf_image_ocr import is_pdf_searchable_pypdf, ocr_pdf_image_to_doc
 from src.convert_to_docx import convert_pdf_to_docx
 
@@ -40,11 +41,11 @@ def find_translator_executable() -> Optional[Tuple[Path, Path]]:
     """
     logger.debug("Searching for translator executable")
 
-    # Try configured path from secrets.json
+    # Try configured path from config
     try:
-        secrets = read_json_secret_file('credentials/secrets.json')
-        if secrets:
-            configured_path = secrets.get('translator_executable_path')
+        config = load_config()
+        if config:
+            configured_path = config.get('app', {}).get('translator_executable_path')
             if configured_path:
                 path = Path(configured_path)
                 if path.exists():
@@ -144,10 +145,8 @@ def get_translate_folder_id() -> str:
     translation files from configuration."""
     logger.debug("Entering get_translate_folder_id()")
 
-    cfg_path = os.path.join('credentials', 'secrets.json')
-    logger.debug("Loading config from: %s", cfg_path)
-    cfg = read_json_secret_file(cfg_path) or {}
-    folder_id = cfg.get('parent_folder_id', '')
+    config = load_config()
+    folder_id = config.get('google_drive', {}).get('parent_folder_id', '')
 
     if not folder_id:
         logger.warning("No 'parent_folder_id' found in configuration")
@@ -641,15 +640,13 @@ def process_files_for_translation() -> None:
     logger.info("="*60)
 
     try:
-        secrets = read_json_secret_file('credentials/secrets.json')
-        if secrets is None:
-            logger.error(
-                'secrets not specified in secrets.json')
+        config = load_config()
+        if config is None:
+            logger.error('Configuration not loaded')
             return
-        url: str = secrets.get('translator_url')
+        url = config.get('app', {}).get('translator_url')
         if not url:
-            logger.error(
-                'Translator_url not specified in secrets.json')
+            logger.error('translator_url not specified in configuration')
             return
         # Create temp folders if not exist
         inbox_folder = os.path.join(cwd, 'inbox_temp')

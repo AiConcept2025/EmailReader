@@ -4,20 +4,13 @@ attachments/
 data/
 build/
 dist/
-credentials/
 last_finish_time.txt
-secrets.json
-secrets_test.json
-service-account-key.json
-credentials.json
 read_email.spec
 store.json
 test.json
 test_api.py
-regal-framework-credentials.json
 translate_document/
 poppler-windows/
-.env
 docReader
 translate_document
 *.spec
@@ -27,4 +20,29 @@ completed_temp/
 inbox_temp/
 .claude
 CLAUDE.md
+logs/
+
+# Environment files
+.env
+
+# Configuration files (contain sensitive data)
+credentials/config.*.json
+!credentials/config.template.json
+credentials/.service-account-temp.json
+
+# Legacy config files (deprecated but still ignored)
+credentials/secrets.json
+credentials/secrets_test.json
+credentials/secrets.json_prod
+credentials/service-account-key.json
+credentials/service-account-key.json_prod
+credentials/credentials.json
+credentials/credentials.json_prod
+credentials/regal-framework-credentials.json
+credentials/regal-framework-credentials.json_prod
+secrets.json
+secrets_test.json
+service-account-key.json
+credentials.json
+regal-framework-credentials.json
 

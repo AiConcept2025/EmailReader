@@ -73,15 +73,17 @@ def list_all_dir_files() -> List[str]:
     Args:
         folder: folder name
     """
+    from src.config import load_config
+
     cwd = os.getcwd()
-    secrets = read_json_secret_file('secrets.json')
-    if secrets is None or secrets.get('documents') is None:
-        logger.error('Documents folder not specified in secrets.json')
+    config = load_config()
+    if config is None or config.get('storage') is None:
+        logger.error('Documents folder not specified in configuration')
         return []
-    if not isinstance(secrets.get('documents'), dict):
-        logger.error('Documents folder not specified in secrets.json')
+    if not isinstance(config.get('storage'), dict):
+        logger.error('Documents folder not specified in configuration')
         return []
-    documents_folder: str = secrets.get('documents').get('documents_folder')
+    documents_folder: str = config.get('storage').get('documents_folder')
     attachments_path = Path(os.path.join(cwd, documents_folder))
     attachments_dir_list = os.listdir(attachments_path)
     return attachments_dir_list

@@ -263,9 +263,30 @@ def process_google_drive() -> None:
                     question = build_flowise_question(client_email, rhs)
                     logger.info("Step 4/6: Uploading to FlowiseAI document store...")
                     logger.debug("  Document identifier: %s", question)
+
+                    # Build metadata from Google Drive file object
+                    metadata = {
+                        "client_email": client_email,
+                        "file_id": file_id,
+                        "original_filename": file_name,
+                        "mime_type": fl.get('mimeType', ''),
+                        "description": fl.get('description', ''),
+                    }
+
+                    # Add any custom properties from Google Drive
+                    if 'properties' in fl:
+                        metadata.update(fl['properties'])
+
+                    # Add target language if available
+                    if target_lang:
+                        metadata['target_language'] = target_lang
+
+                    logger.debug("  Metadata: %s", metadata)
+
                     upsert_result = flowise_api.upsert_document_to_document_store(
                         doc_name=question,
-                        doc_path=new_file_path
+                        doc_path=new_file_path,
+                        metadata=metadata
                     )
 
                     logger.debug("  Document store response: %s", upsert_result)
