@@ -777,6 +777,5 @@ def process_files_for_translation() -> None:
                     client_folder_id,
                     translate_folder_id,
                     url))
-
     except Exception:
         logger.exception("Error during Google Drive processing cycle")
