@@ -49,3 +49,5 @@ striprtf
 pypdf
 pyinstaller
 google-api-python-client-stubs
+pinecone
+pinecone-plugin-assistant
