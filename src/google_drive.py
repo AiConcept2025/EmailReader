@@ -86,7 +86,7 @@ class GoogleApi:
         query = (
             f"'{parent_folder_id}' in parents and {mime_condition} "
             "and trashed=false ")
-        fields = 'nextPageToken, files(id, name, mimeType, parents,properties, description)'
+        fields = 'nextPageToken, files(id, name, mimeType, parents, properties, appProperties, description)'
         try:
             while True:
                 response = self.service.files().list(  # type: ignore

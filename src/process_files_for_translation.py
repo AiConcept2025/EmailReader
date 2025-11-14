@@ -28,7 +28,7 @@ def find_translator_executable() -> Optional[Tuple[Path, Path]]:
     Find the translator executable with fallback logic.
 
     Priority:
-    1. Configured path from secrets.json (translator_executable_path)
+    1. Configured path from config.{env}.json (app.translator_executable_path)
     2. GoogleTranslator project (sibling directory) - Python script
     3. GoogleTranslator project (sibling directory) - compiled executable
     4. EmailReader root directory (legacy) - compiled executable
@@ -253,7 +253,7 @@ def translate_document(
     if not translator_info:
         error_msg = (
             "Translator executable not found. Please ensure one of the following:\n"
-            "1. Set 'translator_executable_path' in credentials/secrets.json\n"
+            "1. Set 'app.translator_executable_path' in credentials/config.{env}.json\n"
             "2. Place GoogleTranslator project at ../GoogleTranslator/\n"
             "3. Place translate_document executable in EmailReader root directory\n"
         )
@@ -332,18 +332,25 @@ async def translate_file(
     file_id = fl['id']
     # Ensure properties is a dict before accessing keys
     properties: dict[str, str] = fl.get('properties', {}) or {}
+    appProperties: dict[str, str] = fl.get('appProperties', {}) or {}
     description: str = fl.get('description', '') or ''
     if not isinstance(properties, dict):
         properties = {}
-    target_language = properties.get('target_language', None)
-    source_language = properties.get('source_language', None)
-    transaction_id = properties.get('transaction_id', None)
+    if not isinstance(appProperties, dict):
+        appProperties = {}
+
+    # Try appProperties first (recommended), then fall back to properties (legacy)
+    target_language = appProperties.get('target_language') or properties.get('target_language', None)
+    source_language = appProperties.get('source_language') or properties.get('source_language', None)
+    transaction_id = appProperties.get('transaction_id') or properties.get('transaction_id', None)
 
     logger.info("="*60)
     logger.info("Processing file: %s (ID: %s)", file_name, file_id)
     logger.debug("File properties: %s", properties)
+    logger.debug("File appProperties: %s", appProperties)
     logger.debug("Source language: %s, Target language: %s",
                  source_language or 'auto', target_language or 'default')
+    logger.info("Transaction ID: %s", transaction_id)
 
     # CRITICAL VALIDATION: Check if transaction_id is missing
     if not transaction_id:
@@ -354,10 +361,11 @@ async def translate_file(
         logger.error("File ID: %s", file_id)
         logger.error("Client: %s", client_email)
         logger.error("File Properties: %s", properties)
+        logger.error("File appProperties: %s", appProperties)
         logger.error("")
         logger.error(
             ("CAUSE: The file was uploaded to Google "
-             "Drive Inbox WITHOUT the 'transaction_id' property."))
+             "Drive Inbox WITHOUT the 'transaction_id' in appProperties or properties."))
         logger.error("")
         logger.error("IMPACT:")
         logger.error(
@@ -372,14 +380,16 @@ async def translate_file(
             ("  1. Find the external system/API that "
              "uploads files to this Inbox folder"))
         logger.error(
-            ("  2. Update that code to include 'transaction_id'in "
-             "the properties dict:"))
-        logger.error("     properties = {")
+            ("  2. Update that code to include 'transaction_id' in "
+             "the appProperties dict (recommended):"))
+        logger.error("     appProperties = {")
         logger.error("         'source_language': source_lang,")
         logger.error("         'target_language': target_lang,")
         logger.error(
             "         'transaction_id': transaction_id  # <-- ADD THIS")
         logger.error("     }")
+        logger.error("     OR in the properties dict (legacy):")
+        logger.error("     properties = { 'transaction_id': transaction_id }")
         logger.error(
             ("  3. See TRANSACTION_ID_MISSING_ROOT_CAUSE_ANALYSIS.md "
              "for details"))
