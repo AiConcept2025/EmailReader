@@ -11,8 +11,10 @@ from typing import List
 from src.email_sender import send_error_message
 from src.flowise_api import FlowiseAiAPI
 from src.google_drive import GoogleApi
+from src.pinecone_utils import PineconeAssistant
 from src.process_documents import DocProcessor
 from src.utils import delete_file, build_flowise_question
+from src.config import load_config
 
 # Import the configured logger system
 # import src.logger  # This ensures logger is configured
@@ -32,6 +34,16 @@ def process_google_drive() -> None:
     logger.info("="*60)
 
     try:
+
+        config = load_config()
+        use_pinecone = config.get('use_pinecone')
+        if use_pinecone:
+            logger.warning(
+                ("Pinecone integration is deprecated and will "
+                 "be removed in future versions.")
+            )
+            pinecone_assistant = PineconeAssistant()
+
         client_sub_folders: List[str] = ['Inbox', 'In-Progress', 'Temp']
         cwd = os.getcwd()
 
@@ -52,20 +64,25 @@ def process_google_drive() -> None:
         clients = google_api.get_subfolders_list_in_folder()
         logger.info("Found %d total folders at root level", len(clients))
 
-        # Filter for direct client folders (with email format) and company folders
+        # Filter for direct client folders
+        # (with email format) and company folders
         client_folders = [
             c for c in clients if '@' in c['name'] and '.' in c['name']]
         companies_folders = [
             c for c in clients if c not in client_folders]
 
-        logger.info("Found %d direct client folders at root level", len(client_folders))
-        logger.info("Found %d potential company folders", len(companies_folders))
+        logger.info("Found %d direct client folders at root level",
+                    len(client_folders))
+        logger.info("Found %d potential company folders",
+                    len(companies_folders))
 
         # Search for nested client folders inside company folders
         for company in companies_folders:
             company_name = company['name']
             company_id = company['id']
-            logger.debug("Searching for nested clients in company folder: %s", company_name)
+            logger.debug(
+                "Searching for nested clients in company folder: %s",
+                company_name)
 
             try:
                 nested_folders = google_api.get_subfolders_list_in_folder(
@@ -77,18 +94,21 @@ def process_google_drive() -> None:
 
                 if nested_client_folders:
                     logger.info("Found %d nested client(s) in company '%s': %s",
-                              len(nested_client_folders),
-                              company_name,
-                              ', '.join(c['name'] for c in nested_client_folders))
+                                len(nested_client_folders),
+                                company_name,
+                                ', '.join(c['name'] for c in nested_client_folders))
                     client_folders.extend(nested_client_folders)
                 else:
-                    logger.debug("No nested clients found in company '%s'", company_name)
+                    logger.debug(
+                        "No nested clients found in company '%s'", company_name)
 
             except Exception as e:
-                logger.error("Error searching company folder '%s': %s", company_name, e)
+                logger.error(
+                    "Error searching company folder '%s': %s", company_name, e)
                 continue
 
-        logger.info("Processing total of %d client folders (direct + nested)", len(client_folders))
+        logger.info(
+            "Processing total of %d client folders (direct + nested)", len(client_folders))
 
         for idx, client in enumerate(client_folders, 1):
             client_folder_id: str | None = client.get('id', None)
@@ -101,17 +121,20 @@ def process_google_drive() -> None:
 
             logger.info("")
             logger.info("="*60)
-            logger.info("Processing client %d/%d: %s", idx, len(client_folders), client_email)
+            logger.info("Processing client %d/%d: %s", idx,
+                        len(client_folders), client_email)
             logger.info("  Client folder ID: %s", client_folder_id)
             logger.info("="*60)
 
             # Check and create sub folders
-            logger.debug("Verifying required subfolders: %s", ', '.join(client_sub_folders))
+            logger.debug("Verifying required subfolders: %s",
+                         ', '.join(client_sub_folders))
             for sub_folder in client_sub_folders:
                 if not google_api.if_folder_exist_by_name(
                         folder_name=sub_folder,
                         parent_folder_id=client_folder_id):
-                    logger.info("Creating missing subfolder '%s' for client %s", sub_folder, client_email)
+                    logger.info(
+                        "Creating missing subfolder '%s' for client %s", sub_folder, client_email)
                     google_api.create_subfolder_in_folder(
                         parent_folder_id=client_folder_id,
                         folder_name=sub_folder
@@ -120,7 +143,8 @@ def process_google_drive() -> None:
                     logger.debug("  Subfolder exists: '%s'", sub_folder)
 
             # Get subfolder IDs
-            logger.debug("Retrieving subfolder IDs for client %s", client_email)
+            logger.debug(
+                "Retrieving subfolder IDs for client %s", client_email)
             subs = google_api.get_subfolders_list_in_folder(
                 parent_folder_id=client_folder_id)
 
@@ -168,7 +192,8 @@ def process_google_drive() -> None:
 
                 logger.info("")
                 logger.info("-"*60)
-                logger.info("Processing file %d/%d: '%s'", file_idx, len(files), file_name)
+                logger.info("Processing file %d/%d: '%s'",
+                            file_idx, len(files), file_name)
                 logger.info("  Client: %s", client_email)
                 logger.info("  File ID: %s", file_id)
                 logger.info("-"*60)
@@ -183,18 +208,24 @@ def process_google_drive() -> None:
                     target_lang = google_api.get_file_app_property(
                         file_id, 'targetLanguage')
                     if target_lang:
-                        logger.info("Target language specified: %s", target_lang)
+                        logger.info(
+                            "Target language specified: %s", target_lang)
 
                     # Download file
-                    logger.info("Step 1/6: Downloading file from Google Drive...")
+                    logger.info(
+                        "Step 1/6: Downloading file from Google Drive...")
                     if not google_api.download_file_from_google_drive(
                             file_id=file_id,
                             file_path=file_path):
-                        logger.error("Failed to download file '%s' - skipping", file_name)
+                        logger.error(
+                            "Failed to download file '%s' - skipping",
+                            file_name)
                         continue
 
                     # Process based on file type
-                    logger.info("Step 2/6: Processing document (language detection/translation)...")
+                    logger.info(
+                        ("Step 2/6: Processing document "
+                         "(language detection/translation)..."))
                     if file_ext.lower() in ['.doc', '.docx']:
                         logger.info("  Document type: Word document")
                         (
@@ -222,16 +253,19 @@ def process_google_drive() -> None:
                             target_lang=target_lang
                         )
                     else:
-                        logger.warning("Unsupported file type '%s' - skipping", file_ext)
+                        logger.warning(
+                            "Unsupported file type '%s' - skipping", file_ext)
                         continue
 
                     logger.info("  Processing complete: %s", new_file_name)
 
                     # Upload to In-Progress folder
-                    # Build final name: email + rhs (new_file_name already has rhs now)
+                    # Build final name: email + rhs
+                    # (new_file_name already has rhs now)
                     rhs = new_file_name
                     final_name = f"{client_email}+{rhs}"
-                    logger.info("Step 3/6: Uploading processed file to In-Progress folder...")
+                    logger.info(("Step 3/6: Uploading processed file to"
+                                 " In-Progress folder..."))
                     logger.debug("  Target folder ID: %s", in_progress_id)
                     logger.debug("  Final file name: %s", final_name)
                     upload_result = google_api.upload_file_to_google_drive(
@@ -248,9 +282,12 @@ def process_google_drive() -> None:
 
                     # Upload original if different
                     if '+english' not in new_file_name:
-                        logger.info("  Also uploading original (non-English) file...")
-                        logger.debug("    Original file name: %s", original_file_name)
-                        logger.debug("    Target folder ID: %s", in_progress_id)
+                        logger.info(
+                            "  Also uploading original (non-English) file...")
+                        logger.debug("    Original file name: %s",
+                                     original_file_name)
+                        logger.debug("    Target folder ID: %s",
+                                     in_progress_id)
                         google_api.upload_file_to_google_drive(
                             parent_folder_id=in_progress_id,
                             file_name=f"{client_email}+{original_file_name}",
@@ -261,7 +298,8 @@ def process_google_drive() -> None:
                     # and prediction
                     # Build Flowise/doc store name as: email+<rhs>
                     question = build_flowise_question(client_email, rhs)
-                    logger.info("Step 4/6: Uploading to FlowiseAI document store...")
+                    logger.info(
+                        "Step 4/6: Uploading to FlowiseAI document store...")
                     logger.debug("  Document identifier: %s", question)
 
                     # Build metadata from Google Drive file object
@@ -283,21 +321,36 @@ def process_google_drive() -> None:
 
                     logger.debug("  Metadata: %s", metadata)
 
-                    upsert_result = flowise_api.upsert_document_to_document_store(
-                        doc_name=question,
-                        doc_path=new_file_path,
-                        metadata=metadata
-                    )
+                    if use_pinecone:
+                        logger.info(
+                            "  Uploading file to Pinecone Assistant...")
+                        pinecone_file_id = pinecone_assistant.upload_file(
+                            file_path=new_file_path,
+                            metadata=metadata
+                        )
+                        logger.info(
+                            "  File uploaded to Pinecone with file ID: %s",
+                            pinecone_file_id)
+                    else:
+                        upsert_result = flowise_api.upsert_document_to_document_store(
+                            doc_name=question,
+                            doc_path=new_file_path,
+                            metadata=metadata
+                        )
 
-                    logger.debug("  Document store response: %s", upsert_result)
-                    if upsert_result.get('name') == 'Error':
-                        error = upsert_result.get('error', 'Unknown error')
-                        logger.error("Document store upload failed: %s", error)
-                        send_error_message(
-                            f"Upload file doc store error: {error}")
-                        continue
+                        logger.debug(
+                            "  Document store response: %s", upsert_result)
+                        if upsert_result.get('name') == 'Error':
+                            error = upsert_result.get('error', 'Unknown error')
+                            logger.error(
+                                "Document store upload failed: %s", error)
+                            send_error_message(
+                                f"Upload file doc store error: {error}")
+                            continue
 
-                    logger.info("  Document successfully uploaded to FlowiseAI store")
+                        logger.info(
+                            ("  Document successfully "
+                             "uploaded to FlowiseAI store"))
 
                     # Create prediction using the SAME name
                     logger.info("Step 5/6: Creating FlowiseAI prediction...")
@@ -316,7 +369,8 @@ def process_google_drive() -> None:
                         }
                         logger.debug("  Prediction response: %s", compact)
                     else:
-                        logger.debug("  Prediction response: %s", res_prediction)
+                        logger.debug("  Prediction response: %s",
+                                     res_prediction)
                     if res_prediction.get('name') == 'Error':
                         error_id = res_prediction.get('id', 'Unknown')
                         logger.error(
@@ -327,12 +381,16 @@ def process_google_drive() -> None:
                     logger.info("  Prediction created successfully")
 
                     # Wait before cleanup
-                    logger.info("Step 6/6: Finalizing (moving original file and cleanup)...")
-                    logger.debug("  Waiting 2 minutes for FlowiseAI processing...")
+                    logger.info(
+                        ("Step 6/6: Finalizing (moving original "
+                         "file and cleanup)..."))
+                    logger.debug(
+                        "  Waiting 2 minutes for FlowiseAI processing...")
                     time.sleep(120)
 
                     # Move original file from Inbox to In-Progress folder
-                    logger.info("  Moving original file from Inbox to In-Progress...")
+                    logger.info(
+                        "  Moving original file from Inbox to In-Progress...")
                     logger.debug("  From folder ID: %s", inbox_id)
                     logger.debug("  To folder ID: %s", in_progress_id)
                     moved = google_api.move_file_to_folder_id(
@@ -342,7 +400,8 @@ def process_google_drive() -> None:
 
                     if not moved:
                         logger.warning(
-                            "  Failed to move original file from Inbox to In-Progress")
+                            ("  Failed to move original file "
+                             "from Inbox to In-Progress"))
 
                     # Clean up local files
                     logger.debug("  Cleaning up temporary local files...")
@@ -352,7 +411,10 @@ def process_google_drive() -> None:
                     logger.debug("  Temporary files cleaned up")
 
                     logger.info("")
-                    logger.info("SUCCESS: File '%s' fully processed for client %s", file_name, client_email)
+                    logger.info(
+                        "SUCCESS: File '%s' fully processed for client %s",
+                        file_name,
+                        client_email)
                     logger.info("-"*60)
 
                 except (IOError, OSError, ValueError) as e:

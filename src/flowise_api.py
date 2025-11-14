@@ -196,7 +196,7 @@ class FlowiseAiAPI:
 
             # Get file size for logging
             file_size = os.path.getsize(doc_path) / (1024 * 1024)  # Size in MB
-            logger.debug(f"Document size: {file_size:.2f} MB")
+            logger.debug("Document size: %.2f MB", file_size)
 
             if store_id is None:
                 store_id = self.DOC_STORE_ID
@@ -216,7 +216,8 @@ class FlowiseAiAPI:
 
                 # Add metadata field if provided
                 if metadata:
-                    form_data["metadata"] = (None, json.dumps(metadata), 'application/json')
+                    form_data["metadata"] = (
+                        None, json.dumps(metadata), 'application/json')
                     logger.debug("Added metadata to form_data")
 
                 body_data = {

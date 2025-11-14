@@ -18,7 +18,9 @@ from src.email_sender import send_error_message
 from src.flowise_api import FlowiseAiAPI
 from src.google_drive import GoogleApi
 from src.logger import logger
-from src.utils import list_files_in_directory, delete_file, rename_file, build_flowise_question
+from src.utils import (list_files_in_directory,
+                       delete_file, rename_file,
+                       build_flowise_question)
 from src.pdf_image_ocr import is_pdf_searchable_pypdf
 from src.convert_to_docx import convert_pdf_to_docx
 
@@ -142,7 +144,8 @@ def process_emails():
                 doc_name = mew_doc_name
                 doc_path = new_file_path
             else:
-                # If file language not English translate it and save original one
+                # If file language not English translate it
+                # and save original one
                 index = doc_name.find('+') + 1
                 translated_doc_name = doc_name[:index] + \
                     'english_' + doc_name[index:]

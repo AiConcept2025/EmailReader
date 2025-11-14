@@ -50,7 +50,8 @@ def read_json_secret_file(
 
         with open(file_path, encoding='utf-8', mode='r') as file:
             data = json.load(file)
-            logger.debug("JSON file parsed successfully, keys: %s", list(data.keys()) if isinstance(data, dict) else "not a dict")
+            logger.debug("JSON file parsed successfully, keys: %s", list(
+                data.keys()) if isinstance(data, dict) else "not a dict")
             return data
 
     except FileNotFoundError:
@@ -63,7 +64,8 @@ def read_json_secret_file(
         logger.error('An OS error occurred while reading %s: %s', file_path, e)
         return None
     except Exception as e:
-        logger.error('Unexpected error reading JSON file %s: %s', file_path, e, exc_info=True)
+        logger.error('Unexpected error reading JSON file %s: %s',
+                     file_path, e, exc_info=True)
         return None
 
 
@@ -190,24 +192,33 @@ def translate_document_to_english(
 
     try:
         logger.info("Starting translation subprocess")
-        result = subprocess.run(command, capture_output=True, text=True, check=True)
-        logger.debug("Translation stdout: %s", result.stdout if result.stdout else "(empty)")
-        logger.info("Translation completed successfully: %s", os.path.basename(translated_path))
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            check=True)
+        logger.debug("Translation stdout: %s",
+                     result.stdout if result.stdout else "(empty)")
+        logger.info("Translation completed successfully: %s",
+                    os.path.basename(translated_path))
 
         if os.path.exists(translated_path):
             file_size = os.path.getsize(translated_path) / 1024  # KB
             logger.debug("Translated file size: %.2f KB", file_size)
         else:
-            logger.error("Translation completed but output file not found: %s", translated_path)
+            logger.error(
+                "Translation completed but output file not found: %s", translated_path)
 
     except subprocess.CalledProcessError as e:
-        logger.error('Translation command failed with exit code %d', e.returncode)
+        logger.error(
+            'Translation command failed with exit code %d', e.returncode)
         logger.error('Command: %s', ' '.join(command))
         logger.error('Stdout: %s', e.stdout)
         logger.error('Stderr: %s', e.stderr)
         raise
     except Exception as e:
-        logger.error('Unexpected error during translation: %s', e, exc_info=True)
+        logger.error('Unexpected error during translation: %s',
+                     e, exc_info=True)
         raise
 
 
@@ -293,7 +304,8 @@ def build_flowise_question(customer_email: str, file_name_with_ext: str) -> str:
     Final format: email+OriginalName.docx
     """
     logger.debug("Entering build_flowise_question()")
-    logger.debug("Input - email: %s, file: %s", customer_email, file_name_with_ext)
+    logger.debug("Input - email: %s, file: %s",
+                 customer_email, file_name_with_ext)
 
     base, ext = os.path.splitext(file_name_with_ext or "")
     logger.debug("Base name: %s, extension: %s", base, ext)
@@ -307,7 +319,8 @@ def build_flowise_question(customer_email: str, file_name_with_ext: str) -> str:
 
     # Enforce .docx extension
     if not ext or ext.lower() != '.docx':
-        logger.debug("Enforcing .docx extension (was: %s)", ext or "no extension")
+        logger.debug("Enforcing .docx extension (was: %s)",
+                     ext or "no extension")
         ext = '.docx'
 
     clean_name = f"{base}{ext}"

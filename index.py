@@ -4,7 +4,6 @@ Start point for the application.
 import os
 import time
 from datetime import datetime
-from pathlib import Path
 
 import schedule
 
@@ -21,9 +20,13 @@ def select_program_mode() -> str:
 
     cfg = load_config()
     program_mode = cfg.get('app', {}).get('program', 'default_mode')
-    logger.debug("Raw program mode value: %s (type: %s)", program_mode, type(program_mode).__name__)
+    logger.debug(
+        "Raw program mode value: %s (type: %s)",
+        program_mode,
+        type(program_mode).__name__)
 
-    # Ensure we always return a string; handle the case where 'program' may be a dict.
+    # Ensure we always return a string; handle the case where
+    # 'program' may be a dict.
     if isinstance(program_mode, dict):
         logger.debug("Program mode is dict, extracting string value")
         # try to extract a sensible string value
@@ -31,12 +34,17 @@ def select_program_mode() -> str:
             val = program_mode.get(key)
             if isinstance(val, str):
                 program_mode = val
-                logger.debug("Extracted program mode from key '%s': %s", key, program_mode)
+                logger.debug(
+                    "Extracted program mode from key '%s': %s",
+                    key,
+                    program_mode)
                 break
         else:
             # fallback to a deterministic string representation
             program_mode = str(program_mode)
-            logger.warning("Could not extract string from dict, using: %s", program_mode)
+            logger.warning(
+                "Could not extract string from dict, using: %s",
+                program_mode)
 
     logger.info("Selected program mode: %s", program_mode)
     return program_mode

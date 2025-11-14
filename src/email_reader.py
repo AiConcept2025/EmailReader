@@ -26,7 +26,8 @@ logger = logging.getLogger('EmailReader.Email')
 supported_types = [
     "application/msword",       # .doc
     "application/pdf",         # .pdf
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # .docx
+    ("application/vnd.openxmlformats-"
+     "officedocument.wordprocessingml.document"),  # .docx
     "application/octet-stream",  # .docx
     "text/plain",            # .txt
     "application/rtf",      # .rtf
@@ -81,7 +82,8 @@ def get_last_finish_time(
                 date, "%Y-%m-%d %H:%M:%S %z")
         logger.info("Last scan time loaded: %s", date_time)
     else:
-        logger.info("Date file doesn't exist, creating with default: %s", start_date)
+        logger.info(
+            "Date file doesn't exist, creating with default: %s", start_date)
         with open(date_file_path, encoding="utf-8", mode="w") as file:
             file.write(start_date)
             date_time: datetime = datetime.strptime(
@@ -92,7 +94,7 @@ def get_last_finish_time(
     last_time: datetime = date_time.time()
 
     logger.debug("Returning: last_date_time=%s, last_date=%s, last_time=%s",
-                last_date_time, last_date, last_time)
+                 last_date_time, last_date, last_time)
     return (last_date_time, last_date, last_time)
 
 
@@ -111,7 +113,8 @@ def set_last_finish_time(date_file: str, start_date: datetime) -> None:
     date_file_path = Path(os.path.join(cwd, date_file))
     start_date_str: str = start_date.strftime("%Y-%m-%d %H:%M:%S %z")
 
-    logger.debug("Writing date string: %s to %s", start_date_str, date_file_path)
+    logger.debug("Writing date string: %s to %s",
+                 start_date_str, date_file_path)
     with open(date_file_path, encoding="utf-8", mode="w") as file:
         file.write(start_date_str)
 
@@ -127,28 +130,27 @@ def extract_attachments_from_mailbox():
     logger.info('Starting extract_attachments_from_mailbox()')
     logger.debug("Current working directory: %s", cwd)
 
-    try:
-        logger.debug("Loading configuration")
-        config: Dict = load_config()
+    logger.debug("Loading configuration")
+    config: Dict = load_config()
 
-        email: Dict = config.get('email')
-        if email is None:
-            logger.error("No email configuration found in config")
-            raise ValueError("No email object specified")
+    email: Dict = config.get('email')
+    if email is None:
+        logger.error("No email configuration found in config")
+        raise ValueError("No email object specified")
 
-        logger.debug("Email config - server: %s, username: %s",
-                    email.get('imap_server'), email.get('username'))
+    logger.debug("Email config - server: %s, username: %s",
+                 email.get('imap_server'), email.get('username'))
 
-        last_date_time, last_date, _ = get_last_finish_time(
-            email.get('date_file'),
-            email.get('start_date'))
-        logger.info("Scanning for emails since: %s", last_date_time)
+    last_date_time, last_date, _ = get_last_finish_time(
+        email.get('date_file'),
+        email.get('start_date'))
+    logger.info("Scanning for emails since: %s", last_date_time)
 
-        attachments_file_path = Path(os.path.join(cwd, 'data', "documents"))
-        logger.debug("Attachments will be saved to: %s", attachments_file_path)
+    attachments_file_path = Path(os.path.join(cwd, 'data', "documents"))
+    logger.debug("Attachments will be saved to: %s", attachments_file_path)
 
-        logger.debug("Initializing DocProcessor")
-        docProcessor = DocProcessor(attachments_file_path)
+    logger.debug("Initializing DocProcessor")
+    docProcessor = DocProcessor(attachments_file_path)
 
     with MailBox(host=email.get('imap_server')).login(
             username=email.get("username"),
@@ -177,7 +179,8 @@ def extract_attachments_from_mailbox():
                         continue
                     elif attachment.content_type not in supported_types:
                         logger.warning(
-                            'Date: %s. Attachment %s from %s has not supported type.',
+                            ('Date: %s. Attachment %s from %s "'
+                             '"has not supported type.'),
                             adjust_msg_date,
                             attachment.filename,
                             msg.from_)
@@ -205,7 +208,9 @@ def extract_attachments_from_mailbox():
                     elif (
                             attachment.content_type == "application/octet-stream" or
                             attachment.content_type == "application/msword" or
-                            attachment.content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"):
+                            attachment.content_type == (
+                                "application/vnd.openxmlformats-"
+                                "officedocument.wordprocessingml.document")):
                         # Word document
                         file_path = f"{attachments_file_path}/{file_name}"
                         # download file in temp folder
