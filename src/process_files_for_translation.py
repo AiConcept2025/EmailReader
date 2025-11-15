@@ -13,7 +13,8 @@ import requests
 from src.google_drive import GoogleApi
 from src.config import load_config
 from src.utils import delete_file
-from src.pdf_image_ocr import is_pdf_searchable_pypdf, ocr_pdf_image_to_doc
+from src.ocr import OCRProviderFactory
+from src.document_analyzer import requires_ocr
 from src.convert_to_docx import convert_pdf_to_docx
 
 logger = logging.getLogger('EmailReader.GoogleDrive')
@@ -155,6 +156,44 @@ def get_translate_folder_id() -> str:
     return folder_id
 
 
+def _process_with_ocr_fallback(input_file: str, output_file: str) -> None:
+    """
+    Process document with configured OCR provider, with automatic fallback.
+
+    Args:
+        input_file: Path to input file (PDF or image)
+        output_file: Path to save output DOCX file
+    """
+    from src.ocr.default_provider import DefaultOCRProvider
+
+    try:
+        # Load config and get provider
+        config = load_config()
+        ocr_provider = OCRProviderFactory.get_provider(config)
+        provider_name = config.get('ocr', {}).get('provider', 'default')
+
+        logger.info(f"Using OCR provider: {provider_name}")
+        ocr_provider.process_document(input_file, output_file)
+        logger.info(f"OCR completed successfully with {provider_name} provider")
+
+    except Exception as e:
+        logger.warning(
+            f"Primary OCR provider failed: {e}. Falling back to default Tesseract OCR"
+        )
+
+        # Fallback to default provider
+        try:
+            fallback_provider = DefaultOCRProvider({})
+            fallback_provider.process_document(input_file, output_file)
+            logger.info("Fallback OCR completed successfully")
+        except Exception as fallback_error:
+            logger.error(f"Fallback OCR also failed: {fallback_error}")
+            raise RuntimeError(
+                f"Both primary and fallback OCR failed. "
+                f"Primary: {e}, Fallback: {fallback_error}"
+            ) from fallback_error
+
+
 def convert_to_docx_for_translation(input_path: str, output_path: str) -> None:
     """
     Convert various file formats to DOCX for translation.
@@ -177,27 +216,15 @@ def convert_to_docx_for_translation(input_path: str, output_path: str) -> None:
     _, extension = os.path.splitext(input_path)
     ext_lower = extension.lower()
 
-    # PDF files
-    if ext_lower == '.pdf':
-        logger.info("Processing PDF file...")
-        # Check if PDF is searchable or needs OCR
-        is_searchable = is_pdf_searchable_pypdf(input_path)
-        logger.info(
-            "PDF is %s", "searchable" if is_searchable else "image-based (requires OCR)")
-
-        if is_searchable:
-            logger.info("Converting searchable PDF to DOCX")
-            convert_pdf_to_docx(input_path, output_path)
-        else:
-            logger.info("Starting OCR process for scanned PDF")
-            ocr_pdf_image_to_doc(input_path, output_path)
+    # Check if any file type needs OCR
+    if requires_ocr(input_path):
+        logger.info("Document requires OCR processing")
+        _process_with_ocr_fallback(input_path, output_path)
+        logger.info("OCR processing completed")
+    elif ext_lower == '.pdf':
+        logger.info("Converting searchable PDF to DOCX (no OCR needed)")
+        convert_pdf_to_docx(input_path, output_path)
         logger.info("PDF to DOCX conversion completed")
-
-    # Image files - use OCR
-    elif ext_lower in ['.jpg', '.jpeg', '.png', '.tiff', '.tif', '.gif']:
-        logger.info("Processing image file with OCR: %s", ext_lower)
-        ocr_pdf_image_to_doc(input_path, output_path)
-        logger.info("Image to DOCX conversion completed")
 
     # DOCX files - just copy
     elif ext_lower in ['.docx', '.doc']:
