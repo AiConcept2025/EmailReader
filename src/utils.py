@@ -175,8 +175,17 @@ def translate_document_to_english(
         logger.error("Original file not found: %s", original_path)
         raise FileNotFoundError(f"File not found: {original_path}")
 
-    executable_path = Path(os.path.join(
-        os.getcwd(), "translate_document"))
+    # Try to get translator path from config
+    from src.config import load_config
+    config = load_config()
+    translator_script = config.get('app', {}).get('translator_executable_path')
+
+    if translator_script and os.path.exists(translator_script):
+        executable_path = Path(translator_script)
+    else:
+        # Fallback to old location
+        executable_path = Path(os.path.join(os.getcwd(), "translate_document"))
+
     logger.debug("Translation executable: %s", executable_path)
 
     if not executable_path.exists():
@@ -187,7 +196,22 @@ def translate_document_to_english(
     if target_lang:
         arguments += ['--target', target_lang]
 
-    command = [str(executable_path)] + arguments
+    # Call with python if it's a .py file
+    if str(executable_path).endswith('.py'):
+        # Use GoogleTranslator's virtual environment Python interpreter
+        translator_dir = executable_path.parent
+        venv_python = translator_dir / 'venv' / 'bin' / 'python'
+
+        if venv_python.exists():
+            command = [str(venv_python), str(executable_path)] + arguments
+            logger.debug("Using GoogleTranslator venv: %s", venv_python)
+        else:
+            # Fallback to system python3
+            command = ['python3', str(executable_path)] + arguments
+            logger.warning("GoogleTranslator venv not found, using system python3")
+    else:
+        command = [str(executable_path)] + arguments
+
     logger.debug("Translation command: %s", ' '.join(command))
 
     try:

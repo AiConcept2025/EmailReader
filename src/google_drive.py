@@ -711,3 +711,83 @@ class GoogleApi:
                 'get_folder_name_by_id: Error getting folder name for %s: %s',
                 folder_id, e)
             return ''
+
+    def set_file_property(self, file_id: str, property_name: str, property_value: str) -> bool:
+        """
+        Set a custom property on a Google Drive file (using properties field)
+        Args:
+            file_id: ID of the file
+            property_name: Name of the property
+            property_value: Value of the property
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            file_name = self.get_file_name_by_id(file_id)
+            logger.info(
+                "Setting property '%s'='%s' on file '%s' (ID: %s)",
+                property_name, property_value, file_name, file_id
+            )
+
+            self.service.files().update(  # type: ignore
+                fileId=file_id,
+                body={'properties': {property_name: property_value}},
+                fields='id,properties',
+                supportsAllDrives=True
+            ).execute()
+
+            logger.info(
+                "Successfully set property '%s' on file '%s'",
+                property_name, file_name
+            )
+            return True
+        except HttpError as error:
+            logger.error(
+                "Failed to set property '%s' on file ID %s: %s",
+                property_name, file_id, error
+            )
+            return False
+        except Exception as e:
+            logger.error(
+                "Unexpected error setting property '%s' on file ID %s: %s",
+                property_name, file_id, e
+            )
+            return False
+
+    def get_file_property(self, file_id: str, property_name: str) -> str | None:
+        """
+        Get a custom property value from a Google Drive file
+        Args:
+            file_id: ID of the file
+            property_name: Name of the property to retrieve
+        Returns:
+            Property value if found, None otherwise
+        """
+        try:
+            file_info = self.service.files().get(  # type: ignore
+                fileId=file_id,
+                fields='properties',
+                supportsAllDrives=True
+            ).execute()
+
+            if not isinstance(file_info, dict):
+                return None
+
+            properties = file_info.get('properties') or {}
+            if not isinstance(properties, dict):
+                return None
+
+            value = properties.get(property_name)
+            return value if isinstance(value, str) and value else None
+        except HttpError as error:
+            logger.error(
+                "Failed to get property '%s' from file ID %s: %s",
+                property_name, file_id, error
+            )
+            return None
+        except Exception as e:
+            logger.error(
+                "Unexpected error getting property '%s' from file ID %s: %s",
+                property_name, file_id, e
+            )
+            return None

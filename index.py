@@ -9,8 +9,9 @@ import schedule
 
 from src.logger import logger
 from src.process_google_drive import process_google_drive
+from src.process_google_drive_test import process_google_drive_test
 from src.process_files_for_translation import process_files_for_translation
-from src.config import load_config
+from src.config import load_config, get_config_value
 
 
 def select_program_mode() -> str:
@@ -113,6 +114,11 @@ def run_and_log() -> None:
 
     try:
         mode = select_program_mode()
+        test_mode = get_config_value('processing.test_mode', False)
+
+        if test_mode:
+            logger.info("TEST MODE ENABLED - files will NOT be removed from Inbox")
+
         logger.info("Running in mode: %s", mode)
 
         if mode == "translator":
@@ -120,9 +126,14 @@ def run_and_log() -> None:
             process_files_for_translation()
             logger.info("Translation workflow completed")
         else:
-            logger.info("Starting standard processing workflow")
-            process_google_drive()
-            logger.info("Standard processing workflow completed")
+            if test_mode:
+                logger.info("Starting TEST processing workflow (non-destructive)")
+                process_google_drive_test()
+                logger.info("TEST processing workflow completed")
+            else:
+                logger.info("Starting standard processing workflow")
+                process_google_drive()
+                logger.info("Standard processing workflow completed")
 
         logger.info("Google Drive cycle finished successfully")
         logger.info("="*80)

@@ -97,6 +97,9 @@ class LandingAIOCRProvider(BaseOCRProvider):
         logger.info(f"Processing document with LandingAI OCR: {ocr_file}")
         logger.debug(f"Output path: {out_doc_file_path}")
 
+        # Track current file for JSON debug output
+        self._current_processing_file = ocr_file
+
         start_time = time.time()
 
         try:
@@ -104,22 +107,36 @@ class LandingAIOCRProvider(BaseOCRProvider):
             logger.debug("Calling LandingAI API")
             api_response = self._call_api_with_retry(ocr_file)
 
-            # Extract text using layout preservation
-            logger.debug("Extracting text with layout preservation")
-            extracted_text = self._extract_with_positions(api_response)
+            # Check if we have grounding data for structured conversion
+            chunks = api_response.get('chunks', [])
+            has_grounding_data = chunks and any(c.get('grounding') for c in chunks)
 
-            if not extracted_text or extracted_text.strip() == "":
-                logger.warning("No text extracted from document")
-                extracted_text = "[No text content extracted from document]"
+            if has_grounding_data and self.use_grounding:
+                # Use structured conversion with full formatting preservation
+                logger.info("Grounding data available - using structured DOCX conversion")
+                self._save_as_docx_structured(api_response, out_doc_file_path)
+            else:
+                # Fallback to basic text extraction
+                if not has_grounding_data:
+                    logger.warning("No grounding data in API response - falling back to basic conversion")
+                else:
+                    logger.info("Grounding disabled in config - using basic conversion")
 
-            # Convert to DOCX format
-            logger.debug("Converting to DOCX format")
-            self._save_as_docx(extracted_text, out_doc_file_path)
+                # Extract text using layout preservation
+                logger.debug("Extracting text with layout preservation")
+                extracted_text = self._extract_with_positions(api_response)
+
+                if not extracted_text or extracted_text.strip() == "":
+                    logger.warning("No text extracted from document")
+                    extracted_text = "[No text content extracted from document]"
+
+                # Convert to DOCX format
+                logger.debug("Converting to DOCX format (basic method)")
+                self._save_as_docx(extracted_text, out_doc_file_path)
 
             elapsed = time.time() - start_time
             logger.info(
-                f"LandingAI OCR completed in {elapsed:.2f}s: {out_doc_file_path} "
-                f"({len(extracted_text)} characters)"
+                f"LandingAI OCR completed in {elapsed:.2f}s: {out_doc_file_path}"
             )
 
         except Exception as e:
@@ -143,7 +160,7 @@ class LandingAIOCRProvider(BaseOCRProvider):
         Raises:
             RuntimeError: If all retry attempts fail
         """
-        url = f"{self.base_url}/tools/ade-parse"
+        url = self.base_url  # Full URL including endpoint path from config
         headers = {
             "Authorization": f"Bearer {self.api_key}"
         }
@@ -179,6 +196,118 @@ class LandingAIOCRProvider(BaseOCRProvider):
                     # Log response summary
                     chunks = response_data.get('chunks', [])
                     logger.info(f"Received {len(chunks)} chunks from API")
+
+                    # Enhanced logging: Show sample chunk structure with formatting data
+                    if chunks and len(chunks) > 0:
+                        import json
+                        sample_chunk = chunks[0]
+                        logger.debug(f"Sample chunk structure (first chunk):\n{json.dumps(sample_chunk, indent=2)}")
+
+                        # Log grounding data availability
+                        grounding = sample_chunk.get('grounding', {})
+                        if grounding:
+                            page = grounding.get('page')
+                            box = grounding.get('box', {})
+                            logger.info(
+                                f"Formatting data available - "
+                                f"Page: {page}, "
+                                f"Bounding box: left={box.get('left')}, top={box.get('top')}, "
+                                f"right={box.get('right')}, bottom={box.get('bottom')}"
+                            )
+
+                            # Count how many chunks have grounding data
+                            chunks_with_grounding = sum(1 for c in chunks if c.get('grounding'))
+                            logger.info(
+                                f"Grounding data present: {chunks_with_grounding}/{len(chunks)} chunks "
+                                f"({100*chunks_with_grounding/len(chunks):.1f}%)"
+                            )
+                        else:
+                            logger.warning("No grounding data in chunks - formatting will be limited")
+                    else:
+                        logger.warning("No chunks received from API")
+
+                    # Save JSON response for analysis
+                    import json
+                    from pathlib import Path
+                    import os
+                    import datetime
+
+                    # Create a debug filename based on input file with timestamp
+                    # This ensures each processing creates a NEW JSON file (not overwriting)
+                    if hasattr(self, '_current_processing_file'):
+                        input_filename = Path(self._current_processing_file).stem
+
+                        # Use project root directory for consistent path
+                        # completed_temp should be at project root (where index.py/app.py are located)
+                        project_root = os.getcwd()
+                        completed_temp_dir = os.path.join(project_root, 'completed_temp')
+
+                        # Create directory if it doesn't exist
+                        os.makedirs(completed_temp_dir, exist_ok=True)
+
+                        # Add timestamp to filename to prevent overwriting (each run creates unique file)
+                        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+                        json_output_path = os.path.join(completed_temp_dir, f"{input_filename}_landing_ai_{timestamp}.json")
+
+                        try:
+                            with open(json_output_path, 'w', encoding='utf-8') as f:
+                                json.dump(response_data, f, indent=2, ensure_ascii=False)
+                            logger.info(f"Saved LandingAI JSON response to: {json_output_path}")
+
+                            # Upload JSON to Google Drive if configured
+                            try:
+                                from src.google_drive import GoogleApi
+                                from src.config import load_config
+
+                                # Get configuration
+                                config = load_config()
+
+                                # Initialize Google Drive API
+                                drive_api = GoogleApi()
+
+                                # Get the parent folder ID from config
+                                # This is the root folder for the client
+                                parent_folder_id = config.get('google_drive', {}).get('parent_folder_id', '')
+
+                                if parent_folder_id:
+                                    # List subfolders to find "Completed" folder
+                                    subfolders = drive_api.get_subfolders_list_in_folder(parent_folder_id)
+                                    completed_folder = next(
+                                        (f for f in subfolders if f.get('name') == 'Completed'),
+                                        None
+                                    )
+
+                                    if completed_folder:
+                                        completed_folder_id = completed_folder['id']
+                                        json_filename = os.path.basename(json_output_path)
+
+                                        # Upload JSON file to Google Drive Completed folder
+                                        file_info = drive_api.upload_file_to_google_drive(
+                                            file_path=json_output_path,
+                                            file_name=json_filename,
+                                            parent_folder_id=completed_folder_id,
+                                            description="LandingAI API response for analysis"
+                                        )
+
+                                        if file_info and file_info.get('id'):
+                                            logger.info(
+                                                f"Uploaded JSON to Google Drive Completed folder: "
+                                                f"{json_filename} (ID: {file_info.get('id')})"
+                                            )
+                                        else:
+                                            logger.warning(f"Failed to upload JSON to Google Drive: No file ID returned")
+                                    else:
+                                        logger.warning("Completed folder not found in Google Drive - JSON saved locally only")
+                                else:
+                                    logger.debug("No parent_folder_id configured - JSON saved locally only")
+
+                            except Exception as drive_error:
+                                # Don't fail the OCR if Google Drive upload fails
+                                logger.warning(f"Could not upload JSON to Google Drive: {drive_error}")
+                                logger.info(f"JSON file still available locally at: {json_output_path}")
+
+                        except Exception as e:
+                            logger.warning(f"Failed to save JSON response: {e}")
 
                     return response_data
 
@@ -326,6 +455,70 @@ class LandingAIOCRProvider(BaseOCRProvider):
                     logger.debug(f"Temporary file cleaned up: {temp_txt}")
                 except Exception as e:
                     logger.warning(f"Failed to clean up temp file {temp_txt}: {e}")
+
+    def _save_as_docx_structured(self, api_response: Dict[str, Any], output_path: str) -> None:
+        """
+        Save API response as DOCX with full formatting preservation.
+
+        Uses FormattedDocument model and structured conversion to preserve:
+        - Page breaks
+        - Column layout
+        - Paragraph spacing
+        - Font sizes
+
+        Args:
+            api_response: LandingAI API response with chunks and grounding data
+            output_path: Path to save DOCX file
+        """
+        from src.models.formatted_document import FormattedDocument
+        from src.convert_to_docx import convert_structured_to_docx
+
+        logger.debug(f"Saving structured document to DOCX: {output_path}")
+
+        try:
+            # Create FormattedDocument from API response
+            logger.debug("Creating FormattedDocument from API response")
+            formatted_doc = FormattedDocument.from_landing_ai_response(api_response)
+
+            logger.info(
+                f"Structured document created: {formatted_doc.total_pages} pages, "
+                f"{formatted_doc.total_paragraphs} paragraphs"
+            )
+
+            # Log page and column details
+            for page in formatted_doc.pages:
+                logger.debug(
+                    f"Page {page.page_number + 1}: {len(page.paragraphs)} paragraphs, "
+                    f"{page.columns} columns"
+                )
+
+            # Convert to DOCX with full formatting
+            logger.debug("Converting FormattedDocument to DOCX")
+            convert_structured_to_docx(formatted_doc, output_path)
+
+            # Verify output
+            if os.path.exists(output_path):
+                output_size = os.path.getsize(output_path) / 1024  # KB
+                logger.info(
+                    f"Structured DOCX file saved: {output_path} ({output_size:.2f} KB) - "
+                    f"Formatting preserved: page breaks, columns, spacing, font sizes"
+                )
+            else:
+                logger.error(f"Structured DOCX file was not created: {output_path}")
+                raise RuntimeError(f"Failed to create structured DOCX file: {output_path}")
+
+        except Exception as e:
+            logger.error(f"Error saving structured DOCX file: {e}", exc_info=True)
+            logger.warning("Falling back to basic text conversion")
+
+            # Fallback to basic conversion
+            try:
+                extracted_text = self._extract_with_positions(api_response)
+                self._save_as_docx(extracted_text, output_path)
+                logger.info("Fallback conversion completed successfully")
+            except Exception as fallback_error:
+                logger.error(f"Fallback conversion also failed: {fallback_error}", exc_info=True)
+                raise RuntimeError(f"Both structured and fallback conversion failed") from e
 
     def is_pdf_searchable(self, pdf_path: str) -> bool:
         """
