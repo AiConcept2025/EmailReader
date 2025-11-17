@@ -170,9 +170,10 @@ class QualityValidator:
         return result
 
     def _extract_font_sizes(self, doc: Document) -> List[float]:
-        """Extract all font sizes from document runs"""
+        """Extract all font sizes from document runs (paragraphs and tables)"""
         font_sizes = []
 
+        # Extract from paragraphs
         for paragraph in doc.paragraphs:
             for run in paragraph.runs:
                 if run.font.size:
@@ -180,7 +181,21 @@ class QualityValidator:
                     size_pt = run.font.size.pt
                     font_sizes.append(size_pt)
 
-        logger.debug("Extracted %d font size values", len(font_sizes))
+        # Extract from table cells
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.paragraphs:
+                        for run in paragraph.runs:
+                            if run.font.size:
+                                size_pt = run.font.size.pt
+                                font_sizes.append(size_pt)
+
+        logger.debug("Extracted %d font size values (%d from paragraphs, %d from tables)",
+                    len(font_sizes),
+                    sum(1 for p in doc.paragraphs for r in p.runs if r.font.size),
+                    sum(1 for t in doc.tables for row in t.rows for cell in row.cells
+                        for p in cell.paragraphs for r in p.runs if r.font.size))
         return font_sizes
 
     def _validate_font_sizes(self, font_sizes: List[float], result: ValidationResult) -> None:

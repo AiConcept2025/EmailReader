@@ -177,21 +177,11 @@ def _process_with_ocr_fallback(input_file: str, output_file: str) -> None:
         logger.info(f"OCR completed successfully with {provider_name} provider")
 
     except Exception as e:
-        logger.warning(
-            f"Primary OCR provider failed: {e}. Falling back to default Tesseract OCR"
+        logger.error(
+            f"OCR provider failed: {e}. Fallback to Tesseract is DISABLED to expose issues."
         )
-
-        # Fallback to default provider
-        try:
-            fallback_provider = DefaultOCRProvider({})
-            fallback_provider.process_document(input_file, output_file)
-            logger.info("Fallback OCR completed successfully")
-        except Exception as fallback_error:
-            logger.error(f"Fallback OCR also failed: {fallback_error}")
-            raise RuntimeError(
-                f"Both primary and fallback OCR failed. "
-                f"Primary: {e}, Fallback: {fallback_error}"
-            ) from fallback_error
+        # Re-raise the error instead of falling back to Tesseract
+        raise RuntimeError(f"OCR processing failed: {e}") from e
 
 
 def convert_to_docx_for_translation(input_path: str, output_path: str) -> None:

@@ -326,6 +326,10 @@ class FormattedDocument:
             FormattedDocument instance
         """
         import re
+        from src.config import get_config_value
+
+        # Get calibration factor from config
+        calibration_factor = get_config_value('quality.calibration_factor', 400.0)
 
         document = cls()
         chunks = response_data.get('chunks', [])
@@ -392,8 +396,8 @@ class FormattedDocument:
                     position=bbox
                 )
 
-                # Infer font size
-                paragraph.infer_font_size()
+                # Infer font size with config calibration factor
+                paragraph.infer_font_size(calibration_factor=calibration_factor)
 
                 page.add_paragraph(paragraph)
 

@@ -176,6 +176,17 @@ def process_google_drive_test() -> None:
                     client_email)
                 continue
 
+            # Find Completed folder
+            try:
+                completed_id = [sub['id']
+                               for sub in subs if sub['name'] == 'Completed'][0]
+                logger.debug("  Completed folder ID: %s", completed_id)
+            except IndexError:
+                logger.error(
+                    "Completed folder not found for client %s - skipping",
+                    client_email)
+                continue
+
             # Find Inbox folder
             sub = next(
                 filter(lambda s: s['name'] == 'Inbox', subs), None)
@@ -347,6 +358,22 @@ def process_google_drive_test() -> None:
                             file_name=f"{client_email}+{original_file_name}",
                             file_path=original_file_path
                         )
+
+                    # Upload to Completed folder for validation
+                    logger.info("  Uploading processed file to Completed folder...")
+                    logger.debug("    Target folder ID: %s", completed_id)
+                    completed_upload_result = google_api.upload_file_to_google_drive(
+                        parent_folder_id=completed_id,
+                        file_name=final_name,
+                        file_path=new_file_path
+                    )
+
+                    if isinstance(completed_upload_result, dict) and completed_upload_result.get('name') == 'Error':
+                        logger.warning(
+                            "Failed to upload to Completed folder: %s",
+                            completed_upload_result.get('id'))
+                    else:
+                        logger.info("  Successfully uploaded to Completed folder")
 
                     # Build Flowise name once and use identically for doc store
                     # and prediction

@@ -59,10 +59,8 @@ class IterativeProcessor:
         logger.info("  Target client: %s", target_client)
         logger.info("  Max iterations: %d", max_iterations)
 
-    def find_client_inbox(self) -> Optional[str]:
-        """Find the Inbox folder ID for target client"""
-        logger.info("Searching for client folder: %s", self.target_client)
-
+    def find_client_folder_id(self) -> Optional[str]:
+        """Find the client folder ID for target client"""
         # Get all folders at root level
         folders = self.google_api.get_subfolders_list_in_folder()
 
@@ -85,14 +83,43 @@ class IterativeProcessor:
                     if client_folder:
                         break
 
-        if not client_folder:
+        if client_folder:
+            return client_folder['id']
+        return None
+
+    def find_client_inbox(self) -> Optional[str]:
+        """Find the Inbox folder ID for target client"""
+        logger.info("Searching for client folder: %s", self.target_client)
+
+        # Get client folder ID
+        client_folder_id = self.find_client_folder_id()
+        if not client_folder_id:
             logger.error("Client folder not found: %s", self.target_client)
             return None
 
-        logger.info("Found client folder: %s (ID: %s)", client_folder['name'], client_folder['id'])
+        # Get all folders at root level to get the folder name for logging
+        folders = self.google_api.get_subfolders_list_in_folder()
+        client_folder = None
+        for folder in folders:
+            if folder['id'] == client_folder_id or self.target_client in folder['name']:
+                client_folder = folder
+                break
+
+        if not client_folder:
+            # Check company folders
+            for company in folders:
+                if '@' not in company['name']:
+                    nested = self.google_api.get_subfolders_list_in_folder(company['id'])
+                    for folder in nested:
+                        if folder['id'] == client_folder_id:
+                            client_folder = folder
+                            break
+
+        if client_folder:
+            logger.info("Found client folder: %s (ID: %s)", client_folder['name'], client_folder['id'])
 
         # Get Inbox subfolder
-        subfolders = self.google_api.get_subfolders_list_in_folder(client_folder['id'])
+        subfolders = self.google_api.get_subfolders_list_in_folder(client_folder_id)
         inbox = next((f for f in subfolders if f['name'] == 'Inbox'), None)
 
         if not inbox:
@@ -259,6 +286,35 @@ class IterativeProcessor:
         logger.info("Validating output quality...")
         validation_result = self.validator.validate_docx(output_path)
         validation_result.print_report()
+
+        # Upload to Completed folder for user validation
+        logger.info("Uploading processed file to Completed folder...")
+        try:
+            # Get client folder subfolders
+            client_folder_id = self.find_client_folder_id()
+            if client_folder_id:
+                subfolders = self.google_api.get_subfolders_list_in_folder(client_folder_id)
+                completed_folder = next((f for f in subfolders if f['name'] == 'Completed'), None)
+
+                if completed_folder:
+                    # Upload the processed file
+                    upload_result = self.google_api.upload_file_to_google_drive(
+                        parent_folder_id=completed_folder['id'],
+                        file_name=os.path.basename(output_path),
+                        file_path=output_path
+                    )
+
+                    if isinstance(upload_result, dict) and upload_result.get('name') != 'Error':
+                        logger.info("  Successfully uploaded to Completed folder")
+                    else:
+                        logger.warning("  Failed to upload to Completed folder: %s",
+                                     upload_result.get('id') if isinstance(upload_result, dict) else 'Unknown error')
+                else:
+                    logger.warning("  Completed folder not found")
+            else:
+                logger.warning("  Could not find client folder")
+        except Exception as e:
+            logger.warning("  Error uploading to Completed folder: %s", e)
 
         # Mark file as processed (for test mode)
         from datetime import datetime
