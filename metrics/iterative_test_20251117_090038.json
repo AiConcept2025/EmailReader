@@ -1,0 +1,47 @@
+{
+  "test_summary": {
+    "target_client": "danishevsky@yahoo.com",
+    "total_iterations": 1,
+    "passed_iterations": 1,
+    "max_score": 80.0,
+    "session_id": "20251117_090038"
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "success": true,
+      "file_name": "PDF-scanned-rus-words.pdf",
+      "output_path": "/Users/vladimirdanishevsky/projects/EmailReader/data/documents/danishevsky@yahoo.com+PDF-scanned-rus-words+translated.docx",
+      "validation": {
+        "file_path": "/Users/vladimirdanishevsky/projects/EmailReader/data/documents/danishevsky@yahoo.com+PDF-scanned-rus-words+translated.docx",
+        "passed": true,
+        "score": 80.0,
+        "font_size_valid": false,
+        "font_size_distribution": {
+          "body": 100.0,
+          "heading": 0.0,
+          "title": 0.0,
+          "other": 0.0
+        },
+        "font_size_issues": [
+          "Body text percentage too high: 100.0% (expected ≤85.0%)",
+          "Heading percentage too low: 0.0% (expected ≥10.0%)"
+        ],
+        "page_count": 1,
+        "page_breaks_valid": true,
+        "column_detection_valid": true,
+        "layout_issues": [],
+        "has_outlier_fonts": false,
+        "outlier_font_sizes": [],
+        "all_issues": [
+          "Body text percentage too high: 100.0% (expected ≤85.0%)",
+          "Heading percentage too low: 0.0% (expected ≥10.0%)"
+        ]
+      },
+      "passed": true,
+      "score": 80.0,
+      "processing_time": 41.68573617935181,
+      "calibration_factor": 400.0
+    }
+  ]
+}

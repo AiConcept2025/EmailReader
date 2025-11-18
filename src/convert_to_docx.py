@@ -3,11 +3,54 @@ Convert docs to docx
 """
 import os
 import logging
+import re
 import pdfplumber
 from docx import Document
 
 # Get logger for this module
 logger = logging.getLogger('EmailReader.DocConverter')
+
+
+def sanitize_text_for_xml(text: str) -> str:
+    """
+    Remove characters that are invalid in XML/OOXML (Word documents).
+
+    XML 1.0 allows:
+    - #x9 (tab)
+    - #xA (line feed)
+    - #xD (carriage return)
+    - #x20-#xD7FF
+    - #xE000-#xFFFD
+    - #x10000-#x10FFFF
+
+    This function removes:
+    - NULL bytes
+    - Control characters (except tab, LF, CR)
+    - Invalid Unicode ranges
+
+    Args:
+        text: Input text that may contain invalid characters
+
+    Returns:
+        Sanitized text safe for XML/Word documents
+    """
+    if not text:
+        return text
+
+    # Remove NULL bytes
+    text = text.replace('\x00', '')
+
+    # Remove control characters except tab (\x09), LF (\x0a), CR (\x0d)
+    # This regex removes characters in ranges:
+    # \x00-\x08, \x0b-\x0c, \x0e-\x1f (control chars)
+    # \x7f-\x9f (DEL and C1 control chars)
+    text = re.sub(r'[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f-\x9f]', '', text)
+
+    # Remove invalid Unicode surrogates and private use characters
+    # that might cause issues
+    text = re.sub(r'[\ud800-\udfff]', '', text)
+
+    return text
 
 
 def convert_txt_to_docx(paragraph: str, docx_file_path: str) -> None:
@@ -28,9 +71,18 @@ def convert_txt_to_docx(paragraph: str, docx_file_path: str) -> None:
         if text_length == 0:
             logger.warning("Empty text provided for conversion")
 
+        # Sanitize text to remove XML-incompatible characters
+        logger.debug("Sanitizing text for XML compatibility")
+        sanitized_paragraph = sanitize_text_for_xml(paragraph)
+
+        sanitized_length = len(sanitized_paragraph)
+        if sanitized_length != text_length:
+            removed_chars = text_length - sanitized_length
+            logger.warning("Removed %d invalid XML characters from text", removed_chars)
+
         logger.debug("Creating new Word document")
         document = Document()
-        document.add_paragraph(paragraph)
+        document.add_paragraph(sanitized_paragraph)
 
         logger.debug("Saving document to: %s", docx_file_path)
         document.save(docx_file_path)
@@ -74,9 +126,18 @@ def convert_txt_file_to_docx(txt_file_path: str, docx_file_path: str) -> None:
         text_length = len(paragraph)
         logger.debug("Read %d characters from file", text_length)
 
+        # Sanitize text to remove XML-incompatible characters
+        logger.debug("Sanitizing text for XML compatibility")
+        sanitized_paragraph = sanitize_text_for_xml(paragraph)
+
+        sanitized_length = len(sanitized_paragraph)
+        if sanitized_length != text_length:
+            removed_chars = text_length - sanitized_length
+            logger.warning("Removed %d invalid XML characters from text", removed_chars)
+
         logger.debug("Creating Word document")
         document = Document()
-        document.add_paragraph(paragraph)
+        document.add_paragraph(sanitized_paragraph)
 
         logger.debug("Saving document to: %s", docx_file_path)
         document.save(docx_file_path)
@@ -125,7 +186,15 @@ def convert_pdf_to_docx(pdf_path: str, docx_path: str):
                     text_length = len(text)
                     total_text_length += text_length
                     logger.debug("Page %d: extracted %d characters", page_num, text_length)
-                    document.add_paragraph(text)
+
+                    # Sanitize text to remove XML-incompatible characters
+                    sanitized_text = sanitize_text_for_xml(text)
+
+                    if len(sanitized_text) != text_length:
+                        removed = text_length - len(sanitized_text)
+                        logger.warning("Page %d: removed %d invalid XML characters", page_num, removed)
+
+                    document.add_paragraph(sanitized_text)
                 else:
                     logger.debug("Page %d: no text extracted", page_num)
 
