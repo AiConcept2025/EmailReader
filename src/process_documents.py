@@ -254,7 +254,7 @@ class DocProcessor:
         """
         logger.info('Starting process_word_file() for: %s', file_name)
         logger.debug("Parameters - client: %s, folder: %s, target_lang: %s",
-                    client, document_folder, target_lang)
+                     client, document_folder, target_lang)
 
         try:
             file_path = os.path.join(document_folder, file_name)
@@ -265,7 +265,8 @@ class DocProcessor:
                 raise FileNotFoundError(f"File not found: {file_path}")
 
             file_name_no_ext, file_ext = os.path.splitext(file_name)
-            logger.debug("File name without ext: %s, extension: %s", file_name_no_ext, file_ext)
+            logger.debug("File name without ext: %s, extension: %s",
+                         file_name_no_ext, file_ext)
 
             logger.debug("Loading Word document")
             document = Document(file_path)
@@ -280,7 +281,8 @@ class DocProcessor:
             logger.debug("Extracted text length: %d characters", text_length)
 
             if text_length < 10:
-                logger.warning("Document has very little text (%d chars)", text_length)
+                logger.warning(
+                    "Document has very little text (%d chars)", text_length)
 
             logger.debug("Detecting language")
             detected_lang = detect(text)
@@ -298,7 +300,8 @@ class DocProcessor:
                 original_file_path = new_file_path
             else:
                 # If not English, translate it and rename file with +translated
-                logger.info("Document is in %s, translation required", detected_lang)
+                logger.info(
+                    "Document is in %s, translation required", detected_lang)
                 # Rename original file with +original
                 # Do not prefix with client here; caller will prepend email
                 original_file_name = f'{file_name_no_ext}+original{file_ext}'
@@ -310,13 +313,15 @@ class DocProcessor:
                 # Translate document (optionally to target_lang)
                 new_file_name = f'{file_name_no_ext}+translated{file_ext}'
                 new_file_path = os.path.join(document_folder, new_file_name)
-                logger.info("Translating document from %s to %s", detected_lang, target_lang or 'en')
+                logger.info("Translating document from %s to %s",
+                            detected_lang, target_lang or 'en')
                 translate_document_to_english(
                     original_file_path, new_file_path, target_lang)
                 logger.info("Translation completed: %s", new_file_name)
 
             logger.info("process_word_file() completed successfully")
-            logger.debug("Returning: new_file=%s, original_file=%s", new_file_name, original_file_name)
+            logger.debug("Returning: new_file=%s, original_file=%s",
+                         new_file_name, original_file_name)
 
             return (
                 new_file_path,
@@ -325,7 +330,8 @@ class DocProcessor:
                 original_file_path)
 
         except Exception as e:
-            logger.error("Error in process_word_file() for %s: %s", file_name, e, exc_info=True)
+            logger.error("Error in process_word_file() for %s: %s",
+                         file_name, e, exc_info=True)
             raise
 
     def convert_pdf_file_to_word(
@@ -344,7 +350,7 @@ class DocProcessor:
         """
         logger.info('Starting convert_pdf_file_to_word() for: %s', file_name)
         logger.debug("Parameters - client: %s, folder: %s, target_lang: %s",
-                    client, document_folder, target_lang)
+                     client, document_folder, target_lang)
 
         try:
             file_path = os.path.join(document_folder, file_name)
@@ -355,7 +361,8 @@ class DocProcessor:
                 raise FileNotFoundError(f"File not found: {file_path}")
 
             file_name_no_ext, file_ext = os.path.splitext(file_name)
-            logger.debug("File name without ext: %s, extension: %s", file_name_no_ext, file_ext)
+            logger.debug("File name without ext: %s, extension: %s",
+                         file_name_no_ext, file_ext)
 
             # CHANGED: Removed {client}+ prefix
             original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
@@ -373,7 +380,8 @@ class DocProcessor:
             # Check if file is image or searchable
             logger.info("Checking if PDF is searchable")
             is_searchable = is_pdf_searchable_pypdf(original_file_path)
-            logger.info("PDF is %s", "searchable" if is_searchable else "image-based (requires OCR)")
+            logger.info(
+                "PDF is %s", "searchable" if is_searchable else "image-based (requires OCR)")
 
             if is_searchable:
                 logger.info("Converting searchable PDF to DOCX")
@@ -390,13 +398,15 @@ class DocProcessor:
             logger.info("Translating PDF content to %s", target_lang or 'en')
             translate_document_to_english(
                 docx_file_path, new_file_path, target_lang)
+
             logger.info("Translation completed: %s", new_file_name)
 
             logger.debug("Cleaning up temporary DOCX file: %s", docx_file_path)
             delete_file(docx_file_path)
 
             logger.info("convert_pdf_file_to_word() completed successfully")
-            logger.debug("Returning: new_file=%s, original_file=%s", new_file_name, original_file_name)
+            logger.debug("Returning: new_file=%s, original_file=%s",
+                         new_file_name, original_file_name)
 
             return (
                 new_file_path,
@@ -405,5 +415,6 @@ class DocProcessor:
                 original_file_path)
 
         except Exception as e:
-            logger.error("Error in convert_pdf_file_to_word() for %s: %s", file_name, e, exc_info=True)
+            logger.error(
+                "Error in convert_pdf_file_to_word() for %s: %s", file_name, e, exc_info=True)
             raise
