@@ -1,13 +1,24 @@
 """
 Convert docs to docx
 """
-import os
 import logging
+import os
+import unicodedata
+
 import pdfplumber
 from docx import Document
 
 # Get logger for this module
 logger = logging.getLogger('EmailReader.DocConverter')
+
+
+def remove_control_chars(s: str):
+    """
+    Remove control characters from a string, except for \r, \n, and \t"""
+    logger.debug("Entering remove_control_chars()")
+
+    return "".join(ch for ch in s if unicodedata.category(ch)[0] != "C" or (
+        ch == "\r" or ch == "\n" or ch == "\t"))
 
 
 def convert_txt_to_docx(paragraph: str, docx_file_path: str) -> None:
@@ -30,17 +41,18 @@ def convert_txt_to_docx(paragraph: str, docx_file_path: str) -> None:
 
         logger.debug("Creating new Word document")
         document = Document()
-        document.add_paragraph(paragraph)
+        cleaned_text = remove_control_chars(paragraph)
+        document.add_paragraph(cleaned_text)
 
         logger.debug("Saving document to: %s", docx_file_path)
         document.save(docx_file_path)
-
         if os.path.exists(docx_file_path):
             file_size = os.path.getsize(docx_file_path) / 1024  # KB
             logger.info('Text converted to Word successfully: %s (%.2f KB)',
-                       os.path.basename(docx_file_path), file_size)
+                        os.path.basename(docx_file_path), file_size)
         else:
-            logger.error("Document save failed - file not found: %s", docx_file_path)
+            logger.error(
+                "Document save failed - file not found: %s", docx_file_path)
 
     except Exception as e:
         logger.error("Error converting text to DOCX: %s", e, exc_info=True)
@@ -84,9 +96,10 @@ def convert_txt_file_to_docx(txt_file_path: str, docx_file_path: str) -> None:
         if os.path.exists(docx_file_path):
             output_size = os.path.getsize(docx_file_path) / 1024  # KB
             logger.info('TXT file converted to Word: %s (%.2f KB)',
-                       os.path.basename(docx_file_path), output_size)
+                        os.path.basename(docx_file_path), output_size)
         else:
-            logger.error("Document save failed - file not found: %s", docx_file_path)
+            logger.error(
+                "Document save failed - file not found: %s", docx_file_path)
 
     except Exception as e:
         logger.error("Error converting TXT file to DOCX: %s", e, exc_info=True)
@@ -124,13 +137,14 @@ def convert_pdf_to_docx(pdf_path: str, docx_path: str):
                 if text:
                     text_length = len(text)
                     total_text_length += text_length
-                    logger.debug("Page %d: extracted %d characters", page_num, text_length)
+                    logger.debug("Page %d: extracted %d characters",
+                                 page_num, text_length)
                     document.add_paragraph(text)
                 else:
                     logger.debug("Page %d: no text extracted", page_num)
 
             logger.info("Total text extracted: %d characters from %d pages",
-                       total_text_length, num_pages)
+                        total_text_length, num_pages)
 
             logger.debug("Saving DOCX file")
             document.save(docx_path)
@@ -138,9 +152,10 @@ def convert_pdf_to_docx(pdf_path: str, docx_path: str):
         if os.path.exists(docx_path):
             output_size = os.path.getsize(docx_path) / 1024  # KB
             logger.info('PDF converted to Word: %s (%.2f KB)',
-                       os.path.basename(docx_path), output_size)
+                        os.path.basename(docx_path), output_size)
         else:
-            logger.error("Document save failed - file not found: %s", docx_path)
+            logger.error(
+                "Document save failed - file not found: %s", docx_path)
 
     except Exception as e:
         logger.error("Error converting PDF to DOCX: %s", e, exc_info=True)
