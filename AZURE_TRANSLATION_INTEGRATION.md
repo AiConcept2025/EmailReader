@@ -7,7 +7,7 @@ Complete implementation of Azure Document Intelligence OCR with Google Cloud Tra
 This integration provides a flexible, production-ready solution for OCR and translation:
 
 - **OCR Providers**: Azure Document Intelligence, LandingAI, or Tesseract (default)
-- **Translation Providers**: Google Cloud Translation API v3 or subprocess-based GoogleTranslator
+- **Translation Provider**: Google Cloud Translation API v3 (built-in)
 
 ## Architecture
 
@@ -30,8 +30,7 @@ src/translation/
 ├── __init__.py              # Module exports
 ├── base_translator.py       # Abstract translator interface
 ├── translator_factory.py    # Factory for creating translators
-├── google_text_translator.py  # Subprocess-based GoogleTranslator
-└── google_doc_translator.py   # Google Cloud Translation API v3
+└── google_doc_translator.py   # Google Cloud Translation API v3 (built-in)
 ```
 
 ## Setup
@@ -166,7 +165,7 @@ from src.translation.translator_factory import TranslatorFactory
 # Configuration for Google Cloud Translation API v3
 config = {
     'translation': {
-        'provider': 'google_doc',  # or 'google_text'
+        'provider': 'google_doc',
         'google_doc': {
             'project_id': 'your-project-id',
             'location': 'us-central1'
@@ -268,13 +267,10 @@ config = {
 ```python
 config = {
     'translation': {
-        'provider': 'google_doc',  # 'google_doc', 'google_text'
+        'provider': 'google_doc',  # Only google_doc is supported
         'google_doc': {
             'project_id': 'your-project',
             'location': 'us-central1'  # optional, default: us-central1
-        },
-        'google_text': {
-            'executable_path': './translate_document'  # optional
         }
     }
 }
@@ -289,7 +285,6 @@ All components use structured logging with the `EmailReader` logger hierarchy:
 - `EmailReader.OCR.Default` - Tesseract logging
 - `EmailReader.Translation` - Base translation logging
 - `EmailReader.Translation.GoogleDoc` - Google API v3 logging
-- `EmailReader.Translation.GoogleText` - Subprocess logging
 
 ### Log Levels
 
@@ -416,7 +411,7 @@ translate_document_to_english(input_path, output_path)
 ```python
 from src.translation.translator_factory import TranslatorFactory
 
-config = {'translation': {'provider': 'google_text'}}
+config = {'translation': {'provider': 'google_doc', 'google_doc': {'project_id': 'your-project-id'}}}
 translator = TranslatorFactory.get_translator(config)
 translator.translate_document(input_path, output_path, target_lang='en')
 ```

@@ -22,121 +22,8 @@ cwd = os.getcwd()
 google_api = GoogleApi()
 
 
-def find_translator_executable() -> Optional[Tuple[Path, Path]]:
-    """
-    Find the translator executable with fallback logic.
-
-    Priority:
-    1. Configured path from secrets.json (translator_executable_path)
-    2. GoogleTranslator project (sibling directory) - Python script
-    3. GoogleTranslator project (sibling directory) - compiled executable
-    4. EmailReader root directory (legacy) - compiled executable
-    5. EmailReader root directory (legacy) - Python script
-
-    Returns:
-        Tuple of (script_path, python_interpreter_path) or None if not found.
-        For GoogleTranslator Python script, returns its own venv Python.
-        For other paths, returns current Python interpreter.
-    """
-    logger.debug("Searching for translator executable")
-
-    # Try configured path from config
-    try:
-        config = load_config()
-        if config:
-            configured_path = config.get('app', {}).get('translator_executable_path')
-            if configured_path:
-                path = Path(configured_path)
-                if path.exists():
-                    logger.info("Using configured translator path: %s", path)
-
-                    # Check if configured path is
-                    # GoogleTranslator's Python script
-                    if path.suffix == '.py' and 'GoogleTranslator' in str(path):
-                        # Try to use GoogleTranslator's venv
-                        google_translator_venv = Path(
-                            __file__).parent.parent.parent / 'GoogleTranslator' / 'venv' / 'bin' / 'python'
-                        if google_translator_venv.exists():
-                            logger.info(
-                                ("Configured path is GoogleTranslator script"
-                                 ", using its venv: %s"),
-                                google_translator_venv)
-                            return (path.resolve(), google_translator_venv)
-                        else:
-                            logger.warning(
-                                ("GoogleTranslator venv not found, using"
-                                 " current Python (may have missing "
-                                 "dependencies)")
-                            )
-
-                    # For other configured paths, use current "
-                    # "Python interpreter
-                    return (path, Path(sys.executable))
-                else:
-                    logger.warning(
-                        "Configured translator path does not exist: %s",
-                        configured_path)
-    except Exception as e:
-        logger.debug("Error reading configuration: %s", e)
-
-    # Try GoogleTranslator project (sibling directory) - Python script
-    google_translator_py = Path(
-        __file__).parent.parent.parent / 'GoogleTranslator' / 'translate_document.py'
-    if google_translator_py.exists():
-        logger.info("Found GoogleTranslator Python script: %s",
-                    google_translator_py)
-
-        # Try to use GoogleTranslator's own venv Python
-        google_translator_venv = Path(
-            __file__).parent.parent.parent / 'GoogleTranslator' / 'venv' / 'bin' / 'python'
-
-        if google_translator_venv.exists():
-            logger.info("Using GoogleTranslator's venv Python: %s",
-                        google_translator_venv)
-            return (google_translator_py.resolve(), google_translator_venv)
-        else:
-            logger.warning(
-                "GoogleTranslator venv not found at: %s. "
-                "Using current Python interpreter (may have "
-                "missing dependencies)",
-                google_translator_venv
-            )
-            return (google_translator_py.resolve(), Path(sys.executable))
-    else:
-        logger.debug(
-            "GoogleTranslator Python script not found at: %s",
-            google_translator_py)
-
-    # Try GoogleTranslator project (sibling directory) - compiled executable
-    google_translator_bin = Path(
-        __file__).parent.parent.parent / 'GoogleTranslator' / 'translate_document'
-    if google_translator_bin.exists():
-        logger.info("Found GoogleTranslator executable: %s",
-                    google_translator_bin)
-        # Compiled executable doesn't need Python interpreter
-        return (google_translator_bin, Path(sys.executable))
-    else:
-        logger.debug("GoogleTranslator executable not found at: %s",
-                     google_translator_bin)
-
-    # Try EmailReader root directory (legacy) - compiled executable
-    legacy_bin = Path(cwd) / 'translate_document'
-    if legacy_bin.exists():
-        logger.info("Found legacy translator executable: %s", legacy_bin)
-        return (legacy_bin, Path(sys.executable))
-    else:
-        logger.debug("Legacy executable not found at: %s", legacy_bin)
-
-    # Try EmailReader root directory (legacy) - Python script
-    legacy_py = Path(cwd) / 'translate_document.py'
-    if legacy_py.exists():
-        logger.info("Found legacy translator Python script: %s", legacy_py)
-        return (legacy_py, Path(sys.executable))
-    else:
-        logger.debug("Legacy Python script not found at: %s", legacy_py)
-
-    logger.error("Translator executable not found in any location")
-    return None
+# Legacy function removed - now using built-in Google Cloud Translation API
+# via TranslatorFactory.get_translator()
 
 
 def get_translate_folder_id() -> str:
@@ -225,12 +112,17 @@ def translate_document(
         target_lang: str | None = None
 ) -> None:
     """
-    Translates word document to target_lang.
+    Translates Word document to target_lang using built-in Google Cloud Translation API.
+
     Args:
-    original_path: foreign language word document Word format
-    translated_path: output english Word document Word format
-    source_lang: optional source language code (e.g., 'es')
-    target_lang: optional language code to translate to (e.g., 'fr')
+        original_path: foreign language word document in Word format
+        translated_path: output translated Word document in Word format
+        source_lang: optional source language code (e.g., 'es')
+        target_lang: optional language code to translate to (e.g., 'en')
+
+    Raises:
+        FileNotFoundError: If input file doesn't exist
+        RuntimeError: If translation fails
     """
     logger.debug("Entering translate_document()")
     logger.debug("Original: %s", original_path)
@@ -242,73 +134,37 @@ def translate_document(
         logger.error("Original file not found: %s", original_path)
         raise FileNotFoundError(f"File not found: {original_path}")
 
-    # Find translator executable with intelligent fallback
-    translator_info = find_translator_executable()
-
-    if not translator_info:
-        error_msg = (
-            "Translator executable not found. Please ensure one of the following:\n"
-            "1. Set 'translator_executable_path' in credentials/secrets.json\n"
-            "2. Place GoogleTranslator project at ../GoogleTranslator/\n"
-            "3. Place translate_document executable in EmailReader root directory\n"
-        )
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
-
-    # Unpack the tuple: (script_path, python_interpreter)
-    executable_path, python_interpreter = translator_info
-
-    # Validate Python interpreter exists
-    if not python_interpreter.exists():
-        logger.error("Python interpreter not found: %s", python_interpreter)
-        raise FileNotFoundError(
-            f"Python interpreter not found: {python_interpreter}")
-
-    # Build command arguments
-    arguments = ['-i', original_path, '-o', translated_path]
-    if source_lang:
-        arguments += ['--source', source_lang]
-    if target_lang:
-        arguments += ['--target', target_lang]
-
-    # Determine if we need to invoke with Python
-    if executable_path.suffix == '.py':
-        command = [str(python_interpreter), str(executable_path)] + arguments
-        logger.info("Using Python script for translation")
-        logger.info("  Script: %s", executable_path)
-        logger.info("  Python: %s", python_interpreter)
-    else:
-        command = [str(executable_path)] + arguments
-        logger.info("Using compiled executable for translation: %s",
-                    executable_path)
-
-    logger.debug("Translation command: %s", ' '.join(command))
-
     try:
-        logger.info("Starting translation subprocess")
-        result = subprocess.run(
-            command, capture_output=True, text=True, check=True)
-        logger.debug("Translation stdout: %s",
-                     result.stdout if result.stdout else "(empty)")
-        logger.info("Translation completed successfully")
+        # Load configuration and create translator using factory
+        from src.translation.translator_factory import TranslatorFactory
 
+        config = load_config()
+        if not config:
+            raise RuntimeError("Failed to load configuration")
+
+        # Create translator instance
+        logger.info("Creating translator from configuration")
+        translator = TranslatorFactory.get_translator(config)
+
+        # Perform translation using paragraph-based approach
+        logger.info("Starting translation using paragraph-based translation")
+        translator.translate_document_paragraphs(
+            input_path=original_path,
+            output_path=translated_path,
+            source_lang=source_lang,
+            target_lang=target_lang or 'en'
+        )
+
+        # Verify output file was created
         if os.path.exists(translated_path):
             file_size = os.path.getsize(translated_path) / 1024  # KB
-            logger.debug("Translated file size: %.2f KB", file_size)
+            logger.info("Translation completed successfully: %.2f KB", file_size)
         else:
-            logger.error(
-                "Translation completed but output file not found: %s", translated_path)
+            logger.error("Translation completed but output file not found: %s", translated_path)
+            raise FileNotFoundError(f"Translation output not created: {translated_path}")
 
-    except subprocess.CalledProcessError as e:
-        error = f'Translation failed with exit code {e.returncode}'
-        logger.error(error)
-        logger.error('Command: %s', ' '.join(command))
-        logger.error('Stdout: %s', e.stdout)
-        logger.error('Stderr: %s', e.stderr)
-        raise
     except Exception as e:
-        logger.error('Unexpected error during translation: %s',
-                     e, exc_info=True)
+        logger.error('Translation failed: %s', e, exc_info=True)
         raise
 
 

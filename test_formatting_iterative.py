@@ -30,7 +30,6 @@ logger = logging.getLogger(__name__)
 
 # Project paths
 PROJECT_ROOT = Path(__file__).parent
-GOOGLE_TRANSLATOR_ROOT = PROJECT_ROOT.parent / "GoogleTranslator"
 TEST_DOCS_DIR = PROJECT_ROOT / "test_docs"
 INBOX_TEMP_DIR = PROJECT_ROOT / "inbox_temp"
 
@@ -211,7 +210,7 @@ def run_ocr_processing(pdf_path: str, output_path: str) -> bool:
 
 def run_translation(input_docx: str, output_docx: str, target_lang: str = 'en') -> bool:
     """
-    Run GoogleTranslator on a DOCX file.
+    Run translation on a DOCX file using built-in Google Cloud Translation API.
 
     Args:
         input_docx: Path to input DOCX
@@ -224,44 +223,22 @@ def run_translation(input_docx: str, output_docx: str, target_lang: str = 'en') 
     try:
         logger.info(f"Running translation on {input_docx}")
 
-        # Build command to run GoogleTranslator with its own virtual environment
-        translator_script = GOOGLE_TRANSLATOR_ROOT / "translate_document.py"
-        translator_python = GOOGLE_TRANSLATOR_ROOT / "venv" / "bin" / "python3"
+        # Use EmailReader's built-in translation function
+        sys.path.insert(0, str(PROJECT_ROOT / "src"))
+        from src.process_files_for_translation import translate_document
 
-        # Check if GoogleTranslator has venv
-        if not translator_python.exists():
-            logger.error(f"GoogleTranslator venv not found at: {translator_python}")
-            return False
-
-        cmd = [
-            str(translator_python),  # Use GoogleTranslator's Python
-            str(translator_script),
-            "--input", input_docx,
-            "--output", output_docx,
-            "--target", target_lang
-        ]
-
-        logger.debug(f"Running command: {' '.join(cmd)}")
-
-        # Run translation
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            cwd=str(GOOGLE_TRANSLATOR_ROOT)
+        # Run translation using built-in Google Cloud Translation API
+        translate_document(
+            original_path=input_docx,
+            translated_path=output_docx,
+            target_lang=target_lang
         )
 
-        if result.returncode == 0:
+        if os.path.exists(output_docx):
             logger.info(f"Translation completed: {output_docx}")
-            if result.stdout:
-                logger.debug(f"Translation output: {result.stdout}")
             return True
         else:
-            logger.error(f"Translation failed with code {result.returncode}")
-            if result.stderr:
-                logger.error(f"Translation stderr: {result.stderr}")
-            if result.stdout:
-                logger.error(f"Translation stdout: {result.stdout}")
+            logger.error(f"Translation failed: output file not created")
             return False
 
     except Exception as e:
@@ -411,10 +388,10 @@ def run_iteration(iteration: int, pdf_path: str, max_iterations: int = 10) -> Tu
             print(f"    OCR output: {ocr_results['page_count']} pages ✓")
             print(f"    Translated: {trans_results['page_count']} pages ❌")
             print(f"\n  Root Cause:")
-            print(f"    GoogleTranslator is not preserving page breaks")
+            print(f"    Translation is not preserving page breaks")
             print(f"\n  Location:")
-            print(f"    GoogleTranslator/translator/core/translator.py")
-            print(f"    Line ~728: Document creation without page break copying")
+            print(f"    EmailReader/src/translation/google_doc_translator.py")
+            print(f"    Document creation without page break copying")
             print(f"\n  Fix Required:")
             print(f"    Copy paragraph_format.page_break_before from source to target")
 
@@ -439,10 +416,10 @@ def run_iteration(iteration: int, pdf_path: str, max_iterations: int = 10) -> Tu
                 print(f"    OCR output: All Times New Roman 12pt ✓")
                 print(f"    Translated: Mixed fonts ❌")
                 print(f"\n  Root Cause:")
-                print(f"    GoogleTranslator not preserving font settings")
+                print(f"    Translation not preserving font settings")
                 print(f"\n  Location:")
-                print(f"    GoogleTranslator/translator/core/translator.py")
-                print(f"    Line ~728: Font copying logic")
+                print(f"    EmailReader/src/translation/google_doc_translator.py")
+                print(f"    Font preservation logic")
             else:
                 print(f"  Problem: Wrong fonts in OCR output")
                 print(f"    OCR output: Mixed fonts ❌")
@@ -459,7 +436,7 @@ def run_iteration(iteration: int, pdf_path: str, max_iterations: int = 10) -> Tu
             print(f"\n  Root Cause:")
             print(f"    Font bold/italic flags not being reset to False")
             print(f"\n  Location:")
-            print(f"    EmailReader/src/convert_to_docx.py or GoogleTranslator")
+            print(f"    EmailReader/src/convert_to_docx.py or src/translation/google_doc_translator.py")
             print(f"    Need to explicitly set run.font.bold = False, run.font.italic = False")
 
         return False, all_issues

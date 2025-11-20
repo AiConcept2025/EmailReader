@@ -1,0 +1,483 @@
+================================================================================
+AZURE OCR CONFIGURATION REFERENCE
+================================================================================
+
+Project: EmailReader
+Component: Azure Document Intelligence OCR Provider
+Last Updated: 2025-11-19
+
+================================================================================
+OVERVIEW
+================================================================================
+
+The Azure OCR provider supports multiple Document Intelligence models that can
+be configured through the application configuration file. Each model offers
+different capabilities and is optimized for specific document types.
+
+Configuration File: credentials/config.dev.json
+Configuration Section: ocr.azure.model
+
+================================================================================
+AVAILABLE MODELS
+================================================================================
+
+1. PREBUILT-READ
+   Model ID: "prebuilt-read"
+   Status: ✓ Current Default
+
+   Description:
+   General-purpose OCR model optimized for text extraction from documents.
+   Uses Read API for high-quality text recognition with paragraph detection.
+
+   Best For:
+   - Letters and correspondence
+   - Legal documents
+   - Academic papers
+   - Articles and reports
+   - Simple forms
+   - Books and manuscripts
+
+   Features:
+   ✓ Paragraph detection
+   ✓ Line-by-line text extraction
+   ✓ Word-level extraction
+   ✓ Multi-language support (100+ languages)
+   ✓ Handwriting recognition
+   ✓ Print text recognition
+   ✓ Page layout analysis
+   ✓ Reading order detection
+   ✓ Language detection
+
+   Performance:
+   Speed: Fast (2-5 seconds per page)
+   Accuracy: Very High (>98% for clear text)
+   Cost: $ (lowest tier)
+
+   Limitations:
+   ✗ No table structure extraction
+   ✗ No selection mark detection
+   ✗ No key-value pair extraction
+   ✗ Limited form field detection
+
+   Output Includes:
+   - Paragraphs with content and bounding regions
+   - Lines with content and polygon coordinates
+   - Words with content and confidence scores
+   - Page dimensions and orientation
+   - Detected languages per page
+
+
+2. PREBUILT-LAYOUT
+   Model ID: "prebuilt-layout"
+   Status: ○ Available (requires config change)
+
+   Description:
+   Advanced layout analysis model that extracts text AND document structure
+   including tables, selection marks, and hierarchical organization.
+
+   Best For:
+   - Forms with tables
+   - Invoices and receipts
+   - Financial statements
+   - Medical records
+   - Structured documents
+   - Multi-column layouts
+   - Documents with checkboxes
+
+   Features:
+   ✓ Everything in prebuilt-read PLUS:
+   ✓ Table extraction with cell structure
+   ✓ Selection mark detection (☑ ☐ ⚫ ⚪)
+   ✓ Advanced layout hierarchy
+   ✓ Section headers detection
+   ✓ Footnote detection
+   ✓ Page header/footer detection
+   ✓ Column layout analysis
+
+   Performance:
+   Speed: Medium (5-10 seconds per page)
+   Accuracy: Very High
+   Cost: $$ (medium tier)
+
+   Limitations:
+   ✗ Slower than prebuilt-read
+   ✗ No semantic key-value extraction
+   ✗ Higher API costs
+
+   Output Includes:
+   - All prebuilt-read outputs PLUS:
+   - Tables with rows, columns, cells
+   - Selection marks with state (selected/unselected)
+   - Layout sections and hierarchies
+   - Structural elements (headers, footers)
+
+
+3. PREBUILT-DOCUMENT
+   Model ID: "prebuilt-document"
+   Status: ○ Available (requires config change)
+
+   Description:
+   Comprehensive document understanding model that extracts text, structure,
+   and semantic relationships including key-value pairs and entities.
+
+   Best For:
+   - Contracts and agreements
+   - Business documents
+   - Applications and forms
+   - Documents with labeled fields
+   - Structured data extraction
+
+   Features:
+   ✓ Everything in prebuilt-layout PLUS:
+   ✓ Key-value pair extraction
+   ✓ Entity detection and classification
+   ✓ Semantic understanding
+   ✓ Relationship mapping
+
+   Performance:
+   Speed: Slower (10-15 seconds per page)
+   Accuracy: Very High
+   Cost: $$$ (highest tier)
+
+   Limitations:
+   ✗ Slowest processing time
+   ✗ Highest API costs
+   ✗ May be overkill for simple documents
+
+   Output Includes:
+   - All prebuilt-layout outputs PLUS:
+   - Key-value pairs (e.g., "Name: John Doe")
+   - Entities (dates, amounts, names, etc.)
+   - Confidence scores for extracted data
+   - Relationship structures
+
+================================================================================
+MODEL COMPARISON TABLE
+================================================================================
+
+Feature                    | prebuilt-read | prebuilt-layout | prebuilt-document
+---------------------------|---------------|-----------------|------------------
+Text Extraction            | ✓             | ✓               | ✓
+Paragraph Detection        | ✓             | ✓               | ✓
+Line Detection             | ✓             | ✓               | ✓
+Word Detection             | ✓             | ✓               | ✓
+Multi-language Support     | ✓             | ✓               | ✓
+Handwriting Recognition    | ✓             | ✓               | ✓
+Page Layout Analysis       | ✓             | ✓               | ✓
+Reading Order Detection    | ✓             | ✓               | ✓
+                          |               |                 |
+Table Extraction           | ✗             | ✓               | ✓
+Table Cell Structure       | ✗             | ✓               | ✓
+Selection Marks (Checkbox) | ✗             | ✓               | ✓
+Section Headers            | ✗             | ✓               | ✓
+Header/Footer Detection    | ✗             | ✓               | ✓
+                          |               |                 |
+Key-Value Pairs            | ✗             | ✗               | ✓
+Entity Extraction          | ✗             | ✗               | ✓
+Semantic Relationships     | ✗             | ✗               | ✓
+                          |               |                 |
+Processing Speed           | Fast          | Medium          | Slow
+Relative Cost              | $             | $$              | $$$
+Recommended For            | General       | Forms/Tables    | Structured Data
+
+================================================================================
+CONFIGURATION EXAMPLES
+================================================================================
+
+EXAMPLE 1: Using prebuilt-read (Current Default)
+-------------------------------------------------
+{
+  "ocr": {
+    "provider": "azure",
+    "azure": {
+      "endpoint": "https://your-resource.cognitiveservices.azure.com/",
+      "api_key": "your-api-key-here",
+      "model": "prebuilt-read",
+      "page_processing": {
+        "preserve_page_breaks": true,
+        "searchability_threshold": 50
+      },
+      "retry": {
+        "max_attempts": 3,
+        "backoff_factor": 2,
+        "timeout": 60
+      }
+    }
+  }
+}
+
+Use When:
+- Processing letters, emails, articles
+- Need fast processing
+- Simple text extraction
+- Cost optimization is priority
+
+
+EXAMPLE 2: Using prebuilt-layout
+---------------------------------
+{
+  "ocr": {
+    "provider": "azure",
+    "azure": {
+      "endpoint": "https://your-resource.cognitiveservices.azure.com/",
+      "api_key": "your-api-key-here",
+      "model": "prebuilt-layout",
+      "page_processing": {
+        "preserve_page_breaks": true,
+        "extract_tables": true,
+        "detect_selection_marks": true
+      },
+      "retry": {
+        "max_attempts": 3,
+        "backoff_factor": 2,
+        "timeout": 90
+      }
+    }
+  }
+}
+
+Use When:
+- Documents contain tables
+- Need checkbox/selection mark detection
+- Complex multi-column layouts
+- Forms with structured data
+
+
+EXAMPLE 3: Using prebuilt-document
+-----------------------------------
+{
+  "ocr": {
+    "provider": "azure",
+    "azure": {
+      "endpoint": "https://your-resource.cognitiveservices.azure.com/",
+      "api_key": "your-api-key-here",
+      "model": "prebuilt-document",
+      "page_processing": {
+        "preserve_page_breaks": true,
+        "extract_tables": true,
+        "extract_key_value_pairs": true,
+        "detect_entities": true
+      },
+      "retry": {
+        "max_attempts": 3,
+        "backoff_factor": 2,
+        "timeout": 120
+      }
+    }
+  }
+}
+
+Use When:
+- Need semantic understanding
+- Extracting structured data (contracts, forms)
+- Key-value pair extraction required
+- Entity recognition needed
+
+================================================================================
+CONFIGURATION PARAMETERS
+================================================================================
+
+REQUIRED PARAMETERS
+-------------------
+endpoint        | string  | Azure Cognitive Services endpoint URL
+api_key         | string  | Azure API authentication key
+model           | string  | Model identifier (see Available Models section)
+
+OPTIONAL PARAMETERS
+-------------------
+page_processing.preserve_page_breaks
+  Type: boolean
+  Default: true
+  Description: Maintain page break structure in output DOCX
+
+page_processing.searchability_threshold
+  Type: integer
+  Default: 50
+  Description: Minimum characters to consider page searchable
+  Valid Range: 0-1000
+
+page_processing.extract_tables
+  Type: boolean
+  Default: false (true for prebuilt-layout/document)
+  Description: Extract table structures
+  Note: Only works with prebuilt-layout or prebuilt-document
+
+page_processing.detect_selection_marks
+  Type: boolean
+  Default: false
+  Description: Detect checkboxes and radio buttons
+  Note: Only works with prebuilt-layout or prebuilt-document
+
+page_processing.extract_key_value_pairs
+  Type: boolean
+  Default: false
+  Description: Extract labeled field data
+  Note: Only works with prebuilt-document
+
+page_processing.detect_entities
+  Type: boolean
+  Default: false
+  Description: Detect and classify entities (dates, names, etc.)
+  Note: Only works with prebuilt-document
+
+retry.max_attempts
+  Type: integer
+  Default: 3
+  Valid Range: 1-10
+  Description: Maximum number of API retry attempts
+
+retry.backoff_factor
+  Type: integer
+  Default: 2
+  Valid Range: 1-10
+  Description: Exponential backoff multiplier
+
+retry.timeout
+  Type: integer
+  Default: 60
+  Valid Range: 30-600
+  Description: API request timeout in seconds
+
+================================================================================
+COST CONSIDERATIONS
+================================================================================
+
+PRICING TIERS (Approximate)
+---------------------------
+prebuilt-read:     $1.50 per 1000 pages
+prebuilt-layout:   $10.00 per 1000 pages
+prebuilt-document: $15.00 per 1000 pages
+
+Note: Prices are approximate. Check Azure pricing for current rates.
+
+COST OPTIMIZATION TIPS
+----------------------
+1. Use prebuilt-read for simple text extraction
+2. Only upgrade to prebuilt-layout when tables are needed
+3. Reserve prebuilt-document for structured data extraction
+4. Consider document type before selecting model
+5. Monitor API usage through Azure portal
+
+PERFORMANCE vs COST TRADE-OFFS
+------------------------------
+Fast + Cheap:      prebuilt-read (best for most use cases)
+Moderate + Medium: prebuilt-layout (when tables needed)
+Slow + Expensive:  prebuilt-document (when semantic data needed)
+
+================================================================================
+CHANGING MODELS
+================================================================================
+
+STEPS TO CHANGE MODEL
+---------------------
+1. Edit credentials/config.dev.json (or appropriate config file)
+2. Locate the "ocr" -> "azure" -> "model" setting
+3. Change value to desired model ID
+4. Restart the application
+5. Verify in logs that new model is being used
+
+VERIFICATION
+------------
+After changing model, check logs for:
+  INFO: Azure OCR model: <model-name>
+  DEBUG: Calling begin_analyze_document with <model-name> model
+
+Example log output:
+  INFO: Azure OCR model: prebuilt-layout
+  DEBUG: Calling begin_analyze_document with prebuilt-layout model
+
+ROLLBACK
+--------
+If issues occur, revert to prebuilt-read:
+  "model": "prebuilt-read"
+
+================================================================================
+RECOMMENDATIONS
+================================================================================
+
+FOR CURRENT USE CASE (Legal Documents, Letters, Correspondence)
+---------------------------------------------------------------
+✓ RECOMMENDED: prebuilt-read
+  - Excellent paragraph detection
+  - Fast processing
+  - Cost-effective
+  - Proven to work with current document types
+  - No line break issues
+
+○ CONSIDER: prebuilt-layout
+  - Only if documents contain tables
+  - Only if need checkbox detection
+  - Accept slower processing
+  - Accept higher costs
+
+✗ NOT RECOMMENDED: prebuilt-document
+  - Overkill for simple text extraction
+  - Slower and more expensive
+  - Features not needed for current documents
+
+MIGRATION PATH
+--------------
+Current:   prebuilt-read (working perfectly)
+If needed: Upgrade to prebuilt-layout (for tables)
+Future:    prebuilt-document (for structured data)
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+COMMON ISSUES
+-------------
+Issue: "Model not found" error
+Solution: Verify model ID is exactly one of:
+  - "prebuilt-read"
+  - "prebuilt-layout"
+  - "prebuilt-document"
+
+Issue: Slower than expected processing
+Solution: Check which model is configured. prebuilt-layout and
+  prebuilt-document are inherently slower.
+
+Issue: Higher costs than expected
+Solution: Verify you're using appropriate model. prebuilt-read is
+  cheapest for simple text extraction.
+
+Issue: Missing table data
+Solution: Upgrade to prebuilt-layout or prebuilt-document.
+  prebuilt-read does not extract table structures.
+
+Issue: Selection marks not detected
+Solution: Use prebuilt-layout or prebuilt-document.
+  prebuilt-read does not detect checkboxes.
+
+================================================================================
+REFERENCE LINKS
+================================================================================
+
+Azure Document Intelligence Documentation:
+https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/
+
+Read Model (prebuilt-read):
+https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/prebuilt/read
+
+Layout Model (prebuilt-layout):
+https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/prebuilt/layout
+
+Document Model (prebuilt-document):
+https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/prebuilt/document
+
+Pricing:
+https://azure.microsoft.com/en-us/pricing/details/form-recognizer/
+
+================================================================================
+SUPPORT
+================================================================================
+
+For questions or issues:
+1. Check logs: logs/email_reader.log
+2. Verify configuration: credentials/config.dev.json
+3. Review this document for configuration options
+4. Check Azure portal for API usage and errors
+
+================================================================================
+END OF DOCUMENT
+================================================================================

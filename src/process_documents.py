@@ -312,7 +312,9 @@ class DocProcessor:
                 new_file_path = os.path.join(document_folder, new_file_name)
                 logger.info("Translating document from %s to %s", detected_lang, target_lang or 'en')
                 translate_document_to_english(
-                    original_file_path, new_file_path, target_lang)
+                    original_file_path, new_file_path,
+                    source_lang=detected_lang,
+                    target_lang=target_lang)
                 logger.info("Translation completed: %s", new_file_name)
 
             logger.info("process_word_file() completed successfully")
@@ -378,12 +380,21 @@ class DocProcessor:
             ocr_provider.process_document(original_file_path, docx_file_path)
             logger.info("Azure OCR processing completed with paragraph preservation")
 
+            # Detect language from OCR output
+            logger.info("Detecting language from OCR output")
+            temp_doc = Document(docx_file_path)
+            temp_text = '\n'.join([p.text for p in temp_doc.paragraphs])
+            detected_lang = detect(temp_text) if temp_text.strip() else None
+            logger.info("Detected language from OCR: %s", detected_lang or 'unknown')
+
             # CHANGED: Removed {client}+ prefix
             new_file_name = f'{client}+{file_name_no_ext}+translated.docx'
             new_file_path = os.path.join(document_folder, new_file_name)
             logger.info("Translating PDF content to %s", target_lang or 'en')
             translate_document_to_english(
-                docx_file_path, new_file_path, target_lang)
+                docx_file_path, new_file_path,
+                source_lang=detected_lang,
+                target_lang=target_lang)
             logger.info("Translation completed: %s", new_file_name)
 
             logger.debug("Cleaning up temporary DOCX file: %s", docx_file_path)

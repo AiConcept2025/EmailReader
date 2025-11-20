@@ -156,6 +156,7 @@ def read_word_doc_to_text(word_doc_path: str) -> str:
 def translate_document_to_english(
         original_path: str,
         translated_path: str,
+        source_lang: str | None = None,
         target_lang: str | None = None
 ) -> None:
     """
@@ -165,11 +166,13 @@ def translate_document_to_english(
     Args:
         original_path: foreign language word document Word format
         translated_path: output english Word document Word format
+        source_lang: optional source language code (e.g., 'ru', 'es') or None for auto-detect
         target_lang: optional language code to translate to (e.g., 'en', 'fr')
     """
     logger.debug("Entering translate_document_to_english()")
     logger.debug("Original: %s", original_path)
     logger.debug("Translated: %s", translated_path)
+    logger.debug("Source language: %s", source_lang or 'auto-detect')
     logger.debug("Target language: %s", target_lang or 'en (default)')
 
     if not os.path.exists(original_path):
@@ -177,21 +180,22 @@ def translate_document_to_english(
         raise FileNotFoundError(f"File not found: {original_path}")
 
     try:
-        # Use Google Cloud Document Translation API that preserves formatting
+        # Use paragraph-based translation for better quality control
         from src.translation import get_translator
         from src.config import load_config
 
-        logger.info("Initializing document translator")
+        logger.info("Initializing document translator (paragraph-based mode)")
         config = load_config()
         translator = get_translator(config)
 
         # Set target language (default to 'en' if not specified)
         target = target_lang if target_lang else 'en'
 
-        logger.info("Translating document with formatting preservation")
-        translator.translate_document(
+        logger.info("Translating document using paragraph-based approach")
+        translator.translate_document_paragraphs(
             input_path=original_path,
             output_path=translated_path,
+            source_lang=source_lang,
             target_lang=target
         )
 
@@ -315,3 +319,60 @@ def build_flowise_question(customer_email: str, file_name_with_ext: str) -> str:
     logger.debug("Built Flowise question: %s", result)
 
     return result
+
+
+def verify_paragraph_counts(
+    ocr_count: int,
+    docx_count: int,
+    translated_count: int = None
+) -> bool:
+    """
+    Verify paragraph counts across the OCR and translation pipeline.
+
+    Logs a complete chain of counts and checks for consistency.
+    This function provides end-to-end verification of paragraph preservation
+    throughout the document processing pipeline.
+
+    Args:
+        ocr_count: Number of paragraphs extracted from OCR
+        docx_count: Number of paragraphs written to DOCX file
+        translated_count: Optional number of paragraphs after translation
+
+    Returns:
+        True if all counts match, False otherwise
+
+    Example:
+        >>> verify_paragraph_counts(ocr_count=25, docx_count=25, translated_count=25)
+        # Logs: "Pipeline verification: OCR=25, DOCX=25, Translated=25 ✓"
+        True
+
+        >>> verify_paragraph_counts(ocr_count=25, docx_count=23)
+        # Logs: "Pipeline verification: OCR=25, DOCX=23 ✗ MISMATCH"
+        False
+    """
+    logger.debug("Entering verify_paragraph_counts()")
+    logger.debug("OCR count: %d, DOCX count: %d, Translated count: %s",
+                 ocr_count, docx_count, translated_count if translated_count is not None else "N/A")
+
+    # Build verification message
+    if translated_count is not None:
+        verification_msg = f"OCR={ocr_count}, DOCX={docx_count}, Translated={translated_count}"
+        all_match = (ocr_count == docx_count == translated_count)
+    else:
+        verification_msg = f"OCR={ocr_count}, DOCX={docx_count}"
+        all_match = (ocr_count == docx_count)
+
+    # Add status indicator
+    status_indicator = "✓" if all_match else "✗ MISMATCH"
+    full_message = f"Pipeline verification: {verification_msg} {status_indicator}"
+
+    # Log at info level for visibility
+    if all_match:
+        logger.info(full_message)
+        logger.info("PARAGRAPH_COUNT_VERIFICATION: stage=PIPELINE_COMPLETE, status=SUCCESS")
+    else:
+        logger.error(full_message)
+        logger.error("PARAGRAPH_COUNT_VERIFICATION: stage=PIPELINE_COMPLETE, status=FAILURE")
+        logger.error("Paragraph count mismatch detected in processing pipeline")
+
+    return all_match

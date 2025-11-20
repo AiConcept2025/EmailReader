@@ -76,10 +76,8 @@ def load_config() -> dict:
     google_location = os.getenv('GOOGLE_TRANSLATION_LOCATION', 'us-central1')
 
     if not google_project_id:
-        logger.warning("GOOGLE_CLOUD_PROJECT not set, will use subprocess translator")
-        translation_provider = 'google_text'
-    else:
-        translation_provider = 'google_doc'
+        logger.error("GOOGLE_CLOUD_PROJECT not set in environment variables")
+        raise ValueError("Google Cloud Project ID is required")
 
     config = {
         'ocr': {
@@ -90,13 +88,10 @@ def load_config() -> dict:
             }
         },
         'translation': {
-            'provider': translation_provider,
+            'provider': 'google_doc',
             'google_doc': {
                 'project_id': google_project_id,
                 'location': google_location
-            },
-            'google_text': {
-                'executable_path': os.path.join(os.getcwd(), 'translate_document')
             }
         }
     }

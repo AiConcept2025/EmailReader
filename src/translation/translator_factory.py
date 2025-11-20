@@ -16,11 +16,10 @@ class TranslatorFactory:
     """
     Factory for creating translator instances.
 
-    Supports multiple translation providers: Google Text (subprocess),
-    Google Document Translation (API v3), and potentially others.
+    Supports Google Cloud Translation API v3 (google_doc provider).
     """
 
-    VALID_PROVIDERS = {'google_text', 'google_doc'}
+    VALID_PROVIDERS = {'google_doc'}
 
     @staticmethod
     def get_translator(config: Dict[str, Any]) -> BaseTranslator:
@@ -37,7 +36,7 @@ class TranslatorFactory:
             ValueError: If provider type is invalid or not configured
         """
         translation_config = config.get('translation', {})
-        provider_type = translation_config.get('provider', 'google_text')
+        provider_type = translation_config.get('provider', 'google_doc')
 
         logger.info("Creating translator: %s", provider_type)
 
@@ -47,14 +46,8 @@ class TranslatorFactory:
                 f"Valid providers: {TranslatorFactory.VALID_PROVIDERS}"
             )
 
-        if provider_type == 'google_text':
-            # Legacy subprocess-based translator
-            google_text_config = translation_config.get('google_text', {})
-            from src.translation.google_text_translator import GoogleTextTranslator
-            return GoogleTextTranslator(google_text_config)
-
-        elif provider_type == 'google_doc':
-            # New Google Cloud Translation API v3
+        if provider_type == 'google_doc':
+            # Google Cloud Translation API v3
             google_doc_config = translation_config.get('google_doc', {})
             if not google_doc_config.get('project_id'):
                 raise ValueError(
@@ -70,5 +63,4 @@ class TranslatorFactory:
             from src.translation.google_doc_translator import GoogleDocTranslator
             return GoogleDocTranslator(google_doc_config)
 
-        else:
-            raise ValueError(f"Unknown translation provider: {provider_type}")
+        raise ValueError(f"Unknown translation provider: {provider_type}")
