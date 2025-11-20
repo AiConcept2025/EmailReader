@@ -13,7 +13,7 @@ from pathlib import Path
 import pdfplumber
 from docx import Document
 from docx.shared import Pt
-from docx.enum.text import WD_BREAK
+from docx.enum.text import WD_BREAK, WD_PARAGRAPH_ALIGNMENT
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from azure.ai.formrecognizer import DocumentAnalysisClient
@@ -49,8 +49,8 @@ class AzureOCRProvider(BaseOCRProvider):
 
         self.endpoint = config.get('endpoint')
         self.api_key = config.get('api_key')
-        # Get model from config, default to 'prebuilt-read'
-        self.model = config.get('model', 'prebuilt-read')
+        # Get model from config, default to 'prebuilt-layout'
+        self.model = config.get('model', 'prebuilt-layout')
 
         if not self.endpoint or not self.api_key:
             raise ValueError(
@@ -292,13 +292,17 @@ class AzureOCRProvider(BaseOCRProvider):
                                 # Extract confidence if available
                                 confidence = getattr(para, 'confidence', None)
 
+                                # Extract paragraph role if available (title, sectionHeading, etc.)
+                                role = getattr(para, 'role', None)
+
                                 # Create ParagraphData object
                                 para_data = ParagraphData(
                                     text=para.content,
                                     page=page_num,
                                     bounding_box=bounding_box,
                                     confidence=confidence,
-                                    paragraph_index=global_para_index
+                                    paragraph_index=global_para_index,
+                                    role=role
                                 )
                                 page_paragraphs.append(para_data)
                                 global_para_index += 1
@@ -435,7 +439,8 @@ class AzureOCRProvider(BaseOCRProvider):
         Save clean document with filtered paragraphs for translation.
 
         This document contains only valid content paragraphs with proper formatting
-        and spacing, ready for translation.
+        and spacing, ready for translation. Page breaks are inserted between pages
+        to preserve original document pagination.
 
         Args:
             paragraphs: Flat list of filtered ParagraphData objects
@@ -451,23 +456,74 @@ class AzureOCRProvider(BaseOCRProvider):
             input_count = len(paragraphs)
             logger.info("PARAGRAPH_COUNT_VERIFICATION: stage=CLEAN_DOCX_INPUT, count=%d", input_count)
 
+            # Count paragraphs by role for logging
+            role_counts = {}
+            for para in paragraphs:
+                role = para.role if hasattr(para, 'role') and para.role else 'body'
+                role_counts[role] = role_counts.get(role, 0) + 1
+            logger.info("Paragraph roles detected: %s", role_counts)
+
             document = Document()
             output_paragraph_count = 0
+            current_page = None  # Track current page number
+            page_break_count = 0  # Track page breaks inserted
 
             for para_data in paragraphs:
+                # Insert page break when transitioning to a new page
+                if current_page is not None and para_data.page != current_page:
+                    document.add_page_break()
+                    page_break_count += 1
+                    logger.debug("Inserted page break before page %d", para_data.page)
+
                 # Add paragraph with text
                 paragraph = document.add_paragraph(para_data.text)
 
-                # Set font size
-                for run in paragraph.runs:
-                    run.font.size = Pt(11)
+                # Apply role-based formatting based on Azure Layout model
+                role = para_data.role if hasattr(para_data, 'role') else None
+
+                if role == 'title':
+                    # Large, bold, centered for titles
+                    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+                    for run in paragraph.runs:
+                        run.font.size = Pt(18)
+                        run.font.bold = True
+                    logger.debug("Applied title formatting to paragraph %d", para_data.paragraph_index)
+                elif role == 'sectionHeading':
+                    # Medium, bold for section headings
+                    for run in paragraph.runs:
+                        run.font.size = Pt(14)
+                        run.font.bold = True
+                    logger.debug("Applied section heading formatting to paragraph %d", para_data.paragraph_index)
+                elif role == 'pageHeader' or role == 'pageFooter':
+                    # Small, italic for headers/footers
+                    for run in paragraph.runs:
+                        run.font.size = Pt(9)
+                        run.font.italic = True
+                    logger.debug("Applied %s formatting to paragraph %d", role, para_data.paragraph_index)
+                elif role == 'pageNumber':
+                    # Small, centered for page numbers
+                    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+                    for run in paragraph.runs:
+                        run.font.size = Pt(9)
+                    logger.debug("Applied page number formatting to paragraph %d", para_data.paragraph_index)
+                elif role == 'footnote':
+                    # Small for footnotes
+                    for run in paragraph.runs:
+                        run.font.size = Pt(9)
+                    logger.debug("Applied footnote formatting to paragraph %d", para_data.paragraph_index)
+                else:
+                    # Normal body text (default)
+                    for run in paragraph.runs:
+                        run.font.size = Pt(11)
 
                 # Set paragraph spacing (6pt before, 6pt after)
                 self._set_paragraph_spacing(paragraph, before_pt=6, after_pt=6)
 
+                current_page = para_data.page
                 output_paragraph_count += 1
 
             logger.debug("Saving clean DOCX file to: %s", output_path)
+            logger.info("Inserted %d page breaks for multi-page document", page_break_count)
             document.save(output_path)
 
             # Verify counts match

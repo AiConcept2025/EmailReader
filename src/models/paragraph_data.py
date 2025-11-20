@@ -19,6 +19,7 @@ class ParagraphData:
         bounding_box: Optional bounding box coordinates from OCR
         confidence: Optional OCR confidence score (0.0 to 1.0)
         paragraph_index: Sequential index for tracking paragraphs across pages (0-indexed)
+        role: Optional paragraph role from Azure Layout model (title, sectionHeading, pageHeader, etc.)
 
     Example:
         >>> para = ParagraphData(
@@ -26,7 +27,8 @@ class ParagraphData:
         ...     page=1,
         ...     bounding_box={"x": 100, "y": 200, "width": 300, "height": 50},
         ...     confidence=0.95,
-        ...     paragraph_index=0
+        ...     paragraph_index=0,
+        ...     role="sectionHeading"
         ... )
         >>> print(para.text)
         Hello world
@@ -37,6 +39,7 @@ class ParagraphData:
     bounding_box: Optional[Dict[str, float]] = None
     confidence: Optional[float] = None
     paragraph_index: int = 0
+    role: Optional[str] = None
 
     def __str__(self) -> str:
         """String representation for logging and debugging."""

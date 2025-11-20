@@ -39,9 +39,13 @@ class GoogleDocTranslator(BaseTranslator):
         super().__init__(config)
 
         self.project_id = config.get('project_id')
-        self.location = config.get('location', 'global')
+        self.location = config.get('location', 'us-central1')
         self.endpoint = config.get('endpoint')
         self.service_account_info = config.get('service_account')
+
+        # Default language settings
+        self.default_source_language = config.get('default_source_language', None)
+        self.default_target_language = config.get('default_target_language', 'en')
 
         logger.info("=" * 80)
         logger.info("INITIALIZING GOOGLE CLOUD TRANSLATION API v3 CLIENT")
@@ -228,7 +232,7 @@ class GoogleDocTranslator(BaseTranslator):
             raise RuntimeError(f"Google document translation failed: {e}")
 
     def translate_document_paragraphs(self, input_path: str, output_path: str,
-                                       source_lang: str = None, target_lang: str = 'en') -> str:
+                                       source_lang: str = None, target_lang: str = None) -> str:
         """
         Translate a DOCX document using paragraph-based translation.
 
@@ -240,8 +244,8 @@ class GoogleDocTranslator(BaseTranslator):
         Args:
             input_path: Path to input .docx file
             output_path: Path to save translated .docx file
-            source_lang: Source language code (e.g., 'ru')
-            target_lang: Target language code (default: 'en')
+            source_lang: Source language code (e.g., 'ru') or None to use default
+            target_lang: Target language code or None to use default
 
         Returns:
             Path to output file
@@ -252,6 +256,12 @@ class GoogleDocTranslator(BaseTranslator):
         """
         from docx import Document
         from docx.shared import Pt
+
+        # Use configured defaults if not specified
+        if source_lang is None:
+            source_lang = self.default_source_language
+        if target_lang is None:
+            target_lang = self.default_target_language
 
         logger.info("Translating document using paragraph-based approach: %s -> %s",
                    os.path.basename(input_path), target_lang)
@@ -320,7 +330,7 @@ class GoogleDocTranslator(BaseTranslator):
     def translate_paragraphs(
         self,
         paragraphs: List[str],
-        target_lang: str,
+        target_lang: str = None,
         source_lang: str | None = None,
         batch_size: int = 15,
         preserve_formatting: bool = True
@@ -333,8 +343,8 @@ class GoogleDocTranslator(BaseTranslator):
 
         Args:
             paragraphs: List of paragraph text strings to translate
-            target_lang: Target language code (e.g., 'en', 'es', 'fr')
-            source_lang: Source language code (e.g., 'ru', 'es') or None for auto-detect
+            target_lang: Target language code (e.g., 'en', 'es', 'fr') or None to use default
+            source_lang: Source language code (e.g., 'ru', 'es') or None to use default/auto-detect
             batch_size: Number of paragraphs to process per API call (default: 15)
             preserve_formatting: Maintain paragraph boundaries (default: True)
 
@@ -355,6 +365,12 @@ class GoogleDocTranslator(BaseTranslator):
         if not paragraphs:
             logger.warning("Empty paragraphs list provided to translate_paragraphs")
             return []
+
+        # Use configured defaults if not specified
+        if source_lang is None:
+            source_lang = self.default_source_language
+        if target_lang is None:
+            target_lang = self.default_target_language
 
         if not target_lang:
             raise ValueError("Target language code is required")
