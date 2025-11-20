@@ -7,7 +7,7 @@ Implements Azure Document Intelligence Read API integration for OCR.
 import os
 import time
 import logging
-from typing import Dict, Any, List, Tuple
+from typing import Any
 from pathlib import Path
 
 import pdfplumber
@@ -35,7 +35,7 @@ class AzureOCRProvider(BaseOCRProvider):
     layout preservation and high accuracy OCR.
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         """
         Initialize the Azure OCR provider.
 
@@ -180,7 +180,7 @@ class AzureOCRProvider(BaseOCRProvider):
             logger.error("Error checking PDF searchability: %s", e)
             raise
 
-    def _detect_page_searchability(self, pdf_path: str) -> List[bool]:
+    def _detect_page_searchability(self, pdf_path: str) -> list[bool]:
         """
         Analyze each page individually to determine if it needs OCR.
 
@@ -193,7 +193,7 @@ class AzureOCRProvider(BaseOCRProvider):
         logger.debug("Detecting searchability for each page")
 
         try:
-            page_searchability: List[bool] = []
+            page_searchability: list[bool] = []
 
             with pdfplumber.open(pdf_path) as pdf:
                 for page_num, page in enumerate(pdf.pages, 1):
@@ -211,7 +211,29 @@ class AzureOCRProvider(BaseOCRProvider):
             logger.error("Error detecting page searchability: %s", e)
             raise
 
-    def _ocr_with_azure(self, pdf_bytes: bytes, max_retries: int = 3) -> List[List[ParagraphData]]:
+    def _get_page_width_from_result(self, result) -> float:
+        """
+        Get page width from Azure OCR result.
+
+        Args:
+            result: Azure Document Intelligence result
+
+        Returns:
+            Page width in inches (defaults to 8.5 for US Letter)
+        """
+        try:
+            if hasattr(result, 'pages') and result.pages:
+                first_page = result.pages[0]
+                if hasattr(first_page, 'width'):
+                    # Azure returns width in inches directly
+                    return first_page.width
+        except Exception as e:
+            logger.debug("Could not detect page width: %s", e)
+
+        # Default to US Letter width
+        return 8.5
+
+    def _ocr_with_azure(self, pdf_bytes: bytes, max_retries: int = 3) -> list[list[ParagraphData]]:
         """
         Call Azure Read API to perform OCR.
 
@@ -246,12 +268,16 @@ class AzureOCRProvider(BaseOCRProvider):
                 # Wait for completion
                 result = poller.result()
 
+                # Detect page width for alignment detection
+                self._current_page_width = self._get_page_width_from_result(result)
+                logger.debug("Detected page width: %.2f inches", self._current_page_width)
+
                 duration = time.time() - start_time
                 logger.info("Azure analysis completed in %.2f seconds", duration)
                 logger.debug("Result contains %d pages", len(result.pages))
 
                 # Extract text from each page using paragraphs (preserves logical structure)
-                pages_content: List[List[ParagraphData]] = []
+                pages_content: list[list[ParagraphData]] = []
 
                 # Global paragraph index for tracking across pages
                 global_para_index = 0
@@ -267,7 +293,7 @@ class AzureOCRProvider(BaseOCRProvider):
                                    page_num, len(result.pages))
 
                         # Get paragraphs that belong to this page with metadata
-                        page_paragraphs: List[ParagraphData] = []
+                        page_paragraphs: list[ParagraphData] = []
 
                         for para in result.paragraphs:
                             if (hasattr(para, 'bounding_regions') and
@@ -321,7 +347,7 @@ class AzureOCRProvider(BaseOCRProvider):
                                    page_num, len(result.pages))
 
                         # Get all lines on this page as ParagraphData
-                        page_paragraphs: List[ParagraphData] = []
+                        page_paragraphs: list[ParagraphData] = []
                         for line in result.pages[page_num - 1].lines:
                             para_data = ParagraphData(
                                 text=line.content,
@@ -367,6 +393,66 @@ class AzureOCRProvider(BaseOCRProvider):
 
         raise RuntimeError("Azure OCR failed: max retries exceeded")
 
+    def _detect_alignment_from_bounding_box(
+        self,
+        bounding_box: dict[str, float] | None,
+        page_width: float = 8.5,  # Standard US Letter width in inches
+        role: str | None = None
+    ) -> int | None:
+        """
+        Detect text alignment based on bounding box position.
+
+        Uses the X-coordinate of the bounding box to determine if text is
+        left-aligned, centered, or right-aligned on the page.
+
+        Args:
+            bounding_box: Dictionary with x, y, width, height in inches
+            page_width: Page width in inches (default: 8.5 for US Letter)
+            role: Optional paragraph role from Azure
+
+        Returns:
+            WD_PARAGRAPH_ALIGNMENT constant or None for default
+        """
+        # If no bounding box, use role-based defaults
+        if not bounding_box or 'x' not in bounding_box or 'width' not in bounding_box:
+            if role == 'title' or role == 'pageNumber':
+                return WD_PARAGRAPH_ALIGNMENT.CENTER
+            return None  # Default left
+
+        # Extract position data
+        x_start = bounding_box['x']
+        text_width = bounding_box['width']
+        x_center = x_start + (text_width / 2)
+
+        # Define page regions (with margins)
+        left_margin = 1.0    # 1 inch left margin
+        right_margin = page_width - 1.0  # 1 inch right margin
+        page_center = page_width / 2
+
+        # Calculate tolerance zones (15% of usable width)
+        usable_width = right_margin - left_margin
+        center_tolerance = usable_width * 0.15  # 15% tolerance for center detection
+
+        # Detect alignment based on text center position
+        if abs(x_center - page_center) < center_tolerance:
+            # Text is centered
+            logger.debug(
+                "Detected CENTER alignment: x_center=%.2f, page_center=%.2f, diff=%.2f",
+                x_center, page_center, abs(x_center - page_center)
+            )
+            return WD_PARAGRAPH_ALIGNMENT.CENTER
+        elif x_start < left_margin + 0.5:
+            # Text starts near left margin
+            logger.debug("Detected LEFT alignment: x_start=%.2f", x_start)
+            return WD_PARAGRAPH_ALIGNMENT.LEFT
+        elif x_start + text_width > right_margin - 0.5:
+            # Text extends to right margin
+            logger.debug("Detected RIGHT alignment: x_end=%.2f", x_start + text_width)
+            return WD_PARAGRAPH_ALIGNMENT.RIGHT
+        else:
+            # Default to left
+            return WD_PARAGRAPH_ALIGNMENT.LEFT
+
     def _set_paragraph_spacing(self, paragraph, before_pt: int = 6, after_pt: int = 6):
         """
         Set paragraph spacing in points.
@@ -382,7 +468,7 @@ class AzureOCRProvider(BaseOCRProvider):
         spacing.set(qn('w:after'), str(after_pt * 20))
         pPr.append(spacing)
 
-    def _save_verification_docx(self, pages_content: List[List[ParagraphData]], output_path: str) -> None:
+    def _save_verification_docx(self, pages_content: list[list[ParagraphData]], output_path: str) -> None:
         """
         Save verification document with ALL paragraphs (even empty ones) for QA.
 
@@ -434,7 +520,7 @@ class AzureOCRProvider(BaseOCRProvider):
             logger.error("Error saving verification DOCX: %s", e, exc_info=True)
             raise
 
-    def _save_clean_docx(self, paragraphs: List[ParagraphData], output_path: str) -> None:
+    def _save_clean_docx(self, paragraphs: list[ParagraphData], output_path: str) -> None:
         """
         Save clean document with filtered paragraphs for translation.
 
@@ -481,9 +567,20 @@ class AzureOCRProvider(BaseOCRProvider):
                 # Apply role-based formatting based on Azure Layout model
                 role = para_data.role if hasattr(para_data, 'role') else None
 
+                # Detect and apply alignment from bounding box
+                detected_alignment = self._detect_alignment_from_bounding_box(
+                    para_data.bounding_box,
+                    page_width=getattr(self, '_current_page_width', 8.5),
+                    role=role
+                )
+                if detected_alignment is not None:
+                    paragraph.alignment = detected_alignment
+                    logger.debug("Applied alignment %s to paragraph %d (role: %s)",
+                               detected_alignment, para_data.paragraph_index, role)
+
+                # Apply role-based font formatting
                 if role == 'title':
-                    # Large, bold, centered for titles
-                    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+                    # Large, bold (alignment detected from bounding box)
                     for run in paragraph.runs:
                         run.font.size = Pt(18)
                         run.font.bold = True
@@ -501,8 +598,7 @@ class AzureOCRProvider(BaseOCRProvider):
                         run.font.italic = True
                     logger.debug("Applied %s formatting to paragraph %d", role, para_data.paragraph_index)
                 elif role == 'pageNumber':
-                    # Small, centered for page numbers
-                    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+                    # Small (alignment detected from bounding box)
                     for run in paragraph.runs:
                         run.font.size = Pt(9)
                     logger.debug("Applied page number formatting to paragraph %d", para_data.paragraph_index)
