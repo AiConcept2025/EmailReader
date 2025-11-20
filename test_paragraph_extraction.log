@@ -1,0 +1,52 @@
+[0;34m================================================================================[0m
+[0;34mEmailReader OCR + Translation Test[0m
+[0;34m================================================================================[0m
+[1;33mℹ Configuration:[0m
+  Input file:        /Users/vladimirdanishevsky/projects/EmailReader/ФТР Артем Строкань EB1  (1) (2).pdf
+  Target language:   ru
+  OCR output:        /Users/vladimirdanishevsky/projects/EmailReader/ФТР Артем Строкань EB1  (1) (2)_ocr.docx
+  Translation output: /Users/vladimirdanishevsky/projects/EmailReader/ФТР Артем Строкань EB1  (1) (2)_translated.docx
+
+
+[0;34mStep 1: Checking virtual environment[0m
+[0;32m✓ Virtual environment found[0m
+[0;32m✓ Virtual environment activated[0m
+
+[0;34mStep 2: Verifying configuration[0m
+✓ OCR configured: Azure Document Intelligence
+✓ Translation configured: Google Cloud Translation (project: synologysafeaccess-320003)
+
+[0;34mStep 3: Running Azure Document Intelligence OCR[0m
+[1;33mℹ Processing: /Users/vladimirdanishevsky/projects/EmailReader/ФТР Артем Строкань EB1  (1) (2).pdf[0m
+[1;33mℹ This may take 10-30 seconds depending on document size...[0m
+  Provider: AzureOCRProvider
+✓ OCR completed in 0.4 seconds
+✓ Output file: /Users/vladimirdanishevsky/projects/EmailReader/ФТР Артем Строкань EB1  (1) (2)_ocr.docx (38.5 KB)
+[0;32m✓ OCR completed successfully[0m
+
+[0;34mStep 4: Running Google Cloud Translation[0m
+[1;33mℹ Translating to: ru[0m
+[1;33mℹ This may take 5-15 seconds...[0m
+  Translator: GoogleDocTranslator
+✓ Translation completed in 0.8 seconds
+✓ Output file: /Users/vladimirdanishevsky/projects/EmailReader/ФТР Артем Строкань EB1  (1) (2)_translated.docx (38.9 KB)
+[0;32m✓ Translation completed successfully[0m
+[0;34m================================================================================[0m
+[0;34mTest Completed Successfully[0m
+[0;34m================================================================================[0m
+
+[0;32m✓ All steps completed successfully[0m
+
+Results:
+  OCR Result:         /Users/vladimirdanishevsky/projects/EmailReader/ФТР Артем Строкань EB1  (1) (2)_ocr.docx
+  Translation Result: /Users/vladimirdanishevsky/projects/EmailReader/ФТР Артем Строкань EB1  (1) (2)_translated.docx
+
+You can now:
+  - Open the OCR result to verify text extraction
+  - Open the translation result to verify translation quality
+  - Compare the original and translated documents
+
+File Sizes:
+  OCR:         38K - /Users/vladimirdanishevsky/projects/EmailReader/ФТР
+  Translation: 39K - /Users/vladimirdanishevsky/projects/EmailReader/ФТР
+

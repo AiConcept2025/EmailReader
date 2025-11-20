@@ -87,43 +87,7 @@ class AzureOCRProvider(BaseOCRProvider):
             raise FileNotFoundError(f"File not found: {input_path}")
 
         try:
-            # Detect which pages need OCR
-            logger.info("Analyzing PDF pages for searchability")
-            page_searchability = self._detect_page_searchability(input_path)
-            total_pages = len(page_searchability)
-            searchable_count = sum(1 for is_searchable in page_searchability if is_searchable)
-            ocr_count = total_pages - searchable_count
-
-            logger.info("PDF analysis: %d total pages, %d searchable, %d need OCR",
-                       total_pages, searchable_count, ocr_count)
-
-            # Extract all pages content
-            pages_content: List[str] = []
-
-            with pdfplumber.open(input_path) as pdf:
-                for page_num, (page, is_searchable) in enumerate(zip(pdf.pages, page_searchability), 1):
-                    logger.debug("Processing page %d/%d (searchable: %s)",
-                               page_num, total_pages, is_searchable)
-
-                    if is_searchable:
-                        # Extract text directly
-                        text = page.extract_text() or ""
-                        logger.debug("Page %d: extracted %d characters directly",
-                                   page_num, len(text))
-                        pages_content.append(text)
-                    else:
-                        # This page needs OCR - we'll OCR the entire document
-                        # Break out and use Azure for all pages
-                        logger.info("Found non-searchable page %d - using Azure OCR for entire document",
-                                  page_num)
-                        break
-                else:
-                    # All pages are searchable, save directly
-                    logger.info("All pages are searchable - saving without OCR")
-                    self._save_as_docx(pages_content, output_path)
-                    return
-
-            # At least one page needs OCR - use Azure for entire document
+            # Use Azure OCR for all documents to get proper paragraph detection
             logger.info("Reading PDF file for Azure OCR")
             with open(input_path, 'rb') as f:
                 pdf_bytes = f.read()
@@ -215,7 +179,7 @@ class AzureOCRProvider(BaseOCRProvider):
             logger.error("Error detecting page searchability: %s", e)
             raise
 
-    def _ocr_with_azure(self, pdf_bytes: bytes, max_retries: int = 3) -> List[str]:
+    def _ocr_with_azure(self, pdf_bytes: bytes, max_retries: int = 3) -> List[List[str]]:
         """
         Call Azure Read API to perform OCR.
 
@@ -224,7 +188,7 @@ class AzureOCRProvider(BaseOCRProvider):
             max_retries: Maximum number of retry attempts
 
         Returns:
-            List of text content for each page
+            List of paragraph lists for each page (List[List[str]])
 
         Raises:
             RuntimeError: If OCR fails after retries
@@ -254,30 +218,57 @@ class AzureOCRProvider(BaseOCRProvider):
                 logger.info("Azure analysis completed in %.2f seconds", duration)
                 logger.debug("Result contains %d pages", len(result.pages))
 
-                # Extract text from each page
-                pages_content: List[str] = []
+                # Extract text from each page using paragraphs (preserves logical structure)
+                pages_content: List[List[str]] = []
 
-                for page_num, page in enumerate(result.pages, 1):
-                    logger.debug("Extracting text from page %d/%d",
-                               page_num, len(result.pages))
+                # Check if paragraphs are available
+                if hasattr(result, 'paragraphs') and result.paragraphs:
+                    logger.debug("Using paragraph-based extraction (%d paragraphs found)",
+                               len(result.paragraphs))
 
-                    # Get all lines on this page
-                    page_lines = [
-                        line.content
-                        for line in result.pages[page_num - 1].lines
-                    ]
+                    # Group paragraphs by page number
+                    for page_num in range(1, len(result.pages) + 1):
+                        logger.debug("Extracting paragraphs from page %d/%d",
+                                   page_num, len(result.pages))
 
-                    page_text = "\n".join(page_lines)
-                    char_count = len(page_text)
+                        # Get paragraphs that belong to this page as a list
+                        page_paragraphs = [
+                            para.content
+                            for para in result.paragraphs
+                            if hasattr(para, 'bounding_regions') and
+                               para.bounding_regions and
+                               para.bounding_regions[0].page_number == page_num
+                        ]
 
-                    logger.debug("Page %d: extracted %d characters",
-                               page_num, char_count)
+                        total_chars = sum(len(p) for p in page_paragraphs)
+                        logger.debug("Page %d: extracted %d characters from %d paragraphs",
+                                   page_num, total_chars, len(page_paragraphs))
 
-                    pages_content.append(page_text)
+                        pages_content.append(page_paragraphs)
+                else:
+                    # Fallback to line-based extraction if paragraphs not available
+                    logger.warning("Paragraphs not available, falling back to line-based extraction")
 
-                total_chars = sum(len(p) for p in pages_content)
-                logger.info("Azure OCR extracted %d characters from %d pages",
-                           total_chars, len(pages_content))
+                    for page_num, page in enumerate(result.pages, 1):
+                        logger.debug("Extracting text from page %d/%d",
+                                   page_num, len(result.pages))
+
+                        # Get all lines on this page
+                        page_lines = [
+                            line.content
+                            for line in result.pages[page_num - 1].lines
+                        ]
+
+                        char_count = sum(len(line) for line in page_lines)
+                        logger.debug("Page %d: extracted %d characters from %d lines",
+                                   page_num, char_count, len(page_lines))
+
+                        pages_content.append(page_lines)
+
+                total_paras = sum(len(page) for page in pages_content)
+                total_chars = sum(len(para) for page in pages_content for para in page)
+                logger.info("Azure OCR extracted %d paragraphs (%d characters) from %d pages",
+                           total_paras, total_chars, len(pages_content))
 
                 return pages_content
 
@@ -299,12 +290,12 @@ class AzureOCRProvider(BaseOCRProvider):
 
         raise RuntimeError("Azure OCR failed: max retries exceeded")
 
-    def _save_as_docx(self, pages_content: List[str], output_path: str) -> None:
+    def _save_as_docx(self, pages_content: List[List[str]], output_path: str) -> None:
         """
         Save extracted text as a DOCX file with page breaks.
 
         Args:
-            pages_content: List of text content for each page
+            pages_content: List of paragraph lists for each page
             output_path: Path to save DOCX file
         """
         logger.debug("Saving %d pages to DOCX: %s",
@@ -313,16 +304,19 @@ class AzureOCRProvider(BaseOCRProvider):
         try:
             document = Document()
 
-            for page_num, page_text in enumerate(pages_content, 1):
-                logger.debug("Adding page %d to document (%d characters)",
-                           page_num, len(page_text))
+            for page_num, page_paragraphs in enumerate(pages_content, 1):
+                num_chars = sum(len(p) for p in page_paragraphs)
+                logger.debug("Adding page %d to document (%d paragraphs, %d characters)",
+                           page_num, len(page_paragraphs), num_chars)
 
-                # Add page content
-                if page_text.strip():
-                    paragraph = document.add_paragraph(page_text)
-                    # Set font size
-                    for run in paragraph.runs:
-                        run.font.size = Pt(11)
+                # Add each paragraph as a separate Word paragraph
+                if page_paragraphs:
+                    for para_text in page_paragraphs:
+                        if para_text.strip():
+                            paragraph = document.add_paragraph(para_text)
+                            # Set font size
+                            for run in paragraph.runs:
+                                run.font.size = Pt(11)
                 else:
                     logger.debug("Page %d is empty", page_num)
                     document.add_paragraph("")

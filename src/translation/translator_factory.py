@@ -60,6 +60,13 @@ class TranslatorFactory:
                 raise ValueError(
                     "Google Document Translation requires 'project_id' in configuration"
                 )
+
+            # Pass service account credentials from google_drive section
+            service_account = config.get('google_drive', {}).get('service_account')
+            if service_account:
+                google_doc_config['service_account'] = service_account
+                logger.debug("Added service account credentials to translation config")
+
             from src.translation.google_doc_translator import GoogleDocTranslator
             return GoogleDocTranslator(google_doc_config)
 

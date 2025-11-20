@@ -5,7 +5,6 @@ Utilities
 import json
 import os
 import logging
-import subprocess
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -160,11 +159,13 @@ def translate_document_to_english(
         target_lang: str | None = None
 ) -> None:
     """
-    Translates word document to English (or a specified target language).
+    Translates word document to English (or a specified target language)
+    using Google Cloud Document Translation API which preserves formatting.
+
     Args:
-    original_path: foreign language word document Word format
-    translated_path: output english Word document Word format
-    target_lang: optional language code to translate to (e.g., 'fr')
+        original_path: foreign language word document Word format
+        translated_path: output english Word document Word format
+        target_lang: optional language code to translate to (e.g., 'en', 'fr')
     """
     logger.debug("Entering translate_document_to_english()")
     logger.debug("Original: %s", original_path)
@@ -175,50 +176,36 @@ def translate_document_to_english(
         logger.error("Original file not found: %s", original_path)
         raise FileNotFoundError(f"File not found: {original_path}")
 
-    executable_path = Path(os.path.join(
-        os.getcwd(), "translate_document"))
-    logger.debug("Translation executable: %s", executable_path)
-
-    if not executable_path.exists():
-        logger.error("Translation executable not found: %s", executable_path)
-        raise FileNotFoundError(f"Executable not found: {executable_path}")
-
-    arguments = ['-i', original_path, '-o', translated_path]
-    if target_lang:
-        arguments += ['--target', target_lang]
-
-    command = [str(executable_path)] + arguments
-    logger.debug("Translation command: %s", ' '.join(command))
-
     try:
-        logger.info("Starting translation subprocess")
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            check=True)
-        logger.debug("Translation stdout: %s",
-                     result.stdout if result.stdout else "(empty)")
-        logger.info("Translation completed successfully: %s",
-                    os.path.basename(translated_path))
+        # Use Google Cloud Document Translation API that preserves formatting
+        from src.translation import get_translator
+        from src.config import load_config
+
+        logger.info("Initializing document translator")
+        config = load_config()
+        translator = get_translator(config)
+
+        # Set target language (default to 'en' if not specified)
+        target = target_lang if target_lang else 'en'
+
+        logger.info("Translating document with formatting preservation")
+        translator.translate_document(
+            input_path=original_path,
+            output_path=translated_path,
+            target_lang=target
+        )
 
         if os.path.exists(translated_path):
             file_size = os.path.getsize(translated_path) / 1024  # KB
-            logger.debug("Translated file size: %.2f KB", file_size)
+            logger.info("Translation completed successfully: %s (%.2f KB)",
+                       os.path.basename(translated_path), file_size)
         else:
-            logger.error(
-                "Translation completed but output file not found: %s", translated_path)
+            logger.error("Translation completed but output file not found: %s",
+                        translated_path)
+            raise FileNotFoundError(f"Translated file not created: {translated_path}")
 
-    except subprocess.CalledProcessError as e:
-        logger.error(
-            'Translation command failed with exit code %d', e.returncode)
-        logger.error('Command: %s', ' '.join(command))
-        logger.error('Stdout: %s', e.stdout)
-        logger.error('Stderr: %s', e.stderr)
-        raise
     except Exception as e:
-        logger.error('Unexpected error during translation: %s',
-                     e, exc_info=True)
+        logger.error('Error during document translation: %s', e, exc_info=True)
         raise
 
 

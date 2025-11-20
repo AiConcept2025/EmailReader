@@ -7,8 +7,8 @@ import os
 import logging
 from docx import Document
 from langdetect import detect  # type: ignore
-from src.pdf_image_ocr import is_pdf_searchable_pypdf, ocr_pdf_image_to_doc
-from src.convert_to_docx import convert_pdf_to_docx
+from src.ocr import OCRProviderFactory
+from src.config import load_config
 from src.utils import (
     delete_file,
     translate_document_to_english,
@@ -370,19 +370,13 @@ class DocProcessor:
                 document_folder, f'{file_name_no_ext}.docx')
             logger.debug("Target DOCX path: %s", docx_file_path)
 
-            # Check if file is image or searchable
-            logger.info("Checking if PDF is searchable")
-            is_searchable = is_pdf_searchable_pypdf(original_file_path)
-            logger.info("PDF is %s", "searchable" if is_searchable else "image-based (requires OCR)")
-
-            if is_searchable:
-                logger.info("Converting searchable PDF to DOCX")
-                convert_pdf_to_docx(original_file_path, docx_file_path)
-                logger.info("PDF to DOCX conversion completed")
-            else:
-                logger.info("Starting OCR process for image-based PDF")
-                ocr_pdf_image_to_doc(original_file_path, docx_file_path)
-                logger.info("OCR process completed")
+            # Use Azure OCR for PDF processing with paragraph detection
+            logger.info("Processing PDF with Azure OCR (paragraph detection)")
+            config = load_config()
+            ocr_provider = OCRProviderFactory.get_provider(config)
+            logger.info("Using OCR provider: %s", type(ocr_provider).__name__)
+            ocr_provider.process_document(original_file_path, docx_file_path)
+            logger.info("Azure OCR processing completed with paragraph preservation")
 
             # CHANGED: Removed {client}+ prefix
             new_file_name = f'{client}+{file_name_no_ext}+translated.docx'

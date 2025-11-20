@@ -13,8 +13,7 @@ import requests
 from src.google_drive import GoogleApi
 from src.config import load_config
 from src.utils import delete_file
-from src.pdf_image_ocr import is_pdf_searchable_pypdf, ocr_pdf_image_to_doc
-from src.convert_to_docx import convert_pdf_to_docx
+from src.ocr import OCRProviderFactory
 
 logger = logging.getLogger('EmailReader.GoogleDrive')
 
@@ -179,25 +178,21 @@ def convert_to_docx_for_translation(input_path: str, output_path: str) -> None:
 
     # PDF files
     if ext_lower == '.pdf':
-        logger.info("Processing PDF file...")
-        # Check if PDF is searchable or needs OCR
-        is_searchable = is_pdf_searchable_pypdf(input_path)
-        logger.info(
-            "PDF is %s", "searchable" if is_searchable else "image-based (requires OCR)")
+        logger.info("Processing PDF file with Azure OCR (paragraph detection)...")
+        config = load_config()
+        ocr_provider = OCRProviderFactory.get_provider(config)
+        logger.info("Using OCR provider: %s", type(ocr_provider).__name__)
+        ocr_provider.process_document(input_path, output_path)
+        logger.info("Azure OCR PDF to DOCX conversion completed with paragraph preservation")
 
-        if is_searchable:
-            logger.info("Converting searchable PDF to DOCX")
-            convert_pdf_to_docx(input_path, output_path)
-        else:
-            logger.info("Starting OCR process for scanned PDF")
-            ocr_pdf_image_to_doc(input_path, output_path)
-        logger.info("PDF to DOCX conversion completed")
-
-    # Image files - use OCR
+    # Image files - use Azure OCR
     elif ext_lower in ['.jpg', '.jpeg', '.png', '.tiff', '.tif', '.gif']:
-        logger.info("Processing image file with OCR: %s", ext_lower)
-        ocr_pdf_image_to_doc(input_path, output_path)
-        logger.info("Image to DOCX conversion completed")
+        logger.info("Processing image file with Azure OCR: %s", ext_lower)
+        config = load_config()
+        ocr_provider = OCRProviderFactory.get_provider(config)
+        logger.info("Using OCR provider: %s", type(ocr_provider).__name__)
+        ocr_provider.process_document(input_path, output_path)
+        logger.info("Azure OCR image to DOCX conversion completed with paragraph preservation")
 
     # DOCX files - just copy
     elif ext_lower in ['.docx', '.doc']:
