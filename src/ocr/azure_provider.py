@@ -106,6 +106,29 @@ class AzureOCRProvider(BaseOCRProvider):
             raise FileNotFoundError(f"File not found: {input_path}")
 
         try:
+            # Detect and correct rotation if enabled
+            preprocessing_config = self.config.get('preprocessing', {})
+            rotation_config = preprocessing_config.get('rotation_detection', {})
+            rotated_path = None
+
+            if rotation_config.get('enabled', False):
+                logger.info("Rotation detection enabled, checking document orientation")
+                from src.preprocessing.rotation_detector import RotationDetector
+
+                detector = RotationDetector(rotation_config)
+                angle, confidence = detector.detect_rotation(input_path)
+
+                if angle != 0:
+                    logger.info("Document rotation detected: %d° (confidence: %.2f)", angle, confidence)
+                    # Create temporary rotated file
+                    import tempfile
+                    rotated_path = tempfile.mktemp(suffix='.pdf')
+                    detector.correct_rotation(input_path, rotated_path, angle)
+                    logger.info("Document rotated, using corrected version for OCR")
+                    input_path = rotated_path  # Use rotated file for OCR
+                else:
+                    logger.info("No rotation detected, proceeding with original document")
+
             # Use Azure OCR for all documents to get proper paragraph detection
             logger.info("Reading PDF file for Azure OCR")
             with open(input_path, 'rb') as f:
@@ -145,6 +168,14 @@ class AzureOCRProvider(BaseOCRProvider):
         except Exception as e:
             logger.error("Error during Azure OCR processing: %s", e, exc_info=True)
             raise RuntimeError(f"Azure OCR processing failed: {e}")
+        finally:
+            # Clean up temporary rotated file if it was created
+            if rotated_path and os.path.exists(rotated_path):
+                try:
+                    os.remove(rotated_path)
+                    logger.debug("Cleaned up temporary rotated file: %s", rotated_path)
+                except Exception as e:
+                    logger.warning("Failed to clean up temporary file %s: %s", rotated_path, e)
 
     def is_pdf_searchable(self, pdf_path: str) -> bool:
         """

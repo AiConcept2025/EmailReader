@@ -54,6 +54,8 @@ class OCRProviderFactory:
                     "Azure OCR provider requires 'endpoint' and 'api_key' in configuration"
                 )
             from src.ocr.azure_provider import AzureOCRProvider
+            # Pass full config to provider so it can access preprocessing settings
+            azure_config['preprocessing'] = config.get('preprocessing', {})
             return AzureOCRProvider(azure_config)
 
         elif provider_type == 'landing_ai':

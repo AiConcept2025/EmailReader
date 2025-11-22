@@ -14,6 +14,80 @@ Activate venv:
 Install packages:
 pip install -r requirements.txt
 
+## Rotation Detection Setup (Optional but Recommended)
+
+The EmailReader now includes automatic document rotation detection for rotated PDFs and images. This feature uses PaddleOCR and Tesseract to detect and correct document orientation before OCR processing.
+
+### Installing Rotation Detection Dependencies
+
+**Option 1: Install via requirements.txt (Recommended)**
+```bash
+source venv/bin/activate  # macOS/Linux
+./venv/Scripts/activate   # Windows
+pip install -r requirements.txt
+```
+
+**Option 2: Manual Installation**
+```bash
+source venv/bin/activate  # macOS/Linux
+pip install "paddleocr>=2.7.0" "paddlepaddle" "img2pdf>=0.5.0"
+```
+
+### Dependencies Installed:
+- **paddleocr** (3.3.2+): Advanced OCR with built-in rotation detection, supports 109 languages including Russian handwriting
+- **paddlepaddle** (3.2.2+): Deep learning backend for PaddleOCR (~100MB download, open-source and free)
+- **img2pdf** (0.6.3+): PDF rotation correction utility
+
+### PaddlePaddle Installation Notes:
+- **License:** Apache 2.0 (completely free and open-source)
+- **Size:** ~100MB download
+- **Platform:** Supports macOS (ARM64/x86), Linux, Windows
+- **GPU Support:** Optional - set `use_gpu: true` in config if you have CUDA-capable GPU
+- **Repository:** https://github.com/PaddlePaddle/Paddle
+
+### Configuration
+
+Rotation detection is enabled by default in `credentials/config.dev.json` and `credentials/config.prod.json`:
+
+```json
+{
+  "preprocessing": {
+    "rotation_detection": {
+      "enabled": true,
+      "method": "paddleocr",
+      "fallback_methods": ["tesseract"],
+      "confidence_threshold": 0.5,
+      "paddleocr": {
+        "lang": "ru",
+        "use_gpu": false
+      }
+    }
+  }
+}
+```
+
+### Features:
+- Detects rotation angles: 0°, 90°, 180°, 270°
+- Primary method: PaddleOCR (supports multilingual handwriting)
+- Fallback method: Tesseract OSD (printed text)
+- Automatic correction before OCR processing
+- Configurable confidence threshold
+
+### Testing Rotation Detection
+
+Test standalone with:
+```bash
+python3 test_rotation_detection.py path/to/rotated_document.pdf
+```
+
+Expected log output:
+```
+INFO - Rotation detection enabled, checking document orientation
+INFO - Method 'paddleocr' detected rotation: 90° (confidence: 0.95)
+INFO - Document rotation detected: 90° (confidence: 0.95)
+INFO - Document rotated, using corrected version for OCR
+```
+
 tesseract:
 https://sourceforge.net/projects/tesseract-ocr.mirror/
 https://github.com/tesseract-ocr/tesseract
