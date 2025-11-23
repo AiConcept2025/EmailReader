@@ -1,7 +1,6 @@
 """
 Convert docs to docx
 """
-import os
 import logging
 import re
 import pdfplumber
@@ -86,13 +85,13 @@ def convert_txt_to_docx(paragraph: str, docx_file_path: str) -> None:
 
         logger.debug("Saving document to: %s", docx_file_path)
         document.save(docx_file_path)
-
         if os.path.exists(docx_file_path):
             file_size = os.path.getsize(docx_file_path) / 1024  # KB
             logger.info('Text converted to Word successfully: %s (%.2f KB)',
-                       os.path.basename(docx_file_path), file_size)
+                        os.path.basename(docx_file_path), file_size)
         else:
-            logger.error("Document save failed - file not found: %s", docx_file_path)
+            logger.error(
+                "Document save failed - file not found: %s", docx_file_path)
 
     except Exception as e:
         logger.error("Error converting text to DOCX: %s", e, exc_info=True)
@@ -145,9 +144,10 @@ def convert_txt_file_to_docx(txt_file_path: str, docx_file_path: str) -> None:
         if os.path.exists(docx_file_path):
             output_size = os.path.getsize(docx_file_path) / 1024  # KB
             logger.info('TXT file converted to Word: %s (%.2f KB)',
-                       os.path.basename(docx_file_path), output_size)
+                        os.path.basename(docx_file_path), output_size)
         else:
-            logger.error("Document save failed - file not found: %s", docx_file_path)
+            logger.error(
+                "Document save failed - file not found: %s", docx_file_path)
 
     except Exception as e:
         logger.error("Error converting TXT file to DOCX: %s", e, exc_info=True)
@@ -199,7 +199,7 @@ def convert_pdf_to_docx(pdf_path: str, docx_path: str):
                     logger.debug("Page %d: no text extracted", page_num)
 
             logger.info("Total text extracted: %d characters from %d pages",
-                       total_text_length, num_pages)
+                        total_text_length, num_pages)
 
             logger.debug("Saving DOCX file")
             document.save(docx_path)
@@ -207,9 +207,10 @@ def convert_pdf_to_docx(pdf_path: str, docx_path: str):
         if os.path.exists(docx_path):
             output_size = os.path.getsize(docx_path) / 1024  # KB
             logger.info('PDF converted to Word: %s (%.2f KB)',
-                       os.path.basename(docx_path), output_size)
+                        os.path.basename(docx_path), output_size)
         else:
-            logger.error("Document save failed - file not found: %s", docx_path)
+            logger.error(
+                "Document save failed - file not found: %s", docx_path)
 
     except Exception as e:
         logger.error("Error converting PDF to DOCX: %s", e, exc_info=True)

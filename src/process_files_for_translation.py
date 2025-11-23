@@ -41,6 +41,44 @@ def get_translate_folder_id() -> str:
     return folder_id
 
 
+def _process_with_ocr_fallback(input_file: str, output_file: str) -> None:
+    """
+    Process document with configured OCR provider, with automatic fallback.
+
+    Args:
+        input_file: Path to input file (PDF or image)
+        output_file: Path to save output DOCX file
+    """
+    from src.ocr.default_provider import DefaultOCRProvider
+
+    try:
+        # Load config and get provider
+        config = load_config()
+        ocr_provider = OCRProviderFactory.get_provider(config)
+        provider_name = config.get('ocr', {}).get('provider', 'default')
+
+        logger.info(f"Using OCR provider: {provider_name}")
+        ocr_provider.process_document(input_file, output_file)
+        logger.info(f"OCR completed successfully with {provider_name} provider")
+
+    except Exception as e:
+        logger.warning(
+            f"Primary OCR provider failed: {e}. Falling back to default Tesseract OCR"
+        )
+
+        # Fallback to default provider
+        try:
+            fallback_provider = DefaultOCRProvider({})
+            fallback_provider.process_document(input_file, output_file)
+            logger.info("Fallback OCR completed successfully")
+        except Exception as fallback_error:
+            logger.error(f"Fallback OCR also failed: {fallback_error}")
+            raise RuntimeError(
+                f"Both primary and fallback OCR failed. "
+                f"Primary: {e}, Fallback: {fallback_error}"
+            ) from fallback_error
+
+
 def convert_to_docx_for_translation(input_path: str, output_path: str) -> None:
     """
     Convert various file formats to DOCX for translation.
