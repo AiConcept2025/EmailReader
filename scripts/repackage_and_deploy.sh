@@ -4,7 +4,7 @@
 #  ──────────────────────────────────────────────
 #  1. ensure ./venv       – installs/updates deps
 #  2. PyInstaller build   – creates docReader executable
-#  3. GoogleTranslator    – build and copy translate_document
+#  3. Uses built-in Google Cloud Translation API v3 (google_doc provider)
 #
 #  Make executable:  chmod +x repackage_and_deploy.sh
 #  Run:              ./repackage_and_deploy.sh
@@ -67,9 +67,10 @@ fi
 
 echo "✓ Build complete – $BUILD_DIR/$PYI_NAME/$PYI_NAME"
 
-# Build GoogleTranslator and copy translate_document
-(cd ../GoogleTranslator && ./repackage_deploy.sh)
-cp ../GoogleTranslator/dist/translate_document .
-chmod +x translate_document
+# GoogleTranslator dependency removed - using built-in Google Cloud Translation API
+# (cd ../GoogleTranslator && ./repackage_deploy.sh)
+# cp ../GoogleTranslator/dist/translate_document .
+# chmod +x translate_document
+echo "✓ Using built-in Google Cloud Translation API (google_doc provider)"
 
 

@@ -1,71 +1,59 @@
 """
-Abstract Base Class for OCR Providers
+Base OCR Provider Interface
 
-This module defines the interface that all OCR providers must implement.
-It ensures consistent behavior across different OCR engines.
+Defines the abstract interface that all OCR providers must implement.
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Dict, Any
+import logging
+
+logger = logging.getLogger('EmailReader.OCR')
 
 
 class BaseOCRProvider(ABC):
     """
     Abstract base class for OCR providers.
 
-    All OCR provider implementations must inherit from this class and implement
-    the required abstract methods. This ensures a consistent interface for OCR
-    operations regardless of the underlying OCR engine.
-
-    Attributes:
-        config (dict): Provider-specific configuration dictionary
+    All OCR providers must implement these methods to ensure
+    consistent behavior across different services.
     """
 
-    @abstractmethod
-    def process_document(self, ocr_file: str, out_doc_file_path: str) -> None:
+    def __init__(self, config: Dict[str, Any]):
         """
-        Process a document with OCR and save as DOCX.
-
-        This method performs OCR on the input file (PDF or image) and saves
-        the extracted text as a formatted DOCX document.
+        Initialize the OCR provider with configuration.
 
         Args:
-            ocr_file: Path to input file (PDF or image format)
-            out_doc_file_path: Path where DOCX output should be saved
+            config: Provider-specific configuration dictionary
+        """
+        self.config = config
+        logger.debug("Initialized %s with config keys: %s",
+                    self.__class__.__name__, list(config.keys()))
+
+    @abstractmethod
+    def process_document(self, input_path: str, output_path: str) -> None:
+        """
+        Process a document with OCR and save the result.
+
+        Args:
+            input_path: Path to input file (PDF or image)
+            output_path: Path to save output DOCX file
 
         Raises:
             FileNotFoundError: If input file doesn't exist
-            ValueError: If file format is invalid or unsupported
-            RuntimeError: If OCR processing fails for any reason
-
-        Example:
-            >>> provider = OCRProviderFactory.get_provider(config)
-            >>> provider.process_document('scanned.pdf', 'output.docx')
+            RuntimeError: If OCR processing fails
         """
         pass
 
     @abstractmethod
     def is_pdf_searchable(self, pdf_path: str) -> bool:
         """
-        Check if PDF contains searchable text.
-
-        Determines whether a PDF document contains extractable text (searchable)
-        or is image-based and requires OCR processing.
+        Check if a PDF contains searchable text.
 
         Args:
-            pdf_path: Path to PDF file to check
+            pdf_path: Path to PDF file
 
         Returns:
-            True if PDF has extractable text content, False if image-based
-
-        Raises:
-            FileNotFoundError: If PDF file doesn't exist
-            ValueError: If file is not a valid PDF format
-            RuntimeError: If PDF cannot be read or processed
-
-        Example:
-            >>> provider = OCRProviderFactory.get_provider(config)
-            >>> if not provider.is_pdf_searchable('document.pdf'):
-            ...     provider.process_document('document.pdf', 'output.docx')
+            True if PDF has extractable text, False otherwise
         """
         pass

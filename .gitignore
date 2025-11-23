@@ -22,6 +22,24 @@ inbox_temp/
 CLAUDE.md
 logs/
 
+# macOS system files
+.DS_Store
+
+# Python cache
+.mypy_cache/
+.pytest_cache/
+.coverage
+*.pyc
+
+# Temporary directories
+test1/
+test2/
+*_temp/
+
+# Test PDFs (add specific exceptions if needed)
+*.pdf
+!docs/**/*.pdf
+
 # Environment files
 .env
 

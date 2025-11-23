@@ -8,8 +8,7 @@ import logging
 from docx import Document
 from langdetect import detect  # type: ignore
 from src.ocr import OCRProviderFactory
-from src.document_analyzer import requires_ocr
-from src.convert_to_docx import convert_pdf_to_docx
+from src.config import load_config
 from src.utils import (
     delete_file,
     translate_document_to_english,
@@ -313,7 +312,9 @@ class DocProcessor:
                 new_file_path = os.path.join(document_folder, new_file_name)
                 logger.info("Translating document from %s to %s", detected_lang, target_lang or 'en')
                 translate_document_to_english(
-                    original_file_path, new_file_path, target_lang)
+                    original_file_path, new_file_path,
+                    source_lang=detected_lang,
+                    target_lang=target_lang)
                 logger.info("Translation completed: %s", new_file_name)
 
             logger.info("process_word_file() completed successfully")
@@ -409,26 +410,29 @@ class DocProcessor:
                 document_folder, f'{file_name_no_ext}.docx')
             logger.debug("Target DOCX path: %s", docx_file_path)
 
-            # Determine if OCR is needed
-            logger.info("Analyzing PDF to determine if OCR is required")
-            needs_ocr = requires_ocr(original_file_path)
-            logger.info("PDF analysis complete: %s", "OCR required" if needs_ocr else "Searchable text found")
+            # Use Azure OCR for PDF processing with paragraph detection
+            logger.info("Processing PDF with Azure OCR (paragraph detection)")
+            config = load_config()
+            ocr_provider = OCRProviderFactory.get_provider(config)
+            logger.info("Using OCR provider: %s", type(ocr_provider).__name__)
+            ocr_provider.process_document(original_file_path, docx_file_path)
+            logger.info("Azure OCR processing completed with paragraph preservation")
 
-            if needs_ocr:
-                logger.info("Processing document with OCR provider")
-                self._process_with_ocr_provider(original_file_path, docx_file_path)
-                logger.info("OCR processing completed")
-            else:
-                logger.info("Converting searchable PDF to DOCX (no OCR needed)")
-                convert_pdf_to_docx(original_file_path, docx_file_path)
-                logger.info("PDF to DOCX conversion completed")
+            # Detect language from OCR output
+            logger.info("Detecting language from OCR output")
+            temp_doc = Document(docx_file_path)
+            temp_text = '\n'.join([p.text for p in temp_doc.paragraphs])
+            detected_lang = detect(temp_text) if temp_text.strip() else None
+            logger.info("Detected language from OCR: %s", detected_lang or 'unknown')
 
             # CHANGED: Removed {client}+ prefix
             new_file_name = f'{client}+{file_name_no_ext}+translated.docx'
             new_file_path = os.path.join(document_folder, new_file_name)
             logger.info("Translating PDF content to %s", target_lang or 'en')
             translate_document_to_english(
-                docx_file_path, new_file_path, target_lang)
+                docx_file_path, new_file_path,
+                source_lang=detected_lang,
+                target_lang=target_lang)
             logger.info("Translation completed: %s", new_file_name)
 
             logger.debug("Cleaning up temporary DOCX file: %s", docx_file_path)
