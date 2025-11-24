@@ -121,10 +121,20 @@ class GoogleDocTranslator(BaseTranslator):
             # Translate
             translated_content = self._call_translation_api(document_content, target_lang)
 
-            # Save result
+            # Save result to temporary file first
             logger.info("Saving translated document")
-            with open(output_path, 'wb') as f:
+            temp_output = output_path + '.tmp'
+            with open(temp_output, 'wb') as f:
                 f.write(translated_content)
+
+            # Sanitize the translated document to ensure UTF-8 compliance
+            logger.info("Sanitizing translated document for UTF-8 compliance")
+            self._sanitize_translated_docx(temp_output, output_path)
+
+            # Clean up temp file
+            if os.path.exists(temp_output):
+                os.remove(temp_output)
+                logger.debug("Removed temporary file: %s", temp_output)
 
             if os.path.exists(output_path):
                 output_size = os.path.getsize(output_path) / 1024
@@ -220,3 +230,169 @@ class GoogleDocTranslator(BaseTranslator):
         except Exception as e:
             logger.error("Unexpected error calling Translation API: %s", e, exc_info=True)
             raise RuntimeError(f"Translation API call failed: {e}")
+
+    def _sanitize_translated_docx(self, input_path: str, output_path: str) -> None:
+        """
+        Sanitize a translated DOCX file to ensure UTF-8 compliance.
+
+        This method reads the DOCX, extracts all text content, sanitizes it
+        to remove invalid UTF-8 sequences and XML-incompatible characters,
+        then recreates the document with clean content.
+
+        Args:
+            input_path: Path to the translated DOCX file (may contain malformed UTF-8)
+            output_path: Path to save the sanitized DOCX file
+
+        Raises:
+            RuntimeError: If sanitization fails
+        """
+        logger.debug("Sanitizing DOCX file: %s -> %s", input_path, output_path)
+
+        try:
+            from docx import Document
+            from src.convert_to_docx import sanitize_text_for_xml
+
+            # Try to load the document
+            logger.debug("Loading translated DOCX document")
+            try:
+                doc = Document(input_path)
+            except Exception as load_error:
+                logger.error("Failed to load DOCX file: %s", load_error)
+                # If we can't load it, try to repair by reading raw bytes
+                logger.warning("Attempting to repair malformed DOCX file")
+                self._repair_malformed_docx(input_path, output_path)
+                return
+
+            # Extract and sanitize all text content
+            logger.debug("Extracting and sanitizing document content")
+            sanitized_paragraphs = []
+            total_chars_removed = 0
+
+            for para in doc.paragraphs:
+                original_text = para.text
+                original_length = len(original_text)
+
+                # Sanitize the text for XML compatibility
+                sanitized_text = sanitize_text_for_xml(original_text)
+                sanitized_length = len(sanitized_text)
+
+                if sanitized_length != original_length:
+                    chars_removed = original_length - sanitized_length
+                    total_chars_removed += chars_removed
+                    logger.debug("Paragraph sanitized: removed %d invalid characters", chars_removed)
+
+                sanitized_paragraphs.append(sanitized_text)
+
+            if total_chars_removed > 0:
+                logger.warning("Removed %d invalid characters during sanitization", total_chars_removed)
+            else:
+                logger.debug("No invalid characters found - document is clean")
+
+            # Create new document with sanitized content
+            logger.debug("Creating new document with sanitized content")
+            new_doc = Document()
+
+            for sanitized_text in sanitized_paragraphs:
+                new_doc.add_paragraph(sanitized_text)
+
+            # Save the sanitized document
+            logger.debug("Saving sanitized document to: %s", output_path)
+            new_doc.save(output_path)
+
+            logger.info("Document sanitization completed successfully")
+
+        except Exception as e:
+            logger.error("Error during document sanitization: %s", e, exc_info=True)
+            raise RuntimeError(f"Failed to sanitize translated document: {e}")
+
+    def _repair_malformed_docx(self, input_path: str, output_path: str) -> None:
+        """
+        Attempt to repair a malformed DOCX file by extracting XML and fixing encoding issues.
+
+        Args:
+            input_path: Path to the malformed DOCX file
+            output_path: Path to save the repaired DOCX file
+
+        Raises:
+            RuntimeError: If repair fails
+        """
+        logger.debug("Attempting to repair malformed DOCX file")
+
+        try:
+            import zipfile
+            import tempfile
+            import shutil
+            from xml.etree import ElementTree as ET
+            from src.convert_to_docx import sanitize_text_for_xml
+
+            # DOCX files are ZIP archives containing XML files
+            # We'll extract, fix encoding, and repackage
+
+            with tempfile.TemporaryDirectory() as temp_dir:
+                logger.debug("Extracting DOCX archive to temp directory")
+
+                # Extract the DOCX (ZIP) contents
+                with zipfile.ZipFile(input_path, 'r') as zip_ref:
+                    zip_ref.extractall(temp_dir)
+
+                # Find and fix the main document XML file
+                document_xml_path = os.path.join(temp_dir, 'word', 'document.xml')
+
+                if os.path.exists(document_xml_path):
+                    logger.debug("Repairing document.xml with UTF-8 encoding fixes")
+
+                    # Read the XML file with error handling
+                    with open(document_xml_path, 'rb') as f:
+                        xml_bytes = f.read()
+
+                    # Try to decode with UTF-8, replacing invalid sequences
+                    try:
+                        xml_text = xml_bytes.decode('utf-8', errors='replace')
+                    except Exception:
+                        # Fallback to latin-1 then encode to UTF-8
+                        xml_text = xml_bytes.decode('latin-1', errors='replace')
+
+                    # Replace any replacement characters with empty string
+                    xml_text = xml_text.replace('\ufffd', '')
+
+                    # Parse and reconstruct the XML to ensure validity
+                    try:
+                        tree = ET.fromstring(xml_text.encode('utf-8'))
+
+                        # Extract all text nodes and sanitize them
+                        for elem in tree.iter():
+                            if elem.text:
+                                elem.text = sanitize_text_for_xml(elem.text)
+                            if elem.tail:
+                                elem.tail = sanitize_text_for_xml(elem.tail)
+
+                        # Write back the sanitized XML
+                        xml_text = ET.tostring(tree, encoding='utf-8', method='xml').decode('utf-8')
+
+                    except ET.ParseError as parse_error:
+                        logger.warning("XML parsing failed: %s. Using text replacement method.", parse_error)
+                        # If XML parsing fails, just sanitize the text content
+                        xml_text = sanitize_text_for_xml(xml_text)
+
+                    # Write the repaired XML back
+                    with open(document_xml_path, 'w', encoding='utf-8') as f:
+                        f.write(xml_text)
+
+                    logger.debug("document.xml repaired successfully")
+                else:
+                    logger.warning("document.xml not found in DOCX archive")
+
+                # Repackage the DOCX
+                logger.debug("Repackaging repaired DOCX file")
+                with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zip_out:
+                    for root, dirs, files in os.walk(temp_dir):
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            archive_name = os.path.relpath(file_path, temp_dir)
+                            zip_out.write(file_path, archive_name)
+
+                logger.info("DOCX file repaired successfully")
+
+        except Exception as e:
+            logger.error("Failed to repair malformed DOCX: %s", e, exc_info=True)
+            raise RuntimeError(f"DOCX repair failed: {e}")

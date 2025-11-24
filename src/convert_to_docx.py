@@ -27,6 +27,8 @@ def sanitize_text_for_xml(text: str) -> str:
     - NULL bytes
     - Control characters (except tab, LF, CR)
     - Invalid Unicode ranges
+    - Malformed UTF-8 sequences
+    - Unicode replacement characters
 
     Args:
         text: Input text that may contain invalid characters
@@ -36,6 +38,22 @@ def sanitize_text_for_xml(text: str) -> str:
     """
     if not text:
         return text
+
+    # First, ensure the text is properly encoded/decoded as UTF-8
+    # This handles any encoding issues from translation
+    try:
+        # Encode to bytes and back to fix any encoding issues
+        # Use 'ignore' to skip invalid sequences, or 'replace' to substitute
+        if isinstance(text, bytes):
+            text = text.decode('utf-8', errors='replace')
+        else:
+            # Re-encode and decode to normalize UTF-8
+            text = text.encode('utf-8', errors='replace').decode('utf-8', errors='replace')
+    except Exception as e:
+        logger.warning("Encoding normalization failed: %s. Continuing with original text.", e)
+
+    # Remove Unicode replacement characters (U+FFFD) that indicate encoding problems
+    text = text.replace('\ufffd', '')
 
     # Remove NULL bytes
     text = text.replace('\x00', '')
@@ -49,6 +67,24 @@ def sanitize_text_for_xml(text: str) -> str:
     # Remove invalid Unicode surrogates and private use characters
     # that might cause issues
     text = re.sub(r'[\ud800-\udfff]', '', text)
+
+    # Remove any remaining non-printable or problematic Unicode characters
+    # that might not be valid in XML 1.0
+    # This includes characters outside the allowed XML ranges
+    def is_valid_xml_char(char):
+        """Check if character is valid in XML 1.0"""
+        code_point = ord(char)
+        return (
+            code_point == 0x09 or  # tab
+            code_point == 0x0A or  # line feed
+            code_point == 0x0D or  # carriage return
+            (0x20 <= code_point <= 0xD7FF) or
+            (0xE000 <= code_point <= 0xFFFD) or
+            (0x10000 <= code_point <= 0x10FFFF)
+        )
+
+    # Filter out invalid XML characters
+    text = ''.join(char for char in text if is_valid_xml_char(char))
 
     return text
 
