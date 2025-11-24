@@ -12,7 +12,7 @@ import requests
 
 from src.google_drive import GoogleApi
 from src.config import load_config
-from src.utils import delete_file
+from src.file_utils import delete_file
 from src.ocr import OCRProviderFactory
 from src.document_analyzer import requires_ocr
 from src.convert_to_docx import convert_pdf_to_docx

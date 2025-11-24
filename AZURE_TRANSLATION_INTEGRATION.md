@@ -407,7 +407,7 @@ ocr.process_document(pdf_path, output_path)
 
 **Old code:**
 ```python
-from src.utils import translate_document_to_english
+from src.file_utils import translate_document_to_english
 
 translate_document_to_english(input_path, output_path)
 ```

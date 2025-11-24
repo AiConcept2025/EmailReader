@@ -1,6 +1,7 @@
 """
 Convert docs to docx
 """
+import os
 import logging
 import re
 import pdfplumber

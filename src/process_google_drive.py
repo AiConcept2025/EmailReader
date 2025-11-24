@@ -13,7 +13,7 @@ from src.flowise_api import FlowiseAiAPI
 from src.google_drive import GoogleApi
 from src.pinecone_utils import PineconeAssistant
 from src.process_documents import DocProcessor
-from src.utils import delete_file, build_flowise_question
+from src.file_utils import delete_file, build_flowise_question
 from src.config import load_config
 
 # Import the configured logger system

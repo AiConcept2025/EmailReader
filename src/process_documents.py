@@ -10,12 +10,12 @@ from langdetect import detect  # type: ignore
 from src.ocr import OCRProviderFactory
 from src.document_analyzer import requires_ocr
 from src.convert_to_docx import convert_pdf_to_docx
-from src.utils import (
+from src.file_utils import (
     delete_file,
     translate_document_to_english,
     convert_rtx_to_text
 )
-from src.utils import rename_file
+from src.file_utils import rename_file
 
 # Get logger for this module
 logger = logging.getLogger('EmailReader.DocProcessor')
