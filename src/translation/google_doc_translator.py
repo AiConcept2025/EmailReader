@@ -50,17 +50,26 @@ class GoogleDocTranslator(BaseTranslator):
         logger.debug("Location: %s", self.location)
 
         try:
-            # Get service account credentials from config
-            from src.config import get_service_account_path
+            # Load service account credentials directly from config.dev.json
+            from src.config import load_config
+            from google.oauth2 import service_account
 
-            # This will extract service account from config and create temp file
-            credentials_path = get_service_account_path()
-            logger.debug("Using service account credentials: %s", credentials_path)
+            # Get full config to access service account
+            full_config = load_config()
+            sa_info = full_config.get('google_drive', {}).get('service_account')
 
-            # Set environment variable for Google Cloud client
-            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
+            if not sa_info:
+                raise ValueError(
+                    "Service account credentials not found in config. "
+                    "Please ensure 'google_drive.service_account' exists in config.dev.json"
+                )
 
-            self.client = translate_v3.TranslationServiceClient()
+            # Create credentials directly from config dict (no temp file needed)
+            credentials = service_account.Credentials.from_service_account_info(sa_info)
+            logger.debug("Using service account credentials from config.dev.json")
+
+            # Create client with credentials
+            self.client = translate_v3.TranslationServiceClient(credentials=credentials)
             self.parent = f"projects/{self.project_id}/locations/{self.location}"
             logger.info("Google Document Translator initialized successfully")
         except Exception as e:
