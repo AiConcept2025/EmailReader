@@ -397,7 +397,7 @@ class DocProcessor:
             logger.debug("File name without ext: %s, extension: %s", file_name_no_ext, file_ext)
 
             # CHANGED: Removed {client}+ prefix
-            original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
+            original_file_name = f'{file_name_no_ext}+original{file_ext}'
             original_file_path = os.path.join(
                 document_folder, original_file_name)
 
@@ -424,7 +424,7 @@ class DocProcessor:
                 logger.info("PDF to DOCX conversion completed")
 
             # CHANGED: Removed {client}+ prefix
-            new_file_name = f'{client}+{file_name_no_ext}+translated.docx'
+            new_file_name = f'{file_name_no_ext}+translated.docx'
             new_file_path = os.path.join(document_folder, new_file_name)
             logger.info("Translating PDF content to %s", target_lang or 'en')
             translate_document_to_english(
