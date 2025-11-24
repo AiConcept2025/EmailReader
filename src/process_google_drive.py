@@ -222,6 +222,24 @@ def process_google_drive() -> None:
                             file_name)
                         continue
 
+                    # IMPORTANT: Move original file from Inbox to In-Progress NOW
+                    # This prevents race conditions where multiple runs process the same file
+                    logger.info(
+                        "Step 1b/6: Moving original file from Inbox to In-Progress to prevent race conditions...")
+                    logger.debug("  From folder ID: %s", inbox_id)
+                    logger.debug("  To folder ID: %s", in_progress_id)
+                    moved = google_api.move_file_to_folder_id(
+                        file_id=file_id,
+                        dest_folder_id=in_progress_id
+                    )
+                    if not moved:
+                        logger.error(
+                            "Failed to move file '%s' from Inbox to In-Progress - skipping to prevent duplicates",
+                            file_name)
+                        delete_file(file_path)
+                        continue
+                    logger.info("  File successfully moved from Inbox to In-Progress")
+
                     # Process based on file type
                     logger.info(
                         ("Step 2/6: Processing document "
@@ -380,29 +398,8 @@ def process_google_drive() -> None:
 
                     logger.info("  Prediction created successfully")
 
-                    # Wait before cleanup
-                    logger.info(
-                        ("Step 6/6: Finalizing (moving original "
-                         "file and cleanup)..."))
-                    logger.debug(
-                        "  Waiting 2 minutes for FlowiseAI processing...")
-                    time.sleep(120)
-
-                    # Move original file from Inbox to In-Progress folder
-                    logger.info(
-                        "  Moving original file from Inbox to In-Progress...")
-                    logger.debug("  From folder ID: %s", inbox_id)
-                    logger.debug("  To folder ID: %s", in_progress_id)
-                    moved = google_api.move_file_to_folder_id(
-                        file_id=file_id,
-                        dest_folder_id=in_progress_id
-                    )
-
-                    if not moved:
-                        logger.warning(
-                            ("  Failed to move original file "
-                             "from Inbox to In-Progress"))
-
+                    # Clean up local files
+                    logger.info("Step 6/6: Cleaning up temporary files...")
                     # Clean up local files
                     logger.debug("  Cleaning up temporary local files...")
                     delete_file(new_file_path)
