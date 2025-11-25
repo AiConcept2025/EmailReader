@@ -4,6 +4,8 @@ Module implements FlowiseAI API with enhanced logging
 import json
 import logging
 import os
+import tempfile
+import shutil
 # import uuid
 from typing import Dict, List
 
@@ -209,16 +211,74 @@ class FlowiseAiAPI:
             # Prepare the request
             logger.debug("Preparing request to Flowise API")
 
-            with open(doc_path, 'rb') as file:
+            # Sanitize filename to prevent RFC 2231 encoding issues
+            # Replace special characters that trigger encoding problems
+            # @ and + in filenames cause requests library to use RFC 2231
+            # which FlowiseAI server doesn't support
+            safe_filename = doc_name.replace('+', '_').replace('@', '_at_')
+            logger.debug("Original filename: %s", doc_name)
+            logger.debug("Sanitized filename for upload: %s", safe_filename)
+
+            # ADDITIONAL FIX: Sanitize DOCX content before upload
+            # This ensures no UTF-8 issues in the file content itself
+            # Only sanitize .docx files
+            temp_sanitized_path = None
+            file_to_upload = doc_path
+
+            if doc_path.lower().endswith('.docx'):
+                try:
+                    logger.debug("Pre-upload sanitization: cleaning DOCX content")
+                    from src.translation.google_doc_translator import GoogleDocTranslator
+
+                    # Create temporary file for sanitized version
+                    temp_fd, temp_sanitized_path = tempfile.mkstemp(suffix='.docx')
+                    os.close(temp_fd)
+
+                    # Create a minimal translator instance just for sanitization
+                    # We use a dummy config since we only need the sanitization method
+                    dummy_config = {'project_id': 'dummy'}
+                    translator = GoogleDocTranslator(dummy_config)
+
+                    # Sanitize the document
+                    translator._sanitize_translated_docx(doc_path, temp_sanitized_path)
+                    file_to_upload = temp_sanitized_path
+                    logger.debug("Using sanitized version for upload: %s", temp_sanitized_path)
+
+                except Exception as sanitize_error:
+                    logger.warning(
+                        "Document sanitization failed, using original: %s",
+                        sanitize_error
+                    )
+                    # Fall back to original file
+                    file_to_upload = doc_path
+                    if temp_sanitized_path and os.path.exists(temp_sanitized_path):
+                        try:
+                            os.unlink(temp_sanitized_path)
+                        except:
+                            pass
+                    temp_sanitized_path = None
+
+            with open(file_to_upload, 'rb') as file:
                 form_data = {
-                    "files": (doc_name, file)
+                    "files": (safe_filename, file)
                 }
 
                 # Add metadata field if provided
                 if metadata:
+                    # Ensure metadata values are properly encoded
+                    # Sanitize any string values to prevent UTF-8 issues
+                    sanitized_metadata = {}
+                    for key, value in metadata.items():
+                        if isinstance(value, str):
+                            # Replace problematic characters in metadata
+                            sanitized_value = value.replace('+', '_').replace('@', '_at_')
+                            sanitized_metadata[key] = sanitized_value
+                        else:
+                            sanitized_metadata[key] = value
+
                     form_data["metadata"] = (
-                        None, json.dumps(metadata), 'application/json')
-                    logger.debug("Added metadata to form_data")
+                        None, json.dumps(sanitized_metadata, ensure_ascii=False), 'application/json')
+                    logger.debug("Added sanitized metadata to form_data")
 
                 body_data = {
                     "docId": loader_id
@@ -240,6 +300,14 @@ class FlowiseAiAPI:
 
             # Log response status
             logger.debug("Response status code: %s", response.status_code)
+
+            # Clean up temporary sanitized file
+            if temp_sanitized_path and os.path.exists(temp_sanitized_path):
+                try:
+                    os.unlink(temp_sanitized_path)
+                    logger.debug("Cleaned up temporary sanitized file")
+                except Exception as cleanup_error:
+                    logger.warning("Failed to cleanup temp file: %s", cleanup_error)
 
             if response.status_code == 200:
                 data = response.json()
@@ -269,6 +337,15 @@ class FlowiseAiAPI:
                 error,
                 exc_info=True)
             return {'name': 'Error', 'error': str(error)}
+
+        finally:
+            # Ensure cleanup even if there's an exception
+            if temp_sanitized_path and os.path.exists(temp_sanitized_path):
+                try:
+                    os.unlink(temp_sanitized_path)
+                    logger.debug("Cleaned up temporary sanitized file (finally)")
+                except Exception as cleanup_error:
+                    logger.warning("Failed to cleanup temp file in finally: %s", cleanup_error)
 
     def get_document_page(
             self,
