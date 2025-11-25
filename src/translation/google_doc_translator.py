@@ -235,9 +235,8 @@ class GoogleDocTranslator(BaseTranslator):
         """
         Sanitize a translated DOCX file to ensure UTF-8 compliance.
 
-        This method reads the DOCX, extracts all text content, sanitizes it
-        to remove invalid UTF-8 sequences and XML-incompatible characters,
-        then recreates the document with clean content.
+        This method extracts the DOCX ZIP, fixes XML encoding at byte level,
+        and repackages to ensure FlowiseAI can process it.
 
         Args:
             input_path: Path to the translated DOCX file (may contain malformed UTF-8)
@@ -246,22 +245,13 @@ class GoogleDocTranslator(BaseTranslator):
         Raises:
             RuntimeError: If sanitization fails
         """
-        logger.debug("Sanitizing DOCX file: %s -> %s", input_path, output_path)
+        logger.debug("Sanitizing DOCX file at byte level: %s -> %s", input_path, output_path)
 
         try:
-            from docx import Document
-            from src.convert_to_docx import sanitize_text_for_xml
-
-            # Try to load the document
-            logger.debug("Loading translated DOCX document")
-            try:
-                doc = Document(input_path)
-            except Exception as load_error:
-                logger.error("Failed to load DOCX file: %s", load_error)
-                # If we can't load it, try to repair by reading raw bytes
-                logger.warning("Attempting to repair malformed DOCX file")
-                self._repair_malformed_docx(input_path, output_path)
-                return
+            # Always use byte-level repair to fix any UTF-8 issues in the XML
+            # This is more thorough than just reading paragraphs
+            self._repair_malformed_docx(input_path, output_path)
+            return
 
             # Extract and sanitize all text content
             logger.debug("Extracting and sanitizing document content")
@@ -335,52 +325,61 @@ class GoogleDocTranslator(BaseTranslator):
                 with zipfile.ZipFile(input_path, 'r') as zip_ref:
                     zip_ref.extractall(temp_dir)
 
-                # Find and fix the main document XML file
-                document_xml_path = os.path.join(temp_dir, 'word', 'document.xml')
+                # Find and fix ALL XML files in the DOCX archive
+                xml_files_fixed = 0
+                for root, dirs, files in os.walk(temp_dir):
+                    for file in files:
+                        if file.endswith('.xml'):
+                            xml_path = os.path.join(root, file)
+                            logger.debug("Repairing XML file: %s", file)
 
-                if os.path.exists(document_xml_path):
-                    logger.debug("Repairing document.xml with UTF-8 encoding fixes")
+                            try:
+                                # Read the XML file with error handling
+                                with open(xml_path, 'rb') as f:
+                                    xml_bytes = f.read()
 
-                    # Read the XML file with error handling
-                    with open(document_xml_path, 'rb') as f:
-                        xml_bytes = f.read()
+                                # Try to decode with UTF-8, replacing invalid sequences
+                                try:
+                                    xml_text = xml_bytes.decode('utf-8', errors='replace')
+                                except Exception:
+                                    # Fallback to latin-1 then encode to UTF-8
+                                    xml_text = xml_bytes.decode('latin-1', errors='replace')
 
-                    # Try to decode with UTF-8, replacing invalid sequences
-                    try:
-                        xml_text = xml_bytes.decode('utf-8', errors='replace')
-                    except Exception:
-                        # Fallback to latin-1 then encode to UTF-8
-                        xml_text = xml_bytes.decode('latin-1', errors='replace')
+                                # Replace any replacement characters with empty string
+                                original_text = xml_text
+                                xml_text = xml_text.replace('\ufffd', '')
 
-                    # Replace any replacement characters with empty string
-                    xml_text = xml_text.replace('\ufffd', '')
+                                # Parse and reconstruct the XML to ensure validity
+                                try:
+                                    tree = ET.fromstring(xml_text.encode('utf-8'))
 
-                    # Parse and reconstruct the XML to ensure validity
-                    try:
-                        tree = ET.fromstring(xml_text.encode('utf-8'))
+                                    # Extract all text nodes and sanitize them
+                                    for elem in tree.iter():
+                                        if elem.text:
+                                            elem.text = sanitize_text_for_xml(elem.text)
+                                        if elem.tail:
+                                            elem.tail = sanitize_text_for_xml(elem.tail)
 
-                        # Extract all text nodes and sanitize them
-                        for elem in tree.iter():
-                            if elem.text:
-                                elem.text = sanitize_text_for_xml(elem.text)
-                            if elem.tail:
-                                elem.tail = sanitize_text_for_xml(elem.tail)
+                                    # Write back the sanitized XML
+                                    xml_text = ET.tostring(tree, encoding='utf-8', method='xml').decode('utf-8')
 
-                        # Write back the sanitized XML
-                        xml_text = ET.tostring(tree, encoding='utf-8', method='xml').decode('utf-8')
+                                except ET.ParseError as parse_error:
+                                    logger.debug("XML parsing failed for %s: %s. Using text sanitization.", file, parse_error)
+                                    # If XML parsing fails, just sanitize the text content
+                                    xml_text = sanitize_text_for_xml(xml_text)
 
-                    except ET.ParseError as parse_error:
-                        logger.warning("XML parsing failed: %s. Using text replacement method.", parse_error)
-                        # If XML parsing fails, just sanitize the text content
-                        xml_text = sanitize_text_for_xml(xml_text)
+                                # Only write if changes were made
+                                if xml_text != original_text:
+                                    with open(xml_path, 'w', encoding='utf-8') as f:
+                                        f.write(xml_text)
+                                    xml_files_fixed += 1
+                                    logger.debug("%s repaired", file)
 
-                    # Write the repaired XML back
-                    with open(document_xml_path, 'w', encoding='utf-8') as f:
-                        f.write(xml_text)
+                            except Exception as xml_error:
+                                logger.warning("Failed to repair %s: %s", file, xml_error)
+                                # Continue with other files
 
-                    logger.debug("document.xml repaired successfully")
-                else:
-                    logger.warning("document.xml not found in DOCX archive")
+                logger.info("Repaired %d XML files in DOCX archive", xml_files_fixed)
 
                 # Repackage the DOCX
                 logger.debug("Repackaging repaired DOCX file")
