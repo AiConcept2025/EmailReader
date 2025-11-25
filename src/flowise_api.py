@@ -211,15 +211,7 @@ class FlowiseAiAPI:
             # Prepare the request
             logger.debug("Preparing request to Flowise API")
 
-            # Sanitize filename to prevent RFC 2231 encoding issues
-            # Replace special characters that trigger encoding problems
-            # @ and + in filenames cause requests library to use RFC 2231
-            # which FlowiseAI server doesn't support
-            safe_filename = doc_name.replace('+', '_').replace('@', '_at_')
-            logger.debug("Original filename: %s", doc_name)
-            logger.debug("Sanitized filename for upload: %s", safe_filename)
-
-            # ADDITIONAL FIX: Sanitize DOCX content before upload
+            # Sanitize DOCX content before upload
             # This ensures no UTF-8 issues in the file content itself
             # Only sanitize .docx files
             temp_sanitized_path = None
@@ -260,25 +252,14 @@ class FlowiseAiAPI:
 
             with open(file_to_upload, 'rb') as file:
                 form_data = {
-                    "files": (safe_filename, file)
+                    "files": (doc_name, file)
                 }
 
                 # Add metadata field if provided
                 if metadata:
-                    # Ensure metadata values are properly encoded
-                    # Sanitize any string values to prevent UTF-8 issues
-                    sanitized_metadata = {}
-                    for key, value in metadata.items():
-                        if isinstance(value, str):
-                            # Replace problematic characters in metadata
-                            sanitized_value = value.replace('+', '_').replace('@', '_at_')
-                            sanitized_metadata[key] = sanitized_value
-                        else:
-                            sanitized_metadata[key] = value
-
                     form_data["metadata"] = (
-                        None, json.dumps(sanitized_metadata, ensure_ascii=False), 'application/json')
-                    logger.debug("Added sanitized metadata to form_data")
+                        None, json.dumps(metadata, ensure_ascii=False), 'application/json')
+                    logger.debug("Added metadata to form_data")
 
                 body_data = {
                     "docId": loader_id
