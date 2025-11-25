@@ -251,15 +251,29 @@ class FlowiseAiAPI:
                     temp_sanitized_path = None
 
             with open(file_to_upload, 'rb') as file:
+                # Use ASCII-safe filename in the upload to avoid encoding issues
+                # The original filename is preserved in metadata
+                import string
+                safe_chars = string.ascii_letters + string.digits + '.-_'
+                ascii_filename = ''.join(c if c in safe_chars else '_' for c in doc_name)
+                logger.debug("Original filename: %s", doc_name)
+                logger.debug("Upload filename (ASCII-safe): %s", ascii_filename)
+
                 form_data = {
-                    "files": (doc_name, file)
+                    "files": (ascii_filename, file, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
                 }
 
                 # Add metadata field if provided
-                if metadata:
-                    form_data["metadata"] = (
-                        None, json.dumps(metadata, ensure_ascii=False), 'application/json')
-                    logger.debug("Added metadata to form_data")
+                # Store original filename in metadata to preserve it
+                if metadata is None:
+                    metadata = {}
+
+                # Add original filename to metadata
+                metadata['original_filename'] = doc_name
+
+                form_data["metadata"] = (
+                    None, json.dumps(metadata, ensure_ascii=True), 'application/json')
+                logger.debug("Added metadata with original filename: %s", doc_name)
 
                 body_data = {
                     "docId": loader_id
