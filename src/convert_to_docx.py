@@ -4,16 +4,38 @@ Convert docs to docx
 import os
 import logging
 import re
+from typing import Optional
 import pdfplumber
 from docx import Document
+
+# Optional library for advanced mojibake fixing
+try:
+    import ftfy
+    FTFY_AVAILABLE = True
+except ImportError:
+    FTFY_AVAILABLE = False
 
 # Get logger for this module
 logger = logging.getLogger('EmailReader.DocConverter')
 
+# Regex patterns for deep text sanitization
+SURROGATE_PATTERN = re.compile(r'[\ud800-\udfff]')  # UTF-16 surrogates
+CONTROL_PATTERN = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]')  # Control chars
+C1_CONTROL_PATTERN = re.compile(r'[\u0080-\u009f]')  # C1 control chars
+NONCHAR_PATTERN = re.compile(r'[\ufffe\uffff\ufdd0-\ufdef]')  # Unicode non-chars
+
 
 def sanitize_text_for_xml(text: str) -> str:
     """
-    Remove characters that are invalid in XML/OOXML (Word documents).
+    Deep sanitize text content to remove characters that cause
+    'Malformed UTF-8 data' errors in vector stores like Flowise.
+
+    This handles:
+    - UTF-16 surrogate characters (invalid in UTF-8) - CRITICAL
+    - XML 1.0 illegal characters
+    - C1 control characters (U+0080-U+009F)
+    - Unicode non-characters
+    - Mojibake fixing (if ftfy available)
 
     XML 1.0 allows:
     - #x9 (tab)
@@ -23,54 +45,59 @@ def sanitize_text_for_xml(text: str) -> str:
     - #xE000-#xFFFD
     - #x10000-#x10FFFF
 
-    This function removes:
-    - NULL bytes
-    - Control characters (except tab, LF, CR)
-    - Invalid Unicode ranges
-    - Malformed UTF-8 sequences
-    - Unicode replacement characters
-
     Args:
         text: Input text that may contain invalid characters
 
     Returns:
-        Sanitized text safe for XML/Word documents
+        Sanitized text safe for UTF-8 encoding and vector stores
     """
     if not text:
         return text
 
-    # First, ensure the text is properly encoded/decoded as UTF-8
-    # This handles any encoding issues from translation
-    try:
-        # Encode to bytes and back to fix any encoding issues
-        # Use 'ignore' to skip invalid sequences, or 'replace' to substitute
-        if isinstance(text, bytes):
-            text = text.decode('utf-8', errors='replace')
-        else:
-            # Re-encode and decode to normalize UTF-8
-            text = text.encode('utf-8', errors='replace').decode('utf-8', errors='replace')
-    except Exception as e:
-        logger.warning("Encoding normalization failed: %s. Continuing with original text.", e)
+    # Step 1: Try ftfy for mojibake fixing (if available)
+    if FTFY_AVAILABLE:
+        try:
+            text = ftfy.fix_text(text, normalization='NFC')
+            logger.debug("Applied ftfy mojibake fixing")
+        except Exception as e:
+            logger.debug("ftfy fixing failed: %s, continuing with manual fixes", e)
 
-    # Remove Unicode replacement characters (U+FFFD) that indicate encoding problems
+    # Step 2: Remove UTF-16 surrogates (CRITICAL - main cause of error)
+    original_length = len(text)
+    text = SURROGATE_PATTERN.sub('', text)
+    if len(text) != original_length:
+        logger.debug("Removed %d UTF-16 surrogate characters", original_length - len(text))
+
+    # Step 3: Remove XML illegal control characters
+    original_length = len(text)
+    text = CONTROL_PATTERN.sub('', text)
+    if len(text) != original_length:
+        logger.debug("Removed %d control characters", original_length - len(text))
+
+    # Step 4: Remove C1 control characters
+    original_length = len(text)
+    text = C1_CONTROL_PATTERN.sub('', text)
+    if len(text) != original_length:
+        logger.debug("Removed %d C1 control characters", original_length - len(text))
+
+    # Step 5: Remove Unicode non-characters
+    original_length = len(text)
+    text = NONCHAR_PATTERN.sub('', text)
+    if len(text) != original_length:
+        logger.debug("Removed %d Unicode non-characters", original_length - len(text))
+
+    # Step 6: UTF-8 round-trip validation
+    try:
+        # Use surrogatepass to catch any remaining surrogates
+        text = text.encode('utf-8', errors='surrogatepass').decode('utf-8', errors='replace')
+    except Exception as e:
+        logger.debug("UTF-8 surrogatepass failed: %s, using replace", e)
+        text = text.encode('utf-8', errors='replace').decode('utf-8', errors='replace')
+
+    # Step 7: Remove replacement characters that may have appeared
     text = text.replace('\ufffd', '')
 
-    # Remove NULL bytes
-    text = text.replace('\x00', '')
-
-    # Remove control characters except tab (\x09), LF (\x0a), CR (\x0d)
-    # This regex removes characters in ranges:
-    # \x00-\x08, \x0b-\x0c, \x0e-\x1f (control chars)
-    # \x7f-\x9f (DEL and C1 control chars)
-    text = re.sub(r'[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f-\x9f]', '', text)
-
-    # Remove invalid Unicode surrogates and private use characters
-    # that might cause issues
-    text = re.sub(r'[\ud800-\udfff]', '', text)
-
-    # Remove any remaining non-printable or problematic Unicode characters
-    # that might not be valid in XML 1.0
-    # This includes characters outside the allowed XML ranges
+    # Step 8: Final validation against XML 1.0 spec
     def is_valid_xml_char(char):
         """Check if character is valid in XML 1.0"""
         code_point = ord(char)
@@ -83,7 +110,7 @@ def sanitize_text_for_xml(text: str) -> str:
             (0x10000 <= code_point <= 0x10FFFF)
         )
 
-    # Filter out invalid XML characters
+    # Filter out any remaining invalid XML characters
     text = ''.join(char for char in text if is_valid_xml_char(char))
 
     return text

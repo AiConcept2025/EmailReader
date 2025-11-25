@@ -349,6 +349,10 @@ class GoogleDocTranslator(BaseTranslator):
                                 original_text = xml_text
                                 xml_text = xml_text.replace('\ufffd', '')
 
+                                # Deep sanitize the entire XML text to remove problematic characters
+                                # This catches UTF-16 surrogates, C1 controls, etc. that break vector stores
+                                xml_text = sanitize_text_for_xml(xml_text)
+
                                 # Parse and reconstruct the XML to ensure validity
                                 try:
                                     tree = ET.fromstring(xml_text.encode('utf-8'))
@@ -379,7 +383,7 @@ class GoogleDocTranslator(BaseTranslator):
                                 logger.warning("Failed to repair %s: %s", file, xml_error)
                                 # Continue with other files
 
-                logger.info("Repaired %d XML files in DOCX archive", xml_files_fixed)
+                logger.info("Repaired %d XML files in DOCX archive (with deep text sanitization)", xml_files_fixed)
 
                 # Repackage the DOCX
                 logger.debug("Repackaging repaired DOCX file")
