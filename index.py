@@ -10,6 +10,7 @@ import schedule
 from src.logger import logger
 from src.process_google_drive import process_google_drive
 from src.process_files_for_translation import process_files_for_translation
+from src.process_files_for_formatting import process_files_for_formatting
 from src.config import load_config
 
 
@@ -119,6 +120,10 @@ def run_and_log() -> None:
             logger.info("Starting translation workflow")
             process_files_for_translation()
             logger.info("Translation workflow completed")
+        elif mode == "format":
+            logger.info("Starting formatting workflow")
+            process_files_for_formatting()
+            logger.info("Formatting workflow completed")
         else:
             logger.info("Starting standard processing workflow")
             process_google_drive()
