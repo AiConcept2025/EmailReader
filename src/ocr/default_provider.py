@@ -1,17 +1,17 @@
 """
-Default OCR Provider using Tesseract
+Default OCR Provider (Tesseract)
 
-This provider wraps the existing Tesseract OCR functionality from pdf_image_ocr.py
-and provides it through the standard OCR provider interface.
+Wraps existing Tesseract OCR logic from pdf_image_ocr.py
 """
 
+import os
 import logging
 from typing import Dict, Any
 
-from .base_provider import BaseOCRProvider
-from src.pdf_image_ocr import ocr_pdf_image_to_doc, is_pdf_searchable_pypdf
+from src.ocr.base_provider import BaseOCRProvider
+from src.pdf_image_ocr import is_pdf_searchable_pypdf, ocr_pdf_image_to_doc
+from src.convert_to_docx import convert_pdf_to_docx
 
-# Get logger for this module
 logger = logging.getLogger('EmailReader.OCR.Default')
 
 
@@ -19,128 +19,85 @@ class DefaultOCRProvider(BaseOCRProvider):
     """
     Default OCR provider using Tesseract.
 
-    This provider uses the open-source Tesseract OCR engine to extract text
-    from images and scanned PDF documents. It supports multiple languages
-    (English, Russian, Azerbaijani, Uzbek, German) and provides high-quality
-    text extraction for most document types.
-
-    Features:
-        - Multi-language support (eng+rus+aze+uzb+deu)
-        - PDF to image conversion at 300 DPI
-        - Automatic text extraction from searchable PDFs
-        - Configurable OCR parameters
-
-    Requirements:
-        - Tesseract OCR installed on the system
-        - Poppler utilities for PDF processing
-        - Language data files for required languages
-
-    Attributes:
-        config (dict): OCR configuration dictionary (reserved for future use)
+    Wraps the existing Tesseract-based OCR functionality
+    from pdf_image_ocr.py module.
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
+    def __init__(self, config: Dict[str, Any]):
         """
-        Initialize default Tesseract OCR provider.
+        Initialize the default OCR provider.
 
         Args:
-            config: OCR configuration dictionary. Currently reserved for
-                   future configuration options such as DPI, languages,
-                   or OCR engine parameters.
-
-        Example:
-            >>> config = {'dpi': 300, 'languages': 'eng+rus'}
-            >>> provider = DefaultOCRProvider(config)
+            config: Configuration dictionary (currently unused for Tesseract)
         """
-        self.config = config
+        super().__init__(config)
         logger.info("Initialized DefaultOCRProvider (Tesseract)")
-        logger.debug("Configuration: %s", config)
 
-    def process_document(self, ocr_file: str, out_doc_file_path: str) -> None:
+    def process_document(self, input_path: str, output_path: str) -> None:
         """
-        Process document using Tesseract OCR.
+        Process a document with OCR and save the result.
 
-        Performs OCR on the input PDF or image file using Tesseract engine
-        and saves the extracted text as a formatted DOCX document.
-
-        Process flow:
-            1. Convert PDF pages to images (300 DPI, PNG format)
-            2. Run Tesseract OCR on each image
-            3. Combine extracted text from all pages
-            4. Convert to DOCX format
-            5. Clean up temporary files
+        Uses Tesseract OCR for scanned PDFs, or direct text extraction
+        for searchable PDFs.
 
         Args:
-            ocr_file: Path to input file (PDF or image)
-            out_doc_file_path: Path where DOCX output should be saved
+            input_path: Path to input file (PDF or image)
+            output_path: Path to save output DOCX file
 
         Raises:
             FileNotFoundError: If input file doesn't exist
-            ValueError: If file format is invalid
             RuntimeError: If OCR processing fails
-            PDFInfoNotInstalledError: If Poppler is not installed
-
-        Example:
-            >>> provider = DefaultOCRProvider({})
-            >>> provider.process_document('scanned.pdf', 'output.docx')
         """
-        logger.debug(f"Processing document with Tesseract: {ocr_file}")
-        logger.info("Starting OCR process using Tesseract engine")
+        logger.info("Processing document with Tesseract: %s", os.path.basename(input_path))
+        logger.debug("Input: %s", input_path)
+        logger.debug("Output: %s", output_path)
+
+        if not os.path.exists(input_path):
+            logger.error("Input file not found: %s", input_path)
+            raise FileNotFoundError(f"File not found: {input_path}")
 
         try:
-            ocr_pdf_image_to_doc(ocr_file, out_doc_file_path)
-            logger.info(f"Tesseract OCR completed successfully: {out_doc_file_path}")
-        except FileNotFoundError as e:
-            logger.error(f"Input file not found: {ocr_file}")
-            raise
-        except ValueError as e:
-            logger.error(f"Invalid file format: {e}")
+            # Check if PDF is searchable
+            logger.debug("Checking if PDF is searchable")
+            is_searchable = self.is_pdf_searchable(input_path)
+
+            if is_searchable:
+                logger.info("PDF is searchable - using text extraction")
+                convert_pdf_to_docx(input_path, output_path)
+            else:
+                logger.info("PDF is not searchable - using OCR")
+                ocr_pdf_image_to_doc(input_path, output_path)
+
+            if os.path.exists(output_path):
+                file_size = os.path.getsize(output_path) / 1024  # KB
+                logger.info("Document processed successfully: %s (%.2f KB)",
+                           os.path.basename(output_path), file_size)
+            else:
+                logger.error("Processing failed - output file not created")
+                raise RuntimeError("OCR processing failed to create output file")
+
+        except FileNotFoundError:
             raise
         except Exception as e:
-            logger.error(f"OCR processing failed: {e}", exc_info=True)
-            raise RuntimeError(f"Tesseract OCR failed: {e}") from e
+            logger.error("Error processing document: %s", e, exc_info=True)
+            raise RuntimeError(f"OCR processing failed: {e}")
 
     def is_pdf_searchable(self, pdf_path: str) -> bool:
         """
-        Check if PDF is searchable using existing implementation.
-
-        Uses PyPDF to attempt text extraction from the PDF. If text can be
-        extracted, the PDF is considered searchable and doesn't require OCR.
+        Check if a PDF contains searchable text.
 
         Args:
             pdf_path: Path to PDF file
 
         Returns:
-            True if PDF contains extractable text, False if image-based
-
-        Raises:
-            FileNotFoundError: If PDF doesn't exist
-            ValueError: If file is not a valid PDF
-            RuntimeError: If PDF cannot be read
-
-        Example:
-            >>> provider = DefaultOCRProvider({})
-            >>> if not provider.is_pdf_searchable('document.pdf'):
-            ...     print("PDF requires OCR processing")
+            True if PDF has extractable text, False otherwise
         """
-        logger.debug(f"Checking if PDF is searchable: {pdf_path}")
+        logger.debug("Checking if PDF is searchable: %s", os.path.basename(pdf_path))
 
         try:
             result = is_pdf_searchable_pypdf(pdf_path)
-            logger.debug(f"PDF searchable check for {pdf_path}: {result}")
-
-            if result:
-                logger.info(f"PDF is searchable (contains extractable text): {pdf_path}")
-            else:
-                logger.info(f"PDF is image-based (requires OCR): {pdf_path}")
-
+            logger.debug("PDF searchable check result: %s", result)
             return result
-        except FileNotFoundError as e:
-            logger.error(f"PDF file not found: {pdf_path}")
-            raise
-        except ValueError as e:
-            logger.error(f"Invalid PDF file: {e}")
-            raise
         except Exception as e:
-            logger.error(f"Error checking PDF searchability: {e}", exc_info=True)
-            raise RuntimeError(f"Failed to check PDF searchability: {e}") from e
+            logger.error("Error checking PDF searchability: %s", e)
+            raise

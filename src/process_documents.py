@@ -8,14 +8,15 @@ import logging
 from docx import Document
 from langdetect import detect  # type: ignore
 from src.ocr import OCRProviderFactory
+from src.pdf_image_ocr import ocr_pdf_image_to_doc
 from src.document_analyzer import requires_ocr
 from src.convert_to_docx import convert_pdf_to_docx
-from src.utils import (
+from src.file_utils import (
     delete_file,
     translate_document_to_english,
     convert_rtx_to_text
 )
-from src.utils import rename_file
+from src.file_utils import rename_file
 
 # Get logger for this module
 logger = logging.getLogger('EmailReader.DocProcessor')
@@ -255,7 +256,7 @@ class DocProcessor:
         """
         logger.info('Starting process_word_file() for: %s', file_name)
         logger.debug("Parameters - client: %s, folder: %s, target_lang: %s",
-                    client, document_folder, target_lang)
+                     client, document_folder, target_lang)
 
         try:
             file_path = os.path.join(document_folder, file_name)
@@ -266,7 +267,8 @@ class DocProcessor:
                 raise FileNotFoundError(f"File not found: {file_path}")
 
             file_name_no_ext, file_ext = os.path.splitext(file_name)
-            logger.debug("File name without ext: %s, extension: %s", file_name_no_ext, file_ext)
+            logger.debug("File name without ext: %s, extension: %s",
+                         file_name_no_ext, file_ext)
 
             logger.debug("Loading Word document")
             document = Document(file_path)
@@ -281,7 +283,8 @@ class DocProcessor:
             logger.debug("Extracted text length: %d characters", text_length)
 
             if text_length < 10:
-                logger.warning("Document has very little text (%d chars)", text_length)
+                logger.warning(
+                    "Document has very little text (%d chars)", text_length)
 
             logger.debug("Detecting language")
             detected_lang = detect(text)
@@ -299,7 +302,8 @@ class DocProcessor:
                 original_file_path = new_file_path
             else:
                 # If not English, translate it and rename file with +translated
-                logger.info("Document is in %s, translation required", detected_lang)
+                logger.info(
+                    "Document is in %s, translation required", detected_lang)
                 # Rename original file with +original
                 # Do not prefix with client here; caller will prepend email
                 original_file_name = f'{file_name_no_ext}+original{file_ext}'
@@ -311,13 +315,15 @@ class DocProcessor:
                 # Translate document (optionally to target_lang)
                 new_file_name = f'{file_name_no_ext}+translated{file_ext}'
                 new_file_path = os.path.join(document_folder, new_file_name)
-                logger.info("Translating document from %s to %s", detected_lang, target_lang or 'en')
+                logger.info("Translating document from %s to %s",
+                            detected_lang, target_lang or 'en')
                 translate_document_to_english(
                     original_file_path, new_file_path, target_lang)
                 logger.info("Translation completed: %s", new_file_name)
 
             logger.info("process_word_file() completed successfully")
-            logger.debug("Returning: new_file=%s, original_file=%s", new_file_name, original_file_name)
+            logger.debug("Returning: new_file=%s, original_file=%s",
+                         new_file_name, original_file_name)
 
             return (
                 new_file_path,
@@ -326,10 +332,15 @@ class DocProcessor:
                 original_file_path)
 
         except Exception as e:
-            logger.error("Error in process_word_file() for %s: %s", file_name, e, exc_info=True)
+            logger.error("Error in process_word_file() for %s: %s",
+                         file_name, e, exc_info=True)
             raise
 
-    def _process_with_ocr_provider(self, input_file: str, output_file: str) -> None:
+    def _process_with_ocr_provider(
+            self,
+            input_file: str,
+            output_file: str
+    ) -> None:
         """
         Process document with configured OCR provider, with automatic fallback.
 
@@ -343,16 +354,18 @@ class DocProcessor:
         try:
             # Load config and get provider
             config = load_config()
-            ocr_provider = OCRProviderFactory.get_provider(config)
             provider_name = config.get('ocr', {}).get('provider', 'default')
 
             logger.info(f"Using OCR provider: {provider_name}")
+            ocr_provider = OCRProviderFactory.get_provider(config)
             ocr_provider.process_document(input_file, output_file)
-            logger.info(f"OCR completed successfully with {provider_name} provider")
+            logger.info(
+                f"OCR completed successfully with {provider_name} provider")
 
         except Exception as e:
             logger.warning(
-                f"Primary OCR provider failed: {e}. Falling back to default Tesseract OCR"
+                (f"Primary OCR provider failed: {e}. "
+                 "Falling back to default Tesseract OCR")
             )
 
             # Fallback to default provider
@@ -372,6 +385,7 @@ class DocProcessor:
             client: str,  # Keep parameter for backward compatibility but don't use it
             file_name: str,
             document_folder: str,
+            metadata: dict | None = None,
             target_lang: str | None = None
     ) -> tuple[str, str, str, str]:
         """
@@ -382,8 +396,11 @@ class DocProcessor:
             document_folder: folder to temp save processed documents
         """
         logger.info('Starting convert_pdf_file_to_word() for: %s', file_name)
-        logger.debug("Parameters - client: %s, folder: %s, target_lang: %s",
-                    client, document_folder, target_lang)
+        logger.debug(
+            "Parameters - client: %s, folder: %s, target_lang: %s",
+            client,
+            document_folder,
+            target_lang)
 
         try:
             file_path = os.path.join(document_folder, file_name)
@@ -394,10 +411,11 @@ class DocProcessor:
                 raise FileNotFoundError(f"File not found: {file_path}")
 
             file_name_no_ext, file_ext = os.path.splitext(file_name)
-            logger.debug("File name without ext: %s, extension: %s", file_name_no_ext, file_ext)
+            logger.debug("File name without ext: %s, extension: %s",
+                         file_name_no_ext, file_ext)
 
             # CHANGED: Removed {client}+ prefix
-            original_file_name = f'{client}+{file_name_no_ext}+original{file_ext}'
+            original_file_name = f'{file_name_no_ext}+original{file_ext}'
             original_file_path = os.path.join(
                 document_folder, original_file_name)
 
@@ -412,19 +430,31 @@ class DocProcessor:
             # Determine if OCR is needed
             logger.info("Analyzing PDF to determine if OCR is required")
             needs_ocr = requires_ocr(original_file_path)
-            logger.info("PDF analysis complete: %s", "OCR required" if needs_ocr else "Searchable text found")
+            logger.info(
+                "PDF analysis complete: %s",
+                "OCR required" if needs_ocr else "Searchable text found")
 
             if needs_ocr:
                 logger.info("Processing document with OCR provider")
-                self._process_with_ocr_provider(original_file_path, docx_file_path)
+                ocr_method = metadata.get('ocr_method', 'default')
+                if ocr_method == 'default':
+                    ocr_pdf_image_to_doc(
+                        original_file_path,
+                        docx_file_path)
+                else:
+                    self._process_with_ocr_provider(
+                        original_file_path,
+                        docx_file_path)
+
                 logger.info("OCR processing completed")
             else:
-                logger.info("Converting searchable PDF to DOCX (no OCR needed)")
+                logger.info(
+                    "Converting searchable PDF to DOCX (no OCR needed)")
                 convert_pdf_to_docx(original_file_path, docx_file_path)
                 logger.info("PDF to DOCX conversion completed")
 
             # CHANGED: Removed {client}+ prefix
-            new_file_name = f'{client}+{file_name_no_ext}+translated.docx'
+            new_file_name = f'{file_name_no_ext}+translated.docx'
             new_file_path = os.path.join(document_folder, new_file_name)
             logger.info("Translating PDF content to %s", target_lang or 'en')
             translate_document_to_english(
@@ -435,7 +465,8 @@ class DocProcessor:
             delete_file(docx_file_path)
 
             logger.info("convert_pdf_file_to_word() completed successfully")
-            logger.debug("Returning: new_file=%s, original_file=%s", new_file_name, original_file_name)
+            logger.debug("Returning: new_file=%s, original_file=%s",
+                         new_file_name, original_file_name)
 
             return (
                 new_file_path,
@@ -444,5 +475,6 @@ class DocProcessor:
                 original_file_path)
 
         except Exception as e:
-            logger.error("Error in convert_pdf_file_to_word() for %s: %s", file_name, e, exc_info=True)
+            logger.error(
+                "Error in convert_pdf_file_to_word() for %s: %s", file_name, e, exc_info=True)
             raise

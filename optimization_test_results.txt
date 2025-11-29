@@ -1,0 +1,131 @@
+09:24:36 | INFO     | EmailReader          | ================================================================================
+09:24:36 | INFO     | EmailReader          | EmailReader Application Started
+09:24:36 | INFO     | EmailReader          | Log file: /Users/vladimirdanishevsky/projects/EmailReader/logs/email_reader.log
+09:24:36 | INFO     | EmailReader          | ================================================================================
+09:24:36 | INFO     | EmailReader.Config   | Loading configuration from: /Users/vladimirdanishevsky/projects/EmailReader/credentials/config.dev.json
+09:24:36 | INFO     | EmailReader          | Test mode confirmed: enabled
+09:24:36 | INFO     | EmailReader          | Google Drive API client initialized successfully
+09:24:36 | INFO     | EmailReader          | QualityValidator initialized
+09:24:36 | INFO     | EmailReader          | MetricsTracker initialized - session: 20251117_092436
+09:24:36 | INFO     | EmailReader          | IterativeProcessor initialized
+09:24:36 | INFO     | EmailReader          |   Target client: danishevsky@yahoo.com
+09:24:36 | INFO     | EmailReader          |   Max iterations: 5
+09:24:36 | INFO     | EmailReader          | 
+09:24:36 | INFO     | EmailReader          | ============================================================
+09:24:36 | INFO     | EmailReader          | STARTING ITERATIVE QUALITY TESTING
+09:24:36 | INFO     | EmailReader          | ============================================================
+09:24:36 | INFO     | EmailReader          | Target client: danishevsky@yahoo.com
+09:24:36 | INFO     | EmailReader          | Target file: first unprocessed
+09:24:36 | INFO     | EmailReader          | Max iterations: 5
+09:24:36 | INFO     | EmailReader          | Auto-tune: True
+09:24:36 | INFO     | EmailReader          | ============================================================
+09:24:36 | INFO     | EmailReader          | 
+09:24:36 | INFO     | EmailReader          | ============================================================
+09:24:36 | INFO     | EmailReader          | ITERATION 1/5
+09:24:36 | INFO     | EmailReader          | ============================================================
+09:24:36 | INFO     | EmailReader          | Using calibration factor: 380.0
+09:24:36 | INFO     | EmailReader          | Searching for client folder: danishevsky@yahoo.com
+09:24:37 | INFO     | EmailReader          | Found 5 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+09:24:37 | INFO     | EmailReader          | Found client folder: danishevsky@yahoo.com (ID: 1ogkJ2-8O95nKDlcnMEuvwx2ZNOIWTo6q)
+09:24:37 | INFO     | EmailReader          | Found 3 folders in folder ID: 1ogkJ2-8O95nKDlcnMEuvwx2ZNOIWTo6q
+09:24:37 | INFO     | EmailReader          | Found Inbox folder: 1ueyWVz1GilE2xemh56Q4yJmdRXFkBGjK
+09:24:37 | INFO     | EmailReader          | Found 1 files in folder ID: 1ueyWVz1GilE2xemh56Q4yJmdRXFkBGjK
+09:24:38 | INFO     | EmailReader          | Found 1 unprocessed file(s)
+09:24:38 | INFO     | EmailReader          | Selected file: Konnova.pdf
+09:24:38 | INFO     | EmailReader          | Processing file: Konnova.pdf
+09:24:38 | INFO     | EmailReader          | Downloading file...
+09:24:38 | INFO     | EmailReader          | DRIVE DOWNLOAD: Starting download of 'Konnova.pdf' (ID: 1KpWCUUwXNc_IDfIpt7f-mixHT_MegM5g)
+09:24:52 | INFO     | EmailReader          | DRIVE DOWNLOAD SUCCESS: File 'Konnova.pdf' downloaded (610.23 KB) to /Users/vladimirdanishevsky/projects/EmailReader/data/documents/Konnova.pdf
+09:24:52 | INFO     | EmailReader          | Processing document...
+09:24:52 | INFO     | EmailReader.DocProcessor | Starting convert_pdf_file_to_word() for: Konnova.pdf
+09:24:52 | INFO     | EmailReader.Utils    | RENAME file: /Users/vladimirdanishevsky/projects/EmailReader/data/documents/Konnova.pdf -> /Users/vladimirdanishevsky/projects/EmailReader/data/documents/danishevsky@yahoo.com+Konnova+original.pdf
+09:24:52 | INFO     | EmailReader.Utils    | RENAME OK: /Users/vladimirdanishevsky/projects/EmailReader/data/documents/danishevsky@yahoo.com+Konnova+original.pdf
+09:24:52 | INFO     | EmailReader.DocProcessor | Analyzing PDF to determine if OCR is required
+09:24:52 | INFO     | EmailReader.OCR      | PDF is not searchable - no text found in 4 pages
+09:24:52 | INFO     | EmailReader.DocProcessor | PDF analysis complete: OCR required
+09:24:52 | INFO     | EmailReader.DocProcessor | Processing document with OCR provider
+09:24:52 | INFO     | EmailReader.OCR.Factory | Creating OCR provider: landing_ai
+09:24:52 | INFO     | EmailReader.OCR.Factory | Creating LandingAI OCR provider
+09:24:52 | INFO     | EmailReader.OCR.LandingAI | Initialized LandingAIOCRProvider (model: dpt-2-latest, layout: True, grounding: True)
+09:24:52 | INFO     | EmailReader.DocProcessor | Using OCR provider: landing_ai
+09:24:52 | INFO     | EmailReader.OCR.LandingAI | Processing document with LandingAI OCR: /Users/vladimirdanishevsky/projects/EmailReader/data/documents/danishevsky@yahoo.com+Konnova+original.pdf
+09:24:59 | INFO     | EmailReader.OCR.LandingAI | LandingAI API call successful (attempt 1)
+09:24:59 | INFO     | EmailReader.OCR.LandingAI | Received 43 chunks from API
+09:24:59 | INFO     | EmailReader.OCR.LandingAI | Formatting data available - Page: 0, Bounding box: left=0.13076265156269073, top=0.08300480991601944, right=0.42569273710250854, bottom=0.1875799298286438
+09:24:59 | INFO     | EmailReader.OCR.LandingAI | Grounding data present: 43/43 chunks (100.0%)
+09:24:59 | INFO     | EmailReader.OCR.LandingAI | Saved LandingAI JSON response to: /Users/vladimirdanishevsky/projects/EmailReader/completed_temp/danishevsky@yahoo.com+Konnova+original_landing_ai_20251117_092459.json
+09:24:59 | INFO     | EmailReader          | Google Drive API client initialized successfully
+09:25:00 | INFO     | EmailReader          | Found 5 folders in folder ID: 1R4g1cSZUZ5nC2bzo7RxRO_46so5uYJS8
+09:25:00 | WARNING  | EmailReader.OCR.LandingAI | Completed folder not found in Google Drive - JSON saved locally only
+09:25:00 | INFO     | EmailReader.OCR.LandingAI | Grounding data available - using structured DOCX conversion
+09:25:00 | INFO     | EmailReader.OCR.LandingAI | Structured document created: 4 pages, 34 paragraphs
+09:25:00 | INFO     | EmailReader.DocConverter | Using ADVANCED DOCX conversion (full formatting preservation)
+09:25:00 | INFO     | EmailReader.DocConverter | Structured document converted to DOCX: Konnova.docx (37.58 KB, 34 paragraphs, 4 pages)
+09:25:00 | INFO     | EmailReader.OCR.LandingAI | Structured DOCX file saved: /Users/vladimirdanishevsky/projects/EmailReader/data/documents/Konnova.docx (37.58 KB) - Formatting preserved: page breaks, columns, spacing, font sizes
+09:25:00 | INFO     | EmailReader.OCR.LandingAI | LandingAI OCR completed in 7.92s: /Users/vladimirdanishevsky/projects/EmailReader/data/documents/Konnova.docx
+09:25:00 | INFO     | EmailReader.DocProcessor | OCR completed successfully with landing_ai provider
+09:25:00 | INFO     | EmailReader.DocProcessor | OCR processing completed
+09:25:00 | INFO     | EmailReader.DocProcessor | Translating PDF content to en
+09:25:00 | INFO     | EmailReader.Utils    | Starting translation subprocess
+09:25:07 | INFO     | EmailReader.Utils    | Translation completed successfully: danishevsky@yahoo.com+Konnova+translated.docx
+09:25:07 | INFO     | EmailReader.DocProcessor | Translation completed: danishevsky@yahoo.com+Konnova+translated.docx
+09:25:07 | INFO     | EmailReader.Utils    | DELETE file: /Users/vladimirdanishevsky/projects/EmailReader/data/documents/Konnova.docx
+09:25:07 | INFO     | EmailReader.Utils    | DELETE OK: /Users/vladimirdanishevsky/projects/EmailReader/data/documents/Konnova.docx
+09:25:07 | INFO     | EmailReader.DocProcessor | convert_pdf_file_to_word() completed successfully
+09:25:07 | INFO     | EmailReader          | Processing complete in 15.46s: danishevsky@yahoo.com+Konnova+translated.docx
+09:25:07 | INFO     | EmailReader          | Validating output quality...
+09:25:07 | INFO     | EmailReader          | Validation complete: PASS (score: 80.0/100)
+
+============================================================
+QUALITY VALIDATION REPORT
+============================================================
+File: danishevsky@yahoo.com+Konnova+translated.docx
+Overall Score: 80.0/100
+Status: ✓ PASS
+
+FONT SIZE VALIDATION:
+  Valid: ✗
+  Body Text: 37.5%
+  Headings: 37.5%
+  Titles: 12.5%
+  ⚠ Body text percentage too low: 37.5% (expected ≥50.0%)
+  ⚠ Title percentage too high: 12.5% (expected ≤10.0%)
+
+LAYOUT VALIDATION:
+  Page count: 1
+  Page breaks: ✓
+  Column detection: ✓
+
+ALL ISSUES:
+  • Body text percentage too low: 37.5% (expected ≥50.0%)
+  • Title percentage too high: 12.5% (expected ≤10.0%)
+============================================================
+09:25:08 | INFO     | EmailReader          | Setting property 'processed_iteration_1'='2025-11-17T09:25:07.929505' on file 'Konnova.pdf' (ID: 1KpWCUUwXNc_IDfIpt7f-mixHT_MegM5g)
+09:25:09 | INFO     | EmailReader          | Successfully set property 'processed_iteration_1' on file 'Konnova.pdf'
+09:25:09 | INFO     | EmailReader          | 
+09:25:09 | INFO     | EmailReader          | Iteration 1 complete:
+09:25:09 | INFO     | EmailReader          |   Status: PASS ✓
+09:25:09 | INFO     | EmailReader          |   Score: 80.0/100
+09:25:09 | INFO     | EmailReader          |   Time: 32.63s
+09:25:09 | INFO     | EmailReader          | 
+09:25:09 | INFO     | EmailReader          | ============================================================
+09:25:09 | INFO     | EmailReader          | ✓ QUALITY TARGETS MET!
+09:25:09 | INFO     | EmailReader          | ============================================================
+09:25:09 | INFO     | EmailReader          | Stopping after 1 iteration(s)
+
+============================================================
+FINAL SUMMARY
+============================================================
+Total iterations: 1
+Passed: 1/1
+
+Best result:
+  Iteration: 1
+  Score: 80.0/100
+  Calibration factor: 380
+
+✓ Quality targets achieved in iteration 1
+============================================================
+09:25:09 | INFO     | EmailReader          | Results saved to: /Users/vladimirdanishevsky/projects/EmailReader/metrics/iterative_test_20251117_092436.json
+
+Results saved to: /Users/vladimirdanishevsky/projects/EmailReader/metrics/iterative_test_20251117_092436.json

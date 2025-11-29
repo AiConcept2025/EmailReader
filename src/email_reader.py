@@ -14,7 +14,7 @@ from imap_tools import AND, MailBox
 
 # from src.convert_to_docx import (
 #    convert_pdf_to_docx, convert_txt_file_to_docx, convert_txt_to_docx)
-from src.utils import get_uuid, utc_to_local
+from src.file_utils import get_uuid, utc_to_local
 from src.config import load_config
 # from src.pdf_image_ocr import is_pdf_searchable_pypdf
 from src.process_documents import DocProcessor

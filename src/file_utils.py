@@ -5,7 +5,6 @@ Utilities
 import json
 import os
 import logging
-import subprocess
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -160,11 +159,12 @@ def translate_document_to_english(
         target_lang: str | None = None
 ) -> None:
     """
-    Translates word document to English (or a specified target language).
+    Translates word document using configured Google Cloud Translation API.
+
     Args:
-    original_path: foreign language word document Word format
-    translated_path: output english Word document Word format
-    target_lang: optional language code to translate to (e.g., 'fr')
+        original_path: foreign language word document Word format
+        translated_path: output english Word document Word format
+        target_lang: optional language code to translate to (e.g., 'fr', 'en')
     """
     logger.debug("Entering translate_document_to_english()")
     logger.debug("Original: %s", original_path)
@@ -175,32 +175,25 @@ def translate_document_to_english(
         logger.error("Original file not found: %s", original_path)
         raise FileNotFoundError(f"File not found: {original_path}")
 
-    executable_path = Path(os.path.join(
-        os.getcwd(), "translate_document"))
-    logger.debug("Translation executable: %s", executable_path)
-
-    if not executable_path.exists():
-        logger.error("Translation executable not found: %s", executable_path)
-        raise FileNotFoundError(f"Executable not found: {executable_path}")
-
-    arguments = ['-i', original_path, '-o', translated_path]
-    if target_lang:
-        arguments += ['--target', target_lang]
-
-    command = [str(executable_path)] + arguments
-    logger.debug("Translation command: %s", ' '.join(command))
-
     try:
-        logger.info("Starting translation subprocess")
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            check=True)
-        logger.debug("Translation stdout: %s",
-                     result.stdout if result.stdout else "(empty)")
+        # Use the translator factory to get configured provider
+        from src.config import load_config
+        from src.translation import TranslatorFactory
+
+        config = load_config()
+        translator = TranslatorFactory.get_translator(config)
+
+        logger.info("Using translator: %s", translator.__class__.__name__)
+
+        # Call translation API
+        translator.translate_document(
+            input_path=original_path,
+            output_path=translated_path,
+            target_lang=target_lang or 'en'
+        )
+
         logger.info("Translation completed successfully: %s",
-                    os.path.basename(translated_path))
+                   os.path.basename(translated_path))
 
         if os.path.exists(translated_path):
             file_size = os.path.getsize(translated_path) / 1024  # KB
@@ -208,17 +201,10 @@ def translate_document_to_english(
         else:
             logger.error(
                 "Translation completed but output file not found: %s", translated_path)
+            raise RuntimeError(f"Translation failed to create output file: {translated_path}")
 
-    except subprocess.CalledProcessError as e:
-        logger.error(
-            'Translation command failed with exit code %d', e.returncode)
-        logger.error('Command: %s', ' '.join(command))
-        logger.error('Stdout: %s', e.stdout)
-        logger.error('Stderr: %s', e.stderr)
-        raise
     except Exception as e:
-        logger.error('Unexpected error during translation: %s',
-                     e, exc_info=True)
+        logger.error('Translation error: %s', e, exc_info=True)
         raise
 
 

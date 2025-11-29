@@ -209,16 +209,38 @@ class FlowiseAiAPI:
             # Prepare the request
             logger.debug("Preparing request to Flowise API")
 
-            with open(doc_path, 'rb') as file:
+            # Note: File was already sanitized during translation step
+            # No need for additional sanitization here
+            file_to_upload = doc_path
+            temp_sanitized_path = None
+
+            with open(file_to_upload, 'rb') as file:
+                # Use ASCII-safe filename in the upload to avoid encoding issues
+                # The original filename is preserved in metadata
+                import string
+                safe_chars = string.ascii_letters + string.digits + '.-_'
+                ascii_filename = ''.join(c if c in safe_chars else '_' for c in doc_name)
+                logger.debug("Original filename: %s", doc_name)
+                logger.debug("Upload filename (ASCII-safe): %s", ascii_filename)
+
                 form_data = {
-                    "files": (doc_name, file)
+                    "files": (ascii_filename, file, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
                 }
 
                 # Add metadata field if provided
-                if metadata:
-                    form_data["metadata"] = (
-                        None, json.dumps(metadata), 'application/json')
-                    logger.debug("Added metadata to form_data")
+                # Store original filename in metadata to preserve it
+                if metadata is None:
+                    metadata = {}
+
+                # Add original filename to metadata
+                metadata['original_filename'] = doc_name
+
+                # Explicitly encode metadata as UTF-8 bytes to prevent encoding issues
+                metadata_json = json.dumps(metadata, ensure_ascii=False)
+                metadata_bytes = metadata_json.encode('utf-8')
+                form_data["metadata"] = (
+                    None, metadata_bytes, 'application/json; charset=utf-8')
+                logger.debug("Added UTF-8 encoded metadata with original filename: %s", doc_name)
 
                 body_data = {
                     "docId": loader_id

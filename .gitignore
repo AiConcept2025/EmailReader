@@ -46,3 +46,4 @@ service-account-key.json
 credentials.json
 regal-framework-credentials.json
 secrets_backup.json
+credentials/service-account.json

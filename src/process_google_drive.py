@@ -13,7 +13,7 @@ from src.flowise_api import FlowiseAiAPI
 from src.google_drive import GoogleApi
 from src.pinecone_utils import PineconeAssistant
 from src.process_documents import DocProcessor
-from src.utils import delete_file, build_flowise_question
+from src.file_utils import delete_file, build_flowise_question
 from src.config import load_config
 
 # Import the configured logger system
@@ -34,7 +34,6 @@ def process_google_drive() -> None:
     logger.info("="*60)
 
     try:
-
         config = load_config()
         use_pinecone = config.get('use_pinecone')
         if use_pinecone:
@@ -164,7 +163,8 @@ def process_google_drive() -> None:
                 filter(lambda s: s['name'] == 'Inbox', subs), None)
             if sub is None:
                 logger.warning(
-                    "No Inbox folder found for client %s - skipping", client_email)
+                    "No Inbox folder found for client %s - skipping",
+                    client_email)
                 continue
 
             inbox_id: str = sub['id']
@@ -189,6 +189,7 @@ def process_google_drive() -> None:
             for file_idx, fl in enumerate(files, 1):
                 file_name = fl['name']
                 file_id = fl['id']
+                metadata = fl.get('metadata', {})
 
                 logger.info("")
                 logger.info("-"*60)
@@ -250,7 +251,8 @@ def process_google_drive() -> None:
                             client=client_email,
                             file_name=file_name,
                             document_folder=document_folder,
-                            target_lang=target_lang
+                            target_lang=target_lang,
+                            metadata=metadata
                         )
                     else:
                         logger.warning(
@@ -274,7 +276,8 @@ def process_google_drive() -> None:
                         file_path=new_file_path
                     )
 
-                    if isinstance(upload_result, dict) and upload_result.get('name') == 'Error':
+                    if isinstance(upload_result, dict) and upload_result.get(
+                            'name') == 'Error':
                         logger.error(
                             "Failed to upload processed file to In-Progress: %s",
                             upload_result.get('id'))

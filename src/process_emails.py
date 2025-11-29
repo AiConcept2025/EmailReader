@@ -18,7 +18,7 @@ from src.email_sender import send_error_message
 from src.flowise_api import FlowiseAiAPI
 from src.google_drive import GoogleApi
 from src.logger import logger
-from src.utils import (list_files_in_directory,
+from src.file_utils import (list_files_in_directory,
                        delete_file, rename_file,
                        build_flowise_question)
 from src.pdf_image_ocr import is_pdf_searchable_pypdf
