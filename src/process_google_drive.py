@@ -189,7 +189,7 @@ def process_google_drive() -> None:
             for file_idx, fl in enumerate(files, 1):
                 file_name = fl['name']
                 file_id = fl['id']
-                metadata = fl.get('metadata', {})
+                metadata = fl.get('properties', {})
 
                 logger.info("")
                 logger.info("-"*60)
@@ -306,17 +306,13 @@ def process_google_drive() -> None:
                     logger.debug("  Document identifier: %s", question)
 
                     # Build metadata from Google Drive file object
-                    metadata = {
+                    metadata.update({
                         "client_email": client_email,
                         "file_id": file_id,
                         "original_filename": file_name,
                         "mime_type": fl.get('mimeType', ''),
                         "description": fl.get('description', ''),
-                    }
-
-                    # Add any custom properties from Google Drive
-                    if 'properties' in fl:
-                        metadata.update(fl['properties'])
+                    })
 
                     # Add target language if available
                     if target_lang:
