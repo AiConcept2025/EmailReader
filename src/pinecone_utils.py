@@ -16,7 +16,7 @@ class PineconeAssistant:
 
     def __init__(self):
         config = load_config()
-        api_key = config.get('pinecone', {}).get('pinecone')
+        api_key = config.get('pinecone', {}).get('api_key')
         pc = Pinecone(api_key=api_key)
         # Create an assistant
         self.assistant = pc.assistant.Assistant(
