@@ -436,8 +436,9 @@ class DocProcessor:
 
             if needs_ocr:
                 logger.info("Processing document with OCR provider")
-                ocr_method = metadata.get('ocr_method', 'default')
-                if ocr_method == 'default':
+                translation_mode = metadata.get(
+                    'translation_mode', 'automatic')
+                if translation_mode == 'automatic':
                     ocr_pdf_image_to_doc(
                         original_file_path,
                         docx_file_path)
