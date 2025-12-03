@@ -8,7 +8,6 @@ import logging
 from docx import Document
 from langdetect import detect  # type: ignore
 from src.ocr import OCRProviderFactory
-from src.pdf_image_ocr import ocr_pdf_image_to_doc
 from src.document_analyzer import requires_ocr
 from src.convert_to_docx import convert_pdf_to_docx
 from src.file_utils import (
@@ -17,6 +16,8 @@ from src.file_utils import (
     convert_rtx_to_text
 )
 from src.file_utils import rename_file
+from src.config import load_config
+from src.ocr.default_provider import DefaultOCRProvider
 
 # Get logger for this module
 logger = logging.getLogger('EmailReader.DocProcessor')
@@ -339,7 +340,8 @@ class DocProcessor:
     def _process_with_ocr_provider(
             self,
             input_file: str,
-            output_file: str
+            output_file: str,
+            metadata: dict[str, str] = {}
     ) -> None:
         """
         Process document with configured OCR provider, with automatic fallback.
@@ -348,19 +350,19 @@ class DocProcessor:
             input_file: Path to input file (PDF or image)
             output_file: Path to save output DOCX file
         """
-        from src.config import load_config
-        from src.ocr.default_provider import DefaultOCRProvider
 
         try:
             # Load config and get provider
             config = load_config()
-            provider_name = config.get('ocr', {}).get('provider', 'default')
-
-            logger.info(f"Using OCR provider: {provider_name}")
-            ocr_provider = OCRProviderFactory.get_provider(config)
+            translation_mode: str = metadata.get(
+                'translation_mode', 'default')
+            logger.info(f"Using OCR provider: {translation_mode}")
+            ocr_provider = OCRProviderFactory.get_provider(
+                config=config,
+                translation_mode=translation_mode)
             ocr_provider.process_document(input_file, output_file)
             logger.info(
-                f"OCR completed successfully with {provider_name} provider")
+                f"OCR completed successfully with {translation_mode} provider")
 
         except Exception as e:
             logger.warning(
@@ -382,10 +384,12 @@ class DocProcessor:
 
     def convert_pdf_file_to_word(
             self,
-            client: str,  # Keep parameter for backward compatibility but don't use it
+            # Keep parameter for backward
+            # compatibility but don't use it
+            client: str,
             file_name: str,
             document_folder: str,
-            metadata: dict | None = None,
+            metadata: dict[str, str] = {},
             target_lang: str | None = None
     ) -> tuple[str, str, str, str]:
         """
@@ -436,16 +440,10 @@ class DocProcessor:
 
             if needs_ocr:
                 logger.info("Processing document with OCR provider")
-                translation_mode = metadata.get(
-                    'translation_mode', 'automatic')
-                if translation_mode == 'automatic':
-                    ocr_pdf_image_to_doc(
-                        original_file_path,
-                        docx_file_path)
-                else:
-                    self._process_with_ocr_provider(
-                        original_file_path,
-                        docx_file_path)
+                self._process_with_ocr_provider(
+                    input_file=original_file_path,
+                    output_file=docx_file_path,
+                    metadata=metadata)
 
                 logger.info("OCR processing completed")
             else:
@@ -477,5 +475,8 @@ class DocProcessor:
 
         except Exception as e:
             logger.error(
-                "Error in convert_pdf_file_to_word() for %s: %s", file_name, e, exc_info=True)
+                "Error in convert_pdf_file_to_word() for %s: %s",
+                file_name,
+                e,
+                exc_info=True)
             raise
