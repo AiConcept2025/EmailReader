@@ -92,14 +92,16 @@ def process_google_drive() -> None:
                     c for c in nested_folders if '@' in c['name'] and '.' in c['name']]
 
                 if nested_client_folders:
-                    logger.info("Found %d nested client(s) in company '%s': %s",
-                                len(nested_client_folders),
-                                company_name,
-                                ', '.join(c['name'] for c in nested_client_folders))
+                    logger.info(
+                        "Found %d nested client(s) in company '%s': %s",
+                        len(nested_client_folders),
+                        company_name,
+                        ', '.join(c['name'] for c in nested_client_folders))
                     client_folders.extend(nested_client_folders)
                 else:
                     logger.debug(
-                        "No nested clients found in company '%s'", company_name)
+                        "No nested clients found in company '%s'",
+                        company_name)
 
             except Exception as e:
                 logger.error(
@@ -107,7 +109,8 @@ def process_google_drive() -> None:
                 continue
 
         logger.info(
-            "Processing total of %d client folders (direct + nested)", len(client_folders))
+            "Processing total of %d client folders (direct + nested)",
+            len(client_folders))
 
         for idx, client in enumerate(client_folders, 1):
             client_folder_id: str | None = client.get('id', None)
@@ -133,7 +136,9 @@ def process_google_drive() -> None:
                         folder_name=sub_folder,
                         parent_folder_id=client_folder_id):
                     logger.info(
-                        "Creating missing subfolder '%s' for client %s", sub_folder, client_email)
+                        "Creating missing subfolder '%s' for client %s",
+                        sub_folder,
+                        client_email)
                     google_api.create_subfolder_in_folder(
                         parent_folder_id=client_folder_id,
                         folder_name=sub_folder
@@ -149,8 +154,8 @@ def process_google_drive() -> None:
 
             # Find In-Progress folder
             try:
-                in_progress_id = [sub['id']
-                                  for sub in subs if sub['name'] == 'In-Progress'][0]
+                in_progress_id = [
+                    sub['id'] for sub in subs if sub['name'] == 'In-Progress'][0]
                 logger.debug("  In-Progress folder ID: %s", in_progress_id)
             except IndexError:
                 logger.error(
@@ -331,6 +336,9 @@ def process_google_drive() -> None:
                             "  File uploaded to Pinecone with file ID: %s",
                             pinecone_file_id)
                     else:
+                        name, ext = os.path.splitext(question)
+                        # Ensure Flowise uses '#' before extension
+                        question = name + '#' + file_id + ext
                         upsert_result = flowise_api.upsert_document_to_document_store(
                             doc_name=question,
                             doc_path=new_file_path,

@@ -23,7 +23,9 @@ class OCRProviderFactory:
     VALID_PROVIDERS = {'azure', 'landing_ai', 'default'}
 
     @staticmethod
-    def get_provider(config: Dict[str, Any]) -> BaseOCRProvider:
+    def get_provider(
+            config: Dict[str, Any],
+            translation_mode: str = 'default') -> BaseOCRProvider:
         """
         Create an OCR provider instance based on configuration.
 
@@ -36,8 +38,14 @@ class OCRProviderFactory:
         Raises:
             ValueError: If provider type is invalid or not configured
         """
+        provider_type = 'default'
+        if translation_mode == 'human':
+            provider_type = 'azure'
+        elif translation_mode == 'formats':
+            provider_type = 'landing_ai'
+
         ocr_config = config.get('ocr', {})
-        provider_type = ocr_config.get('provider', 'default')
+        # provider_type = ocr_config.get('provider', 'default')
 
         logger.info("Creating OCR provider: %s", provider_type)
 
@@ -49,9 +57,11 @@ class OCRProviderFactory:
 
         if provider_type == 'azure':
             azure_config = ocr_config.get('azure', {})
-            if not azure_config.get('endpoint') or not azure_config.get('api_key'):
+            if not azure_config.get('endpoint') or not azure_config.get(
+                    'api_key'):
                 raise ValueError(
-                    "Azure OCR provider requires 'endpoint' and 'api_key' in configuration"
+                    ("Azure OCR provider requires "
+                     "'endpoint' and 'api_key' in configuration")
                 )
             from src.ocr.azure_provider import AzureOCRProvider
             return AzureOCRProvider(azure_config)
@@ -60,7 +70,8 @@ class OCRProviderFactory:
             landing_ai_config = ocr_config.get('landing_ai', {})
             if not landing_ai_config.get('api_key'):
                 raise ValueError(
-                    "LandingAI OCR provider requires 'api_key' in configuration"
+                    ("LandingAI OCR provider "
+                     "requires 'api_key' in configuration")
                 )
             from src.ocr.landing_ai_provider import LandingAIOCRProvider
             return LandingAIOCRProvider(landing_ai_config)
