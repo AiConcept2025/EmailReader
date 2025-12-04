@@ -218,7 +218,8 @@ class FlowiseAiAPI:
                 # issues
                 # The original filename is preserved in metadata
                 import string
-                safe_chars = string.ascii_letters + string.digits + '.-_'
+                # Include '@', '+', '#' for email addresses and file IDs
+                safe_chars = string.ascii_letters + string.digits + '.-_@+#'
                 ascii_filename = ''.join(
                     c if c in safe_chars else '_' for c in doc_name)
                 logger.debug("Original filename: %s", doc_name)

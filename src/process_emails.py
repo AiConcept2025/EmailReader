@@ -163,13 +163,6 @@ def process_emails():
                     logger.error(
                         'Error executing command: %s Stdout: %s, Stderr: %s',
                         e, e.stdout, e.stderr)
-                # Upload translated document to google drive
-                res_doc_store = flowise_api.upsert_document_to_document_store(
-                    doc_name=translated_doc_name, doc_path=translated_file_path)
-                if res_doc_store.get('name') == 'Error':
-                    send_error_message(
-                        f"Upload file doc store error: {res_doc_store.get('error')}")
-                    return
                 # Delete original document from temp folder
                 delete_file(doc_path)
                 # Replace original document with translated one
