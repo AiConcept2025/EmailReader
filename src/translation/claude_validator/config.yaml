@@ -1,0 +1,75 @@
+# Claude Sonnet 4.5 Post-Translation Quality Validation Configuration
+claude:
+  # Model Configuration
+  model: claude-sonnet-4-5-20250929
+  max_tokens: 2048
+  temperature: 0.0  # Deterministic validation
+
+  # Batch API Configuration
+  batch:
+    enabled: true
+    custom_id_prefix: "validation"  # E.g., validation_2024-12-03_001
+    polling_interval_seconds: 60
+    max_wait_hours: 24
+
+  # Prompt Caching Configuration
+  caching:
+    enabled: true
+    cache_control_type: "ephemeral"  # Cache for 5 minutes
+    system_prompt_cacheable: true
+
+  # Validation Settings
+  validation:
+    mode: "post_translation"  # Always post_translation (quality check, not translation)
+    confidence_threshold: 0.85
+    retry_on_failure: true
+    max_retries: 2
+
+  # Validation Rules (configurable business rules)
+  validation_rules:
+    avoid_characters: ["-"]  # Characters to avoid in output
+    preserve_formatting: true  # Preserve bold, italic, line breaks
+    preserve_paragraph_spacing: true  # Maintain spacing between paragraphs
+    natural_phrasing: true  # Ensure natural language flow
+    grammar_check: true  # Fix grammar/spelling errors
+
+  # System Prompt (cacheable - general guidance, NO specific details)
+  # This prompt is cached and reused across ALL validations (90% cost savings)
+  system_prompt: |
+    You are a post-translation quality validator for professionally translated documents.
+
+    Your role is to VALIDATE and FIX quality issues in already-translated text.
+    You are NOT a translator - do NOT re-translate from source language.
+
+    Tasks:
+    1. Fix grammar and spelling errors in the target language
+    2. Improve natural phrasing and readability
+    3. Preserve ALL formatting (paragraph breaks, bold, italic, spacing)
+    4. Apply document-specific validation rules provided in user prompt
+    5. Return ONLY the corrected text - no explanations, no markdown tags
+
+    Critical Rules:
+    - If text is perfect, return it UNCHANGED
+    - Only fix errors - do not change meaning or style unnecessarily
+    - Preserve exact formatting (line breaks, spacing, special characters)
+    - Output plain text only (no ```markdown``` blocks or XML tags)
+
+  # User Prompt Template (dynamic - specific details per paragraph)
+  # Variables: {target_lang}, {translated_text}, {validation_rules_text}, {role}
+  user_prompt_template: |
+    TARGET LANGUAGE: {target_lang}
+    PARAGRAPH TYPE: {role}
+
+    VALIDATION RULES:
+    {validation_rules_text}
+
+    TRANSLATED TEXT TO VALIDATE:
+    {translated_text}
+
+    Return the corrected text (or unchanged if already perfect).
+
+# Logging Configuration
+logging:
+  log_token_usage: true
+  log_validation_changes: true
+  log_confidence_scores: true

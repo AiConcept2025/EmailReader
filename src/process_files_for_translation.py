@@ -262,6 +262,27 @@ async def translate_file(
                 source_file_path, docx_for_translation,
                 translation_mode=translation_mode)
             translation_source = docx_for_translation
+
+            # Step 3: Upload OCR output to Google Drive for debugging
+            logger.info("Step 3: Uploading OCR output to Completed folder for debugging...")
+            ocr_file_name = f"{filename_without_extension}_ocr.docx"
+            ocr_size_kb = os.path.getsize(docx_for_translation) / 1024
+            logger.info("OCR output: %s (%.2f KB)", ocr_file_name, ocr_size_kb)
+
+            ocr_file_info = google_api.upload_file_to_google_drive(
+                file_path=docx_for_translation,
+                file_name=ocr_file_name,
+                parent_folder_id=completed_id,
+                description=f"OCR output (before translation) - {description}",
+                properties=properties
+            )
+            ocr_file_id = ocr_file_info.get('id', None)
+            if ocr_file_id:
+                logger.info("OCR output uploaded successfully: %s (ID: %s)",
+                           ocr_file_name, ocr_file_id)
+            else:
+                logger.warning("Failed to upload OCR output file: %s", ocr_file_name)
+
         except (ValueError, FileNotFoundError) as e:
             logger.error(
                 "File conversion failed: %s - skipping", e)
@@ -277,15 +298,34 @@ async def translate_file(
     logger.debug("Translation output will be: %s",
                  target_file_path)
 
-    step_label = "Step 3:" if docx_for_translation else "Step 2:"
+    # Step label accounts for: Step 2 (OCR conversion) + Step 2a (OCR upload if converted)
+    step_label = "Step 4:" if docx_for_translation else "Step 2:"
     logger.info("%s Translating document...", step_label)
+    logger.info("Translation source file: %s (size: %.2f KB)",
+               translation_source,
+               os.path.getsize(translation_source) / 1024 if os.path.exists(translation_source) else 0)
     try:
         # Use the internal TranslatorFactory (Google Translation API v3)
         from src.translation import TranslatorFactory
 
         config = load_config()
+
+        # Route to batch translator for human translation mode
+        if translation_mode == 'human':
+            # Ensure translation config exists
+            if 'translation' not in config:
+                config['translation'] = {}
+            # Use batch translator for paragraph-based workflow
+            config['translation']['provider'] = 'google_batch'
+            logger.info("Using Google Batch Translator for human translation mode")
+
         translator = TranslatorFactory.get_translator(config)
         logger.info("Using translator: %s", translator.__class__.__name__)
+
+        logger.info("Calling translator.translate_document(input=%s, output=%s, target_lang=%s)",
+                   os.path.basename(translation_source),
+                   os.path.basename(target_file_path),
+                   target_language or 'en')
 
         translator.translate_document(
             input_path=translation_source,
@@ -293,6 +333,14 @@ async def translate_file(
             target_lang=target_language or 'en'
         )
         logger.info("Translation process completed")
+
+        # Verify translated file was created and has content
+        if os.path.exists(target_file_path):
+            translated_size_kb = os.path.getsize(target_file_path) / 1024
+            logger.info("Translated file verified: %s (%.2f KB)",
+                       target_file_path, translated_size_kb)
+        else:
+            logger.error("CRITICAL: Translated file not created at: %s", target_file_path)
     except Exception as e:
         logger.error("Translation failed: %s - skipping", e)
         # Clean up temp files

@@ -17,10 +17,11 @@ class TranslatorFactory:
     Factory for creating translator instances.
 
     Supports multiple translation providers: Google Text (subprocess),
-    Google Document Translation (API v3), and potentially others.
+    Google Document Translation (API v3), Google Batch Translation (API v3),
+    and potentially others.
     """
 
-    VALID_PROVIDERS = {'google_text', 'google_doc'}
+    VALID_PROVIDERS = {'google_text', 'google_doc', 'google_batch'}
 
     @staticmethod
     def get_translator(config: Dict[str, Any]) -> BaseTranslator:
@@ -62,6 +63,16 @@ class TranslatorFactory:
                 )
             from src.translation.google_doc_translator import GoogleDocTranslator
             return GoogleDocTranslator(google_doc_config)
+
+        elif provider_type == 'google_batch':
+            # Batch translator for paragraph-based translation
+            google_batch_config = translation_config.get('google_doc', {})  # Reuse google_doc config
+            if not google_batch_config.get('project_id'):
+                raise ValueError(
+                    "Google Batch Translation requires 'project_id' in configuration"
+                )
+            from src.translation.google_batch_translator import GoogleBatchTranslator
+            return GoogleBatchTranslator(google_batch_config)
 
         else:
             raise ValueError(f"Unknown translation provider: {provider_type}")

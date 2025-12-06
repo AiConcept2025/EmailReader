@@ -64,7 +64,19 @@ class OCRProviderFactory:
                      "'endpoint' and 'api_key' in configuration")
                 )
             from src.ocr.azure_provider import AzureOCRProvider
-            return AzureOCRProvider(azure_config)
+            provider = AzureOCRProvider(azure_config)
+
+            # Configure paragraph extraction based on translation_mode
+            # human mode: always use paragraph extraction (default True is sufficient)
+            # other modes: may disable if needed in future
+            if translation_mode == 'human':
+                provider.use_paragraph_extraction = True
+                logger.info("Azure OCR provider: paragraph extraction ENABLED for human translation mode")
+            else:
+                provider.use_paragraph_extraction = True
+                logger.info("Azure OCR provider: paragraph extraction ENABLED (preserves document structure)")
+
+            return provider
 
         elif provider_type == 'landing_ai':
             landing_ai_config = ocr_config.get('landing_ai', {})

@@ -724,6 +724,10 @@ class AzureOCRProvider(BaseOCRProvider):
                     clean_content = ' '.join(clean_content.split())
                     doc_para = document.add_heading(clean_content, level=0)
                     logger.debug("Added title paragraph")
+                    # Add spacing after title
+                    if para_num < len(paragraphs):
+                        document.add_paragraph("")
+                        logger.debug("Added spacing after title")
 
                 elif para.role == 'heading':
                     # Heading - use Heading level 1
@@ -732,6 +736,10 @@ class AzureOCRProvider(BaseOCRProvider):
                     clean_content = ' '.join(clean_content.split())
                     doc_para = document.add_heading(clean_content, level=1)
                     logger.debug("Added heading paragraph")
+                    # Add spacing after heading
+                    if para_num < len(paragraphs):
+                        document.add_paragraph("")
+                        logger.debug("Added spacing after heading")
 
                 elif para.role == 'listItem' or para.is_list_item:
                     # List item - add with marker if available
@@ -746,6 +754,10 @@ class AzureOCRProvider(BaseOCRProvider):
 
                     doc_para = document.add_paragraph(content_with_marker)
                     logger.debug("Added list item paragraph with marker: %s", para.list_marker)
+                    # Add spacing after list item
+                    if para_num < len(paragraphs):
+                        document.add_paragraph("")
+                        logger.debug("Added spacing after list item")
 
                 else:
                     # Regular paragraph
@@ -780,9 +792,10 @@ class AzureOCRProvider(BaseOCRProvider):
 
                     logger.debug("Added paragraph with %d characters", len(para.content))
 
-                # SPACING FIX: Don't add automatic spacing between paragraphs
-                # Let DOCX natural paragraph spacing handle it, or add spacing at translation phase
-                # This prevents excessive whitespace issues
+                # Add spacing between paragraphs
+                if para_num < len(paragraphs):
+                    document.add_paragraph("")
+                    logger.debug("Added spacing after paragraph")
 
             logger.debug("Saving DOCX file to: %s", output_path)
             document.save(output_path)
